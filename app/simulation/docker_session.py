@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import re
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -62,11 +63,36 @@ class DockerSessionManager:
             self._close_client(client)
         return {"ok": not errors, "checks": checks, "errors": errors}
 
+    @staticmethod
+    def image_provenance(container: Any) -> Dict[str, Any]:
+        """Identify the image actually used, never a container ID or tag."""
+        attrs = getattr(container, "attrs", {}) or {}
+        image_id = attrs.get("Image") or None
+        digests = None
+        reason = "Image RepoDigests not observed"
+        try:
+            image = container.image
+            image_id = image_id or getattr(image, "id", None)
+            digests = (getattr(image, "attrs", {}) or {}).get("RepoDigests") or None
+            reason = None if digests else "Local image has no RepoDigest"
+        except Exception:
+            pass
+        return {
+            "image_id": image_id,
+            "image_id_unknown_reason": None if image_id else "Image ID not observed",
+            "repo_digests": digests,
+            "repo_digests_unknown_reason": reason,
+            "requested_reference": (attrs.get("Config") or {}).get("Image") or None,
+        }
+
     @property
     def image_name(self) -> str:
         return str(self.lab_config.get("simulator_image") or "wcnc_tap")
 
     def start(self) -> DockerSession:
+        isolated = os.environ.get("ORAN_LAB_Q3_ISOLATED") == "1"
+        if isolated and not re.fullmatch(r"sha256:[0-9a-f]{64}", self.image_name):
+            raise DockerSessionError("Izolacja wymaga pełnego lokalnego ID obrazu sha256")
         preflight = self.preflight()
         if not preflight["ok"]:
             raise DockerSessionError("; ".join(preflight["errors"]))
@@ -79,17 +105,24 @@ class DockerSessionManager:
         }
         name = "oran-energy-lab-{}".format(session_id[:12])
         try:
-            container = client.containers.run(
-                self.image_name,
-                command=["/bin/bash", "-lc", "exec sleep infinity"],
-                name=name,
-                detach=True,
-                labels=labels,
-                init=True,
-                tty=True,
-                stdin_open=True,
-                remove=False,
-            )
+            options: Dict[str, Any] = dict(command=["/bin/bash", "-lc", "exec sleep infinity"],
+                           name=name, detach=True, labels=labels, init=True,
+                           tty=True, stdin_open=True)
+            if isolated:
+                image = client.images.get(self.image_name)
+                if image.id != self.image_name:
+                    raise DockerSessionError("Lokalny obraz nie odpowiada pełnemu ID")
+                options.update(network_mode="none", cap_drop=["ALL"],
+                               security_opt=["no-new-privileges:true"],
+                               mem_limit=2147483648, nano_cpus=2000000000,
+                               pids_limit=512, read_only=False)
+                # create, unlike SDK run, never falls back to an image pull.
+                container = client.containers.create(self.image_name, **options)
+                if (container.attrs or {}).get("Image") != self.image_name:
+                    raise DockerSessionError("Kontener wskazuje inny obraz")
+                container.start()
+            else:
+                container = client.containers.run(self.image_name, remove=False, **options)
             container.reload()
             if getattr(container, "status", "") != "running":
                 raise DockerSessionError("Kontener symulatora nie uruchomił się poprawnie")

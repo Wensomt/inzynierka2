@@ -1,4 +1,4 @@
-# O-RAN Energy Lab
+# Symulator efektywności energetycznej sieci O-RAN
 
 Desktopowe laboratorium w Pythonie do konfiguracji, uruchamiania i porównywania
 niezależnych symulacji 5G/O-RAN.
@@ -9,9 +9,25 @@ Interfejs jest zbudowany w Tkinter/ttk i prowadzi przez prosty tok pracy:
 konfiguracja -> uruchomienie -> obserwacja live -> wyniki -> porównanie
 ```
 
-Każda symulacja ma własną zakładkę. Mogą różnić się liczbą UE, gNB, ruchem,
+Zakładka **My Energy** zawiera parametry oraz edytory kodu xAppa C i scenariusza
+C++. Zapis tworzy kopię poprzedniej wersji; kolejny przebieg automatycznie
+kompiluje zapisany kod. **Dodaj parę porównawczą** tworzy dwa przebiegi z tym
+samym ruchem, topologią i RngRun, z xAppem oraz bez niego.
+
+Domyślna topologia ma 12 UE i 3 osobne komórki NR z kotwicą LTE. Jest też
+wariant 24 UE / 6 komórek. To uproszczona sieć wielu gNB z antenami dookólnymi,
+nie odwzorowanie trzech sektorów jednego masztu. `CellLayout=1` rozmieszcza
+gNB w regularnym wielokącie, a rozstaw oznacza odległość sąsiednich gNB.
+Wariant `0` zachowuje dawny układ: środek i pierścień.
+
+Szczegóły edycji, dwóch polityk i odtwarzania badań: [My Energy](docs/MY_ENERGY.md).
+Pełna kontrola 12 s: [wyniki My Energy](docs/WYNIKI_MY_ENERGY_2026-10-20.md)
+— 11,22% mniej energii modelu w pojedynczej sparowanej próbie.
+
+Każda symulacja ma własną zakładkę. Nowe przebiegi mają domyślnie 5 s czasu
+modelowanego; czas pracy komputera może być znacznie dłuższy. Mogą różnić się liczbą UE, gNB, ruchem,
 parametrami radiowymi i xAppem; porównanie ich nie blokuje, tylko pokazuje
-różnice konfiguracji. Zakładki Dashboard, Docker, Scenariusze i xApps działają
+różnice konfiguracji. Zakładki Na żywo, Docker i logi, Scenariusze i xApps działają
 bez przeglądarki oraz bez wymagania terminala w zwykłym workflow.
 
 ## Uruchomienie na Windows
@@ -35,7 +51,7 @@ Logi każdego uruchomienia zapisuje w `%LOCALAPPDATA%\O-RAN Energy Lab\install`.
 Można też dołączyć `resources\wcnc_tap.tar` i opcjonalny plik SHA-256 albo
 ustawić `ORAN_LAB_IMAGE_REF` na adres obrazu z pełnym digestem.
 
-Kolejne uruchomienia: kliknij skrót **O-RAN Energy Lab** na pulpicie albo
+Kolejne uruchomienia: kliknij skrót **Symulator O-RAN** na pulpicie albo
 `run_windows.bat` w katalogu projektu. Build samodzielnego EXE:
 
 ```powershell
@@ -43,7 +59,7 @@ Kolejne uruchomienia: kliknij skrót **O-RAN Energy Lab** na pulpicie albo
 ```
 
 Wersję spakowaną uruchamia się z całego katalogu
-`dist/O-RAN Energy Lab/`, a nie z samego pliku `.exe` — podkatalog `_internal`
+`dist/Symulator O-RAN/`, a nie z samego pliku `.exe` — podkatalog `_internal`
 zawiera Python, Tk i dostarczone źródła scenariusza/xAppa. Po podmianie wersji
 można użyć **Ustawienia → Odśwież konfigurację dostarczoną z aplikacją**; program
 najpierw zapisze kopię poprzedniej lokalnej konfiguracji.
@@ -71,7 +87,10 @@ Pełny opis przeniesienia i pierwszego uruchomienia: [instalacja Linux](docs/INS
 
 Szczegóły: [instrukcja](docs/INSTRUKCJA.md) i [metryki](docs/METRYKI.md).
 
-Aktualny [audyt poprawności](docs/AUDYT_2026-10-02.md) opisuje naprawy,
+Do przygotowania opisu projektu: [jak działa całość](docs/JAK_DZIALA.md)
+oraz [propozycja spisu treści pracy](docs/SPIS_TRESCI.md).
+
+Aktualny [przegląd i weryfikacja](docs/PRZEGLAD_2026-10-18.md) opisuje naprawy,
 ograniczenia modelu i zakres wykonanej weryfikacji. Porównanie ocenia teraz EE
 razem z QoS: można podać progi opóźnienia, strat i przepływności; bez progów
 wymagany jest brak pogorszenia względem pierwszego przebiegu. Wyniki częściowe
@@ -99,14 +118,16 @@ moc, EE, energię na Mbit, dostarczone dane i throughput. Po zakończeniu ten sa
 artefakt jest kopiowany do wyniku runu i analizowany ponownie jako wynik końcowy.
 
 Ten sam scenariusz zapisuje również `PacketLoss_pct` i `MeanDelay_ms` z
-rzeczywistego FlowMonitor dla UDP downlink do UE. Wartość opóźnienia pozostaje
+liczników aplikacji UDP: UdpClient i PacketSink. Opóźnienie wyznacza znacznik
+SeqTsHeader, który przechodzi przez radio. FlowMonitor nie nadaje się do tego
+wariantu MC PDCP, który usuwa jego byte tags. Wartość opóźnienia pozostaje
 `N/A`, dopóki nie ma odebranego pakietu; SINR i PRB są nadal widoczne wyłącznie,
 gdy backend naprawdę udostępnia odpowiedni strumień KPM.
 
 Końcowe `ee_summary.csv` zapisuje pełne liczniki Tx/Rx i sumę opóźnień po
 opróżnianiu kolejek (`DrainTime_s`). Końcowy loss oznacza pakiety niedostarczone
-do końca okna; live loss oznacza straty już stwierdzone przez FlowMonitor.
-`flow-monitor.xml` zachowuje statystyki per przepływ. Brak odebranych danych
+do końca okna; wskaźnik live obejmuje również pakiety będące jeszcze w drodze.
+Obecny wariant zapisuje agregaty sieciowe, bez rozkładów opóźnień per UE. Brak odebranych danych
 daje EE=0 i J/Mbit=N/A, bez sztucznego zgłaszania awarii poprawnego przebiegu.
 
 Opcjonalny budżet kolejki jest limitem **czasu rzeczywistego** aktywnej pracy

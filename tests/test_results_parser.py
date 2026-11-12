@@ -316,6 +316,17 @@ def test_energy_copies_are_not_double_counted_and_cell_times_must_match(tmp_path
     assert ResultsParser().parse(tmp_path).metrics["total_energy_j"] is None
 
 
+def test_historical_flowmonitor_zero_rx_does_not_claim_total_loss_when_udp_received(tmp_path: Path) -> None:
+    (tmp_path / "summary.json").write_text(json.dumps({
+        "total_energy_j": 100, "delivered_mbit": 2, "tx_packets": 100,
+        "rx_packets": 0, "delay_sum_s": 0, "data_layer": "udp_application_payload",
+    }), encoding="utf-8")
+    result = ResultsParser().parse(tmp_path)
+    assert result.metrics["packet_loss_pct"] is None
+    assert result.metadata["measurement_consistent"] is False
+    assert any("rx=0" in warning for warning in result.warnings)
+
+
 def test_invalid_metrics_and_inconsistent_efficiency_are_not_presented_as_valid(tmp_path: Path) -> None:
     (tmp_path / "summary.json").write_text(json.dumps({
         "total_energy_j": 100, "delivered_mbit": 2,

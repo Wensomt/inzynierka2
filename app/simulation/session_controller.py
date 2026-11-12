@@ -13,7 +13,7 @@ from typing import Any, Deque, Dict, Iterable, List, Optional, Tuple
 
 from app.data.storage import SimulationStorage
 
-from .models import Simulation, SimulationConfiguration, SimulationStatus, now_utc
+from .models import DEFAULT_SIM_TIME_S, Simulation, SimulationConfiguration, SimulationStatus, now_utc
 from .queue_timing import QueueTimeBudget, QueueTimePlan, finite_positive_seconds
 from .runner import SimulationRunner
 from .validation import validate_configuration
@@ -36,16 +36,17 @@ def default_configuration(application_config: Dict[str, Any]) -> SimulationConfi
     scenario = "optimized" if "optimized" in scenarios else next(iter(scenarios), "")
     allowed = set((scenarios.get(scenario) or {}).get("allowed_params") or [])
     defaults: Dict[str, Any] = {
-        "simTime": 1000,
+        "simTime": DEFAULT_SIM_TIME_S,
         "RngRun": 1,
-        "N_MmWaveEnbNodes": 4,
-        "N_Ues": 3,
+        "CellLayout": 1,
+        "N_MmWaveEnbNodes": 3,
+        "N_Ues": 12,
         "Bandwidth": 20_000_000,
         "CenterFrequency": 3_500_000_000,
         "UdpPacketSizeBytes": 200,
-        "UdpIntervalUs": 500,
-        "IntersideDistanceUEs": 500,
-        "IntersideDistanceCells": 600,
+        "UdpIntervalUs": 2000,
+        "IntersideDistanceUEs": 250,
+        "IntersideDistanceCells": 200,
         "indicationPeriodicity": 0.1,
     }
     if allowed:

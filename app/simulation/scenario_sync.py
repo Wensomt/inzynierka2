@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any, Mapping, Optional
 
 from app.config import RESOURCE_DIR
+from app.services.my_energy_sources import source_path
 
 
 @dataclass(frozen=True)
@@ -40,6 +41,8 @@ def packaged_scenario_path(config: Mapping[str, Any], scenario_key: str) -> Opti
     starsze źródło obecne tylko w obrazie Docker.
     """
 
+    if scenario_key == "optimized":
+        return source_path(config, "scenario")
     scenarios = config.get("scenarios")
     item = scenarios.get(scenario_key) if isinstance(scenarios, Mapping) else None
     configured_path = item.get("path") if isinstance(item, Mapping) else None

@@ -30,7 +30,6 @@
 #include "../../../../src/xApp/e42_xapp_api.h"
 #include "../../../../src/sm/rc_sm/ie/ir/ran_param_struct.h"
 #include "../../../../src/sm/rc_sm/ie/ir/ran_param_list.h"
-#include "../../../../src/util/time_now_us.h"
 #include "../../../../src/util/alg_ds/ds/lock_guard/lock_guard.h"
 #include "../../../../src/sm/rc_sm/rc_sm_id.h"
 #include "../../../../src/sm/rc_sm/ie/rc_data_ie.h"
@@ -75,7 +74,7 @@
 #define EE_DEFAULT_SHUTDOWN_TIMEOUT_SEC 30
 #define EE_DEFAULT_CELL_SWITCH_COOLDOWN_SEC 60
 #define EE_DEFAULT_PROTECTED_CELL_ID 0
-#define EE_DEFAULT_DECISION_PERIOD_SEC 5
+#define EE_DEFAULT_DECISION_PERIOD_SEC 1
 #define EE_DEFAULT_WAIT_FOR_E2_SEC 30
 
 typedef struct {
@@ -114,7 +113,6 @@ typedef enum {
     PDU_SESSION_ID_5 = 5
 } pdu_session_id_e;
   
-static ue_id_e2sm_t ue_id;
 
 static uint64_t const period_ms = 100;
 
@@ -157,6 +155,21 @@ static ee_policy_cfg_t g_policy = {
 };
 
 static FILE* g_decision_log = NULL;
+// Updated exclusively by real E2 KPM headers, patched to ns-3 microseconds.
+static double simulation_time_s = 0.0;
+static double policy_now(void) { return simulation_time_s; }
+static void update_clock(uint64_t timestamp_us)
+{
+  const double report_time = timestamp_us / 1000000.0;
+  if (report_time > simulation_time_s) {
+    simulation_time_s = report_time;
+    static double last_log = -1.0;
+    if (report_time - last_log >= 1.0) {
+      printf("[MyEnergy][KPM] simulation_time=%.6f s\n", report_time);
+      last_log = report_time;
+    }
+  }
+}
 
 static int env_i(const char* name, int fallback)
 {
@@ -256,138 +269,19 @@ static void decision_log(const char* event, uint16_t cell_id, int ue_id, size_t 
   if (g_decision_log == NULL)
     return;
 
-  fprintf(g_decision_log, "%ld,%s,%u,%d,%zu,%.3f,%u,%.3f,%s\n",
-          (long)time(NULL), event, cell_id, ue_id, ue_count, serving_sinr, target_cell, target_sinr,
+  fprintf(g_decision_log, "%.6f,%s,%u,%d,%zu,%.3f,%u,%.3f,%s\n",
+          policy_now(), event, cell_id, ue_id, ue_count, serving_sinr, target_cell, target_sinr,
           reason != NULL ? reason : "");
   fflush(g_decision_log);
 }
 
-static void log_gnb_ue_id(ue_id_e2sm_t ue_id) 
-{
-  if (ue_id.gnb.gnb_cu_ue_f1ap_lst != NULL) 
-  {
-    for (size_t i = 0; i < ue_id.gnb.gnb_cu_ue_f1ap_lst_len; i++) 
-    {
-      printf("UE ID type = gNB-CU, gnb_cu_ue_f1ap = %u\n", ue_id.gnb.gnb_cu_ue_f1ap_lst[i]);
-    }
-  } else 
-  {
-    printf("UE ID type = gNB, amf_ue_ngap_id = %lu\n", ue_id.gnb.amf_ue_ngap_id);
-  }
-  if (ue_id.gnb.ran_ue_id != NULL) 
-  {
-    printf("ran_ue_id = %lx\n", *ue_id.gnb.ran_ue_id);  // RAN UE NGAP ID
-  }
-}
-
-static void log_du_ue_id(ue_id_e2sm_t ue_id) 
-{
-  printf("UE ID type = gNB-DU, gnb_cu_ue_f1ap = %u\n", ue_id.gnb_du.gnb_cu_ue_f1ap);
-  if (ue_id.gnb_du.ran_ue_id != NULL) 
-  {
-    printf("ran_ue_id = %lx\n", *ue_id.gnb_du.ran_ue_id);  // RAN UE NGAP ID
-  }
-}
-
-static void log_cuup_ue_id(ue_id_e2sm_t ue_id) 
-{
-  printf("UE ID type = gNB-CU-UP, gnb_cu_cp_ue_e1ap = %u\n", ue_id.gnb_cu_up.gnb_cu_cp_ue_e1ap);
-  if (ue_id.gnb_cu_up.ran_ue_id != NULL) 
-  {
-    printf("ran_ue_id = %lx\n", *ue_id.gnb_cu_up.ran_ue_id);  // RAN UE NGAP ID
-  }
-}
-
-typedef void (*log_ue_id)(ue_id_e2sm_t ue_id);
-
-static log_ue_id log_ue_id_e2sm[END_UE_ID_E2SM] = 
-{
-    // log_gnb_ue_id, // common for gNB-mono, CU and CU-CP
-    log_du_ue_id,
-    log_cuup_ue_id,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-};
-
-static void log_int_value(byte_array_t name, meas_record_lst_t meas_record) 
-{
-  if (cmp_str_ba("RRU.PrbTotDl", name) == 0) {
-    printf("RRU.PrbTotDl = %d [PRBs]\n", meas_record.int_val);
-    printf("RRU.PrbTotUl = %d [PRBs]\n", meas_record.int_val);
-  } else if (cmp_str_ba("DRB.PdcpSduVolumeDL", name) == 0) {
-    printf("DRB.PdcpSduVolumeDL = %d [kb]\n", meas_record.int_val);
-  } else if (cmp_str_ba("DRB.PdcpSduVolumeUL", name) == 0) {
-    printf("DRB.PdcpSduVolumeUL = %d [kb]\n", meas_record.int_val);
-    // } else if (strncmp(name.buf, "L3neighSINRListOf_UEID_", strlen("L3neighSINRListOf_UEID_")) == 0) {
-    //   printf("%s, Neighbour=%d \n", name.buf, meas_record.int_val);
-  } else {
-    // printf("Name= %s, value= %d \n", name.buf, meas_record.int_val);
-  }
-}
-
-static void log_real_value(byte_array_t name, meas_record_lst_t meas_record) 
-{
-  if (cmp_str_ba("DRB.RlcSduDelayDl", name) == 0) {
-    printf("DRB.RlcSduDelayDl = %.2f [μs]\n", meas_record.real_val);
-  } else if (cmp_str_ba("DRB.UEThpDl", name) == 0) {
-    printf("DRB.UEThpDl = %.2f [kbps]\n", meas_record.real_val);
-  } else if (cmp_str_ba("DRB.UEThpUl", name) == 0) {
-    printf("DRB.UEThpUl = %.2f [kbps]\n", meas_record.real_val);
-  } else if (strncmp(name.buf, "L3servingSINR3gpp_cell_", strlen("L3servingSINR3gpp_cell_")) == 0) {
-    printf("%s, sinr= %.4f [db]\n", name.buf, meas_record.real_val);
-  } else if (strncmp(name.buf, "L3neighSINRListOf_UEID_", strlen("L3neighSINRListOf_UEID_")) == 0) {
-    printf("%s, sinr= %.4f [db]\n", name.buf, meas_record.real_val);
-  } else {
-    // printf("Name= %s, value= %.6f \n", name.buf, meas_record.real_val);
-  }
-}
-
-typedef void (*log_meas_value)(byte_array_t name, meas_record_lst_t meas_record);
-
-static log_meas_value get_meas_value[END_MEAS_VALUE] = {
-    log_int_value,
-    log_real_value,
-    NULL,
-};
-
-static void match_meas_name_type(meas_type_t meas_type, meas_record_lst_t meas_record) 
-{
-  // Get the value of the Measurement
-  get_meas_value[meas_record.value](meas_type.name, meas_record);
-}
-
-static void match_id_meas_type(meas_type_t meas_type, meas_record_lst_t meas_record) 
-{
-  (void)meas_type;
-  (void)meas_record;
-  assert(false && "ID Measurement Type not yet supported");
-}
-
-typedef void (*check_meas_type)(meas_type_t meas_type, meas_record_lst_t meas_record);
-
-static check_meas_type match_meas_type[END_MEAS_TYPE] = 
-{
-    match_meas_name_type,
-    match_id_meas_type,
-};
-
-/*
-each cell has connected UEs(with SINR value),
-each Cell have neighbours of cells(with SINR value)
-All of them in one indication message per Cell
-*/
-
-// ctrl after this
-const int MAX_NUM_OF_RIC_INDICATIONS = 5;
 struct SINRNeighboringValues 
 {
   bool is_available;
   uint16_t neighCellID;
   double sinr;
   int counter;
-  time_t last_update_time;
+  double last_update_time;
 };
 
 struct SINRServingValues 
@@ -399,8 +293,8 @@ struct SINRServingValues
   size_t numOfNeighCells;
   bool handover_in_progress;
   uint16_t last_target_cell;
-  time_t last_serving_update_time;
-  time_t last_handover_time;
+  double last_serving_update_time;
+  double last_handover_time;
 };
 
 // Per Cell
@@ -412,14 +306,12 @@ struct SINR_Map
   bool is_running;
   bool is_off;
   bool pending_shutdown;
-  time_t shutdown_start_time;
-  time_t last_state_change_time;
-  time_t last_kpm_update_time;
+  double shutdown_start_time;
+  double last_state_change_time;
+  double last_kpm_update_time;
   int stable_low_load_reports;
-  int shutdown_denied_count;
-  int handover_failure_count;
   size_t confirmed_handover_count;
-  time_t last_confirmation_time;
+  double last_confirmation_time;
   uint64_t last_kpm_sequence;
   uint64_t last_evaluated_sequence;
 };
@@ -436,31 +328,7 @@ struct registeredCells {
 struct registeredCells cells_sinr_map[MAX_REGISTERED_CELLS] = {{false, NULL}};
 static uint64_t kpm_sequence = 0;
 
-/*
 
-struct SINR_MapCells
-{
-  struct SINR_Map* sinrMapForCells;
-  size_t numOfsinrMapForCells;
-};
-
-L3servingSINR3gpp_cell_5_UEID_00002, sinr= 2.0000 [db]
-L3neighSINRListOf_UEID_00002, Neighbour=4
-L3neighSINRListOf_UEID_00002, sinr= -12.0000 [db]
-L3neighSINRListOf_UEID_00002, Neighbour=2
-L3neighSINRListOf_UEID_00002, sinr= -13.0000 [db]
-L3neighSINRListOf_UEID_00002, Neighbour=3
-L3neighSINRListOf_UEID_00002, sinr= -16.0000 [db]
-
-Based on SINR
-struct targetCell{
-UEid(IMSI), cellID
-}
-
-// int x -->> int* y = &x;  --> int** z = &y
-// int* a = &z
-
-*/
 
 struct SINR_Map* add_SINR(const uint16_t cellID) 
 {
@@ -480,13 +348,11 @@ struct SINR_Map* add_SINR(const uint16_t cellID)
     cells_sinr_map[cellID].sinrMap->pending_shutdown = false;
     cells_sinr_map[cellID].sinrMap->shutdown_start_time = 0;
     cells_sinr_map[cellID].sinrMap->last_state_change_time = 0;
-    cells_sinr_map[cellID].sinrMap->last_kpm_update_time = time(NULL);
+    cells_sinr_map[cellID].sinrMap->last_kpm_update_time = policy_now();
     cells_sinr_map[cellID].sinrMap->stable_low_load_reports = 0;
-    cells_sinr_map[cellID].sinrMap->shutdown_denied_count = 0;
-    cells_sinr_map[cellID].sinrMap->handover_failure_count = 0;
   }
   if (cells_sinr_map[cellID].sinrMap != NULL) {
-    cells_sinr_map[cellID].sinrMap->last_kpm_update_time = time(NULL);
+    cells_sinr_map[cellID].sinrMap->last_kpm_update_time = policy_now();
   }
   return cells_sinr_map[cellID].sinrMap;
 }
@@ -515,9 +381,9 @@ void add_UE(struct SINR_Map* cell, const uint16_t ueID, const double sinr)
   }
 
   ue->sinr = sinr;
-  ue->last_serving_update_time = time(NULL);
+  ue->last_serving_update_time = policy_now();
   ue->is_available = true;
-  cell->last_kpm_update_time = time(NULL);
+  cell->last_kpm_update_time = policy_now();
   cell->last_kpm_sequence = kpm_sequence;
 
   // A serving report from the commanded destination is positive evidence of
@@ -531,7 +397,7 @@ void add_UE(struct SINR_Map* cell, const uint16_t ueID, const double sinr)
       decision_log("handover_confirmed", previous->cellID, ueID, previous->numOfConnectedUEs,
                    old->sinr, cell->cellID, sinr, "serving_report_from_target");
       previous->confirmed_handover_count++;
-      previous->last_confirmation_time = time(NULL);
+      previous->last_confirmation_time = policy_now();
       old->is_available = false;
       old->handover_in_progress = false;
       free(old->neighCells);
@@ -565,9 +431,7 @@ struct SINRServingValues* get_UE(const uint16_t cellID, const uint16_t ueID)
   return NULL;
 }
 
-/*
-DoRecvLteMmWaveHandoverCompleted
-*/
+
 
 // m_rrc
 // m_lastMmWaveCell[[a-z]+\] =
@@ -579,7 +443,6 @@ DoRecvLteMmWaveHandoverCompleted
 // LteEnbRrc::DoRecvRrcConnectionReconfigurationCompleted
 // LteEnbRrc::DoRecvLteMmWaveHandoverCompleted --> IMP (m_lastMmWaveCell[imsi] = params.targetCellId;)
 
-#define MAX_NUM_OF_RIC_INDICATIONS 5
 
 void add_neighCell(struct SINRServingValues* UE, const uint16_t neighCellID, const double sinr) 
 {
@@ -601,7 +464,7 @@ void add_neighCell(struct SINRServingValues* UE, const uint16_t neighCellID, con
   // Get reference to this neighbor cell
   struct SINRNeighboringValues* neighCell = &UE->neighCells[neighCellID];
 
-  const time_t now = time(NULL);
+  const double now = policy_now();
   if (!neighCell->is_available || now - neighCell->last_update_time > g_policy.kpm_max_age_sec) {
     if (!neighCell->is_available)
       UE->numOfNeighCells++;
@@ -648,12 +511,12 @@ uint16_t getTargetCellID(callback_data_t data)
   {
     struct SINRNeighboringValues* neigh = &data.neighCells[i];
     if (!neigh->is_available || !isfinite(neigh->sinr) ||
-        time(NULL) - neigh->last_update_time > g_policy.kpm_max_age_sec)
+        policy_now() - neigh->last_update_time > g_policy.kpm_max_age_sec)
       continue;
     // Unknown target load is not zero load. The demo RC cell encoding only
     // supports single-digit IDs.
     if (i == 0 || i > 9 || cells_sinr_map[i].sinrMap == NULL ||
-        time(NULL) - cells_sinr_map[i].sinrMap->last_kpm_update_time > g_policy.kpm_max_age_sec)
+        policy_now() - cells_sinr_map[i].sinrMap->last_kpm_update_time > g_policy.kpm_max_age_sec)
       continue;
 
     if (neigh->counter < g_policy.required_neighbor_samples) {
@@ -713,8 +576,6 @@ uint16_t getTargetCellID(callback_data_t data)
 }
 
 // TODO
-void remove_UE() {}
-void remove_neighCell() {}
 
 // T Search(fp);
 // GetIMSI, getSINR, findX, getTargetCell(sinrMap, targetCell)
@@ -780,6 +641,9 @@ static void log_kpm_measurements(kpm_ind_msg_format_1_t const* msg_frm_1)
 {
   if (msg_frm_1 == NULL || msg_frm_1->meas_info_lst_len == 0)
     return;
+  static unsigned debug_reports = 0;
+  if (debug_reports++ < 3)
+    printf("[MyEnergy][KPM] names=%zu rows=%zu\n", msg_frm_1->meas_info_lst_len, msg_frm_1->meas_data_lst_len);
 
   // assert(msg_frm_1->meas_info_lst_len == msg_frm_1->meas_data_lst_len && "meas_info_lst_len not equal
   // meas_data_lst_len");
@@ -801,6 +665,8 @@ static void log_kpm_measurements(kpm_ind_msg_format_1_t const* msg_frm_1)
         meas_type.name.len >= sizeof(measurement_name))
       continue;
     memcpy(measurement_name, meas_type.name.buf, meas_type.name.len);
+    if (debug_reports <= 3)
+      printf("[MyEnergy][KPM] name=%s records=%zu\n", measurement_name, data_item.meas_record_len);
 
     for (size_t j = 0; j < data_item.meas_record_len;) {
       meas_record_lst_t const record_item = data_item.meas_record_lst[j];
@@ -856,13 +722,24 @@ static void sm_cb_kpm(sm_ag_if_rd_t const* rd)
 
   // Reading Indication Message Format 3
   kpm_ind_data_t const* ind = &rd->ind.kpm.ind;
-  kpm_ric_ind_hdr_format_1_t const* hdr_frm_1 = &ind->hdr.kpm_ric_ind_hdr_format_1;
+  static unsigned indication_count = 0;
+  if (++indication_count <= 3)
+    printf("[MyEnergy][KPM] indication_type=%d\n", ind->msg.type);
+  if (ind->msg.type == FORMAT_1_INDICATION_MESSAGE) {
+    lock_guard(&mtx);
+    update_clock(ind->hdr.kpm_ric_ind_hdr_format_1.collectStartTime);
+    ++kpm_sequence;
+    log_kpm_measurements(&ind->msg.frm_1);
+    return;
+  }
+  if (ind->msg.type != FORMAT_3_INDICATION_MESSAGE)
+    return;
   kpm_ind_msg_format_3_t const* msg_frm_3 = &ind->msg.frm_3;
 
   // uint64_t const now = time_now_us();
-  static int counter = 1;
   {
     lock_guard(&mtx);
+    update_clock(ind->hdr.kpm_ric_ind_hdr_format_1.collectStartTime);
     ++kpm_sequence;
     // printf("\n time now = %ld \n",now);
     // printf("\n time from simulator = %ld \n", hdr_frm_1->collectStartTime); //ntohll(hdr_frm_1->collectStartTime)
@@ -871,18 +748,9 @@ static void sm_cb_kpm(sm_ag_if_rd_t const* rd)
     // Reported list of measurements per UE
     for (size_t i = 0; i < msg_frm_3->ue_meas_report_lst_len; i++) 
     {
-      // log UE ID
-      ue_id_e2sm_t const ue_id_e2sm = msg_frm_3->meas_report_per_ue[i].ue_meas_report_lst;
-      ue_id_e2sm_e const type = ue_id_e2sm.type;
-      // log_ue_id_e2sm[type](ue_id_e2sm);
-      // Save UE ID for filling RC Control message
-      free_ue_id_e2sm(&ue_id);
-      ue_id = cp_ue_id_e2sm(&ue_id_e2sm);
-
       // log measurements
       log_kpm_measurements(&msg_frm_3->meas_report_per_ue[i].ind_msg_format_1);
     }
-    counter++;
   }
 }
 
@@ -1134,7 +1002,7 @@ static void gen_Target_Primary_Cell_ID(seq_ran_param_t* Target_Primary_Cell_ID, 
   assert(NR_CGI->ran_param_val.flag_false != NULL && "Memory exhausted");
   NR_CGI->ran_param_val.flag_false->type = BIT_STRING_RAN_PARAMETER_VALUE;
   // NR_CGI->ran_param_val.flag_false->int_ran=  TARGET_CELL;
-  char nr_cgi_str[1] = {targetcell};
+  char nr_cgi_str[2] = {targetcell, '\0'};
 
   byte_array_t nr_cgi = cp_str_to_ba(nr_cgi_str);
   NR_CGI->ran_param_val.flag_false->octet_str_ran.len = nr_cgi.len;
@@ -1486,7 +1354,7 @@ static void clear_cell_ue_runtime_data(struct SINR_Map* cell)
   cell->numOfConnectedUEs = 0;
 }
 
-static void cancel_shutdown(struct SINR_Map* cell, time_t now, const char* reason)
+static void cancel_shutdown(struct SINR_Map* cell, double now, const char* reason)
 {
   decision_log("deny", cell->cellID, 0, cell->numOfConnectedUEs, 0.0, 0, 0.0, reason);
   cell->pending_shutdown = false;
@@ -1502,7 +1370,7 @@ static void cancel_shutdown(struct SINR_Map* cell, time_t now, const char* reaso
 
 void forEachCell(Callback targetCellFinding, Callback cbHOAction, Callback cbSwitchOffAction, callback_data_t data)
 {
-  const time_t now = time(NULL);
+  const double now = policy_now();
   struct SINR_Map* candidate = NULL;
   uint16_t anchor = 0;
   for (int i = 1; i < MAX_REGISTERED_CELLS; ++i) {
@@ -1560,6 +1428,9 @@ void forEachCell(Callback targetCellFinding, Callback cbHOAction, Callback cbSwi
   }
 
   int representative_ue_id = 0;
+  uint16_t planned_targets[MAX_REGISTERED_UES] = {0};
+  size_t reserved[MAX_REGISTERED_CELLS] = {0};
+  // Validate the whole relocation before sending the first control message.
   for (int j = 1; j < MAX_REGISTERED_UES; ++j) {
     if (cell->connectedUEs == NULL)
       break;
@@ -1593,8 +1464,24 @@ void forEachCell(Callback targetCellFinding, Callback cbHOAction, Callback cbSwi
       cancel_shutdown(cell, now, "no_safe_target_cell");
       return;
     }
-    ue_data.toTargetCell = target;
-    ue_data.targetSinr = ue->neighCells[target].sinr;
+    struct SINR_Map* destination = cells_sinr_map[target].sinrMap;
+    if (destination == NULL || destination->numOfConnectedUEs + pending_incoming_ues(target) + reserved[target] >= (size_t)g_policy.max_ues_on_target) {
+      cancel_shutdown(cell, now, "planned_target_capacity_exceeded");
+      return;
+    }
+    planned_targets[j] = target;
+    reserved[target]++;
+  }
+  for (int j = 1; j < MAX_REGISTERED_UES; ++j) {
+    const uint16_t target = planned_targets[j];
+    if (target == 0)
+      continue;
+    struct SINRServingValues* ue = &cell->connectedUEs[j];
+    callback_data_t ue_data = {
+      .nodes = data.nodes, .neighCells = ue->neighCells, .ueID = ue->ueID,
+      .frmCurntCell = cell->cellID, .servingSinr = ue->sinr,
+      .toTargetCell = target, .targetSinr = ue->neighCells[target].sinr
+    };
     if (!cbHOAction(ue_data)) {
       cancel_shutdown(cell, now, "handover_command_failed");
       return;
@@ -1655,13 +1542,15 @@ uint16_t doHandoverAction(callback_data_t data)
                                 HANDOVER_CONTROL_7_6_4_1);
   rc_ctrl.msg = gen_handover_rc_ctrl_msg(FORMAT_1_E2SM_RC_CTRL_MSG, trgtCell);
 
-  int64_t st = time_now_us();
   printf("[xApp]: Send Handover Control message to move IMSI %d from cellId %d to target cellId %c \n", data.ueID,
          data.frmCurntCell, trgtCell);
 
   bool handover_sent = false;
   for (size_t i = 0; i < (*data.nodes).len; ++i) 
   {
+    // This backend implements NR handover control in MmWaveEnbNetDevice.
+    if ((*data.nodes).n[i].id.type != ngran_gNB)
+      continue;
     sm_ans_xapp_t ans = control_sm_xapp_api(&(*data.nodes).n[i].id, SM_RC_ID, &rc_ctrl);
 
     if (ans.success) 
@@ -1673,6 +1562,16 @@ uint16_t doHandoverAction(callback_data_t data)
 
   free_rc_ctrl_req_data(&rc_ctrl);
   return handover_sent ? 1 : 0;
+}
+
+static global_e2_node_id_t* energy_control_node(e2_node_arr_xapp_t const* nodes)
+{
+  if (nodes == NULL)
+    return NULL;
+  for (size_t i = 0; i < nodes->len; ++i)
+    if (nodes->n[i].id.type == ngran_gNB)
+      return &nodes->n[i].id;
+  return NULL;
 }
 
 uint16_t switchOffCurrentCell(callback_data_t data) 
@@ -1695,7 +1594,13 @@ uint16_t switchOffCurrentCell(callback_data_t data)
   rc_ctrl.msg = gen_cell_trigger_rc_ctrl_msg(FORMAT_1_E2SM_RC_CTRL_MSG, frmCurentCell);
 
   printf("[xApp]: Send switch off Control message to switch off cell %d\n", data.frmCurntCell);
-  sm_ans_xapp_t ans = control_sm_xapp_api(&(*data.nodes).n[0].id, SM_RC_ID, &rc_ctrl);
+  // The first E2 node may be the LTE anchor, which has no Energy_state handler.
+  global_e2_node_id_t* recipient = energy_control_node(data.nodes);
+  if (recipient == NULL) {
+    free_rc_ctrl_req_data(&rc_ctrl);
+    return 0;
+  }
+  sm_ans_xapp_t ans = control_sm_xapp_api(recipient, SM_RC_ID, &rc_ctrl);
 
   free_rc_ctrl_req_data(&rc_ctrl);
 
@@ -1758,19 +1663,26 @@ int main(int argc, char* argv[])
   // Check measurements and trigger handovers
   callback_data_t context = {.nodes = &nodes};
 
+  double last_decision_time = -1.0;
   while (1) {
-    printf("\n=== Checking meeting condition and start reporting ===\n");
+    usleep(100000);
+
 
     // Lock to ensure measurement data is consistent
     pthread_mutex_lock(&mtx);
 
+    // Repeated polling cannot advance the policy while ns-3 is computing.
+    if (simulation_time_s - last_decision_time < g_policy.decision_period_sec) {
+      pthread_mutex_unlock(&mtx);
+      continue;
+    }
+    last_decision_time = simulation_time_s;
     // Check cells and trigger handovers
     forEachCell(getTargetCellID, doHandoverAction, switchOffCurrentCell, context);
 
     pthread_mutex_unlock(&mtx);
 
     // Wait before next check
-    sleep(g_policy.decision_period_sec);
   }
 
   // Cleanup

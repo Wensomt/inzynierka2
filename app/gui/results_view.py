@@ -52,7 +52,7 @@ class ResultsView(ttk.Frame):
             ("energy", "Energia [J]", 115),
             ("power", "Moc [W]", 105),
             ("throughput", "Śr. przepływność [Mbit/s]", 155),
-            ("delivered", "Dane PDCP (est.) [Mbit]", 155),
+            ("delivered", "Dostarczone dane [Mbit]", 155),
             ("delay", "Śr. opóźnienie [ms]", 135),
             ("loss", "Packet loss [%]", 115),
         ):
@@ -65,33 +65,29 @@ class ResultsView(ttk.Frame):
         vertical_scroll.grid(row=0, column=1, sticky="ns")
         horizontal_scroll.grid(row=1, column=0, sticky="ew")
         buttons = ttk.Frame(self)
-        buttons.grid(row=2, column=0, columnspan=2, sticky="e", pady=(8, 0))
+        buttons.grid(row=2, column=0, columnspan=2, sticky="w", pady=(8, 0))
         ttk.Button(buttons, text="Pokaż szczegóły", command=self._details).pack(side="left", padx=(0, 6))
         ttk.Button(buttons, text="Pokaż log", command=self._log).pack(side="left", padx=(0, 14))
         if self._on_data:
             ttk.Button(buttons, text="Pliki i dane", command=self._data).pack(side="left", padx=(0, 14))
-        if self._on_open_folder:
-            ttk.Button(buttons, text="Folder runu", command=self._open_folder).pack(side="left", padx=(0, 14))
         if self._on_charts:
             ttk.Button(buttons, text="Wykresy i mapa", command=self._charts).pack(
                 side="left", padx=(0, 14)
             )
-        if self._on_export_csv:
-            ttk.Button(buttons, text="Eksport CSV", command=self._export_csv).pack(side="left", padx=(0, 6))
-        if self._on_export_json:
-            ttk.Button(buttons, text="Eksport JSON", command=self._export_json).pack(side="left", padx=(0, 6))
-        if self._on_export_bundle:
-            ttk.Button(buttons, text="Pełne archiwum…", command=self._export_bundle).pack(side="left", padx=(0, 6))
-        if self._on_delete:
-            ttk.Button(buttons, text="Usuń zapis", command=self._delete).pack(side="left", padx=(8, 0))
-        if self._on_import_bundle:
-            ttk.Button(buttons, text="Importuj archiwum…", command=self._import_bundle).pack(
-                side="right", padx=(6, 0)
-            )
-        if self._on_deleted_runs:
-            ttk.Button(buttons, text="Kosz wyników…", command=self._deleted_runs).pack(side="right")
+        for label, actions in (
+            ("Eksportuj", (("CSV", self._on_export_csv, self._export_csv), ("JSON", self._on_export_json, self._export_json), ("Pełne archiwum…", self._on_export_bundle, self._export_bundle))),
+            ("Więcej", (("Otwórz folder", self._on_open_folder, self._open_folder), ("Importuj archiwum…", self._on_import_bundle, self._import_bundle), ("Kosz wyników…", self._on_deleted_runs, self._deleted_runs), ("Usuń zapis", self._on_delete, self._delete))),
+        ):
+            menu_button = ttk.Menubutton(buttons, text=label)
+            menu = tk.Menu(menu_button, tearoff=False)
+            for title, available, command in actions:
+                if available:
+                    menu.add_command(label=title, command=command)
+            menu_button.configure(menu=menu)
+            menu_button.pack(side="left", padx=(0, 8))
 
     def refresh(self, simulations: Iterable[Simulation]) -> None:
+        selected = self.tree.selection()
         self._items = {item.id: item for item in simulations}
         for entry in self.tree.get_children():
             self.tree.delete(entry)
@@ -107,8 +103,7 @@ class ResultsView(ttk.Frame):
             partial = runtime.get("experiment_valid") is False or bool(termination.get("partial"))
 
             def metric_value(key: str) -> object:
-                value = metrics.get(key)
-                return value if value is not None else live_metrics.get(key)
+                return metrics.get(key) if item.result is not None else live_metrics.get(key)
 
             self.tree.insert("", "end", iid=item.id, values=(
                 item.name,
@@ -122,6 +117,8 @@ class ResultsView(ttk.Frame):
                 self._number(metric_value("delay_ms")),
                 self._number(metric_value("packet_loss_pct")),
             ))
+        if selected and self.tree.exists(selected[0]):
+            self.select_simulation(selected[0])
 
     def select_simulation(self, simulation_id: str) -> None:
         """Wybiera run otwarty z kolejki bez wymagania drugiego kliknięcia."""
@@ -201,7 +198,3 @@ class ResultsView(ttk.Frame):
             return cls._number(float(value) / divisor)
         except (TypeError, ValueError, ZeroDivisionError):
             return "N/A"
-
-
-class HistoryView(ResultsView):
-    pass

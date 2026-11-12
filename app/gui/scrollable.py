@@ -37,7 +37,7 @@ class ScrollableFrame(ttk.Frame):
             self,
             highlightthickness=0,
             borderwidth=0,
-            background="#252b33",
+            background="#f3f3f3",
         )
         self.vertical_scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
         self.canvas.configure(yscrollcommand=self.vertical_scrollbar.set)

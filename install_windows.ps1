@@ -815,12 +815,12 @@ function New-DesktopShortcut {
     $desktop = [Environment]::GetFolderPath("Desktop")
     $launcher = Join-Path $script:ProjectRoot "run_windows.bat"
     if (-not $desktop -or -not (Test-Path -LiteralPath $launcher)) { return }
-    $shortcutPath = Join-Path $desktop "O-RAN Energy Lab.lnk"
+    $shortcutPath = Join-Path $desktop "Symulator O-RAN.lnk"
     $shell = New-Object -ComObject WScript.Shell
     $shortcut = $shell.CreateShortcut($shortcutPath)
     $shortcut.TargetPath = $launcher
     $shortcut.WorkingDirectory = $script:ProjectRoot
-    $shortcut.Description = "Uruchom O-RAN Energy Lab"
+    $shortcut.Description = "Symulator efektywności energetycznej sieci O-RAN"
     $shortcut.Save()
     Write-Host "Utworzono skrót: $shortcutPath"
 }
@@ -877,7 +877,7 @@ function Invoke-Setup {
     New-DesktopShortcut
 
     if (-not $SkipLaunch) {
-        Write-Step "Uruchamianie O-RAN Energy Lab"
+        Write-Step "Uruchamianie symulatora O-RAN"
         Push-Location $script:ProjectRoot
         try {
             & $script:VenvPython -m app.main

@@ -45,13 +45,20 @@ def _read_csv(path: Path) -> List[Dict[str, str]]:
 class ResultsParser:
     """Czyta zapisane artefakty; wyprowadza tylko wartości obliczalne z nich."""
 
-    VERSION = 4
+    VERSION = 6
 
     def parse(self, directory: Path) -> SimulationResult:
         summary = self._read_json(directory / "summary.json")
         analysis = self._read_json(directory / "analysis.json")
         series_rows = _read_csv(self._path(directory, "ee_timeseries.csv", "timeseries"))
         summary_rows = _read_csv(self._path(directory, "ee_summary.csv", "timeseries"))
+        # This scenario's CSV names the measured endpoint simTime_s. Do not
+        # infer endpoints from a global configured horizon or overwrite an
+        # explicit (possibly invalid) endpoint. Raw files remain untouched.
+        for row in summary_rows:
+            if (row.get("simulator_source") == "mmwave_LENA_oran_custom"
+                    and "measurement_end_s" not in row and "simTime_s" in row):
+                row["measurement_end_s"] = row["simTime_s"]
         # ``metrics.csv`` bywa zapisywany zarówno w katalogu głównym starszego
         # wyniku, jak i w ``timeseries`` nowszego archiwum.  Jest to prawdziwy
         # strumień KPI scenariusza, nie dane zastępcze tworzone przez GUI.
@@ -163,7 +170,7 @@ class ResultsParser:
                 duration, other_duration = self._duration(primary_payload), self._duration(other)
                 start = self._first(primary_payload, ("measurement_start_s", "MeasurementStart_s"))
                 other_start = self._first(other, ("measurement_start_s", "MeasurementStart_s"))
-                if (duration is None or other_duration is None or duration != other_duration or start != other_start
+                if (not self._valid_window(other) or duration is None or other_duration is None or duration != other_duration or start != other_start
                     or (key == "packet_loss_pct" and primary_payload.get("packet_loss_definition") != other.get("packet_loss_definition"))):
                     metadata["measurement_consistent"] = False
                     audit_warnings.append("{} pochodzi z innego lub nieokreślonego okna/definicji niż energia i dane; nie kwalifikuje się do wspólnej oceny EE/QoS.".format(key))
@@ -176,23 +183,73 @@ class ResultsParser:
                 start = self._first(primary_payload, ("measurement_start_s", "MeasurementStart_s"))
                 other_start = self._first(other, ("measurement_start_s", "MeasurementStart_s"))
                 if duration is None or other_duration is None or duration != other_duration or start != other_start:
-                    metadata["measurement_consistent"] = False
+                    metadata["quality_measurement_consistent"] = False
                     audit_warnings.append("{} pochodzi z innego lub nieokreślonego okna pomiarowego niż energia i dane.".format(key))
         if native.get("metadata") and selected_accounting in (None, len(candidates) - 1):
             metadata.update(native["metadata"])
             metadata["measurement_consistent"] = coherent_accounting
             if coherent_accounting:
                 metadata["accounting_source"] = sources.get("total_energy_j")
+        if selected_accounting is not None and not self._valid_window(candidate_payloads[selected_accounting]):
+            metadata["measurement_consistent"] = False
+            audit_warnings.append("Niepełne, nieskończone lub sprzeczne okno pomiarowe energii i danych.")
+        # Validate the counters from the sources actually used, not a spare
+        # file whose fields happened to be readable. Keep raw evidence even
+        # when numeric conversion rejects NaN/inf or fractional counts.
+        used_origins = {selected_accounting, metric_origins.get("delay_ms"), metric_origins.get("packet_loss_pct")}
+        invalid_counters = []
+        for origin in sorted(index for index in used_origins if index is not None):
+            payload = candidate_payloads[origin]
+            raw = {}
+            for key, aliases in (("tx_packets", ("tx_packets", "TxPackets", "txPackets")),
+                                 ("rx_packets", ("rx_packets", "RxPackets", "rxPackets")),
+                                 ("lost_packets", ("lost_packets",))):
+                for alias in aliases:
+                    if alias in payload:
+                        raw[key] = payload[alias]
+                        break
+            if not raw:
+                continue
+            if origin == selected_accounting:
+                metadata["raw_packet_counters"] = raw
+            counts = {key: _number(value) for key, value in raw.items()}
+            issues = [key for key, value in counts.items()
+                      if value is None or value < 0 or not value.is_integer() or isinstance(raw[key], bool)]
+            tx, rx = counts.get("tx_packets"), counts.get("rx_packets")
+            if tx is not None and rx is not None and rx > tx:
+                issues.append("rx_packets > tx_packets")
+            if not issues and tx is not None and rx is not None:
+                lost = counts.get("lost_packets")
+                if lost is not None and lost != tx - rx:
+                    issues.append("lost_packets != tx_packets - rx_packets")
+                # C++ CSV defaults to six significant digits; this is only
+                # serialization roundoff, never a QoS comparison tolerance.
+                declared_loss = self._first(payload, ("packet_loss_pct", "loss_pct", "packet_loss_percent", "PacketLoss_pct"))
+                if declared_loss is not None and tx > 0 and not math.isclose(declared_loss, 100 * (tx-rx) / tx, rel_tol=1e-5, abs_tol=1e-6):
+                    issues.append("packet_loss_pct contradicts counters")
+                if rx == 0 and (metrics.get("delivered_mbit") or 0) > 0:
+                    issues.append("positive delivered data with zero received packets")
+            if issues:
+                invalid_counters.extend(issues)
+        if invalid_counters:
+            metadata["invalid_packet_counters"] = invalid_counters
+            metadata["measurement_consistent"] = False
+            audit_warnings.append("Niepoprawne liczniki pakietów: " + ", ".join(invalid_counters))
         metadata["result_parser_version"] = self.VERSION
+        if metadata.get("rx_packets") == 0 and (metrics.get("delivered_mbit") or 0) > 0 and metadata.get("data_layer") == "udp_application_payload":
+            metrics["packet_loss_pct"] = None
+            metrics["delay_ms"] = None
+            metadata["measurement_consistent"] = False
+            audit_warnings.append("Odbiornik UDP otrzymał dane, ale licznik QoS podaje rx=0. Historyczny pomiar strat i opóźnienia jest niewiarygodny; uruchom ponownie aktualny scenariusz.")
         warnings = self._warnings(metrics) + list(dict.fromkeys(audit_warnings))
         if metadata.get("simulator_source") == "SOURCE_LOCAL_DISCRETE_SIMULATOR":
             warnings.append("Historyczny wynik uproszczonego modelu lokalnego; nie jest pomiarem symulatora ns-3.")
         if metadata.get("measurement_duration_s") is None:
             warnings.append("Brak jawnego opisu okna pomiarowego w podsumowaniu; szeregi skumulowane przyjmują początek t=0.")
         energy_skew = _number(metadata.get("energy_cell_max_timestamp_skew_s"))
-        if energy_skew is not None and energy_skew > 0.1:
+        if energy_skew is not None and energy_skew > 1e-6:
             warnings.append(
-                "Pliki energii komórek są asynchroniczne; użyto sample-and-hold, maksymalna różnica czasu próbek: {:.4g} s.".format(
+                "Pliki energii komórek kończą się w różnych chwilach (różnica {:.4g} s). Nie wyznaczono z nich końcowej energii ani EE.".format(
                     energy_skew
                 )
             )
@@ -290,6 +347,20 @@ class ResultsParser:
             self._set(metrics, "packet_loss_pct", qos, ("packet_loss_pct", "loss_pct"), sources, qos_source)
             self._set(quality, "p05_sinr_db", qos, ("p05_sinr_db",), sources, qos_source)
 
+    def _valid_window(self, source: Dict[str, Any]) -> bool:
+        start = self._first(source, ("measurement_start_s", "MeasurementStart_s"))
+        end = self._first(source, ("measurement_end_s",))
+        duration = self._first(source, ("measurement_duration_s", "MeasurementDuration_s", "analysis_duration_s"))
+        if source.get("simulator_source") == "mmwave_LENA_oran_custom" and "simTime_s" in source:
+            scenario_end = _number(source["simTime_s"])
+            if scenario_end is None or end is None or not math.isclose(scenario_end, end, rel_tol=1e-9, abs_tol=1e-9):
+                return False
+        # One nanosecond absolute / 1e-9 relative: numerical serialization
+        # roundoff only, not a scientific or QoS window tolerance.
+        return (start is not None and end is not None and duration is not None
+                and start >= 0 and end > start and duration > 0
+                and math.isclose(duration, end - start, rel_tol=1e-9, abs_tol=1e-9))
+
     def _duration(self, source: Dict[str, Any]) -> Optional[float]:
         duration = self._first(source, ("measurement_duration_s", "MeasurementDuration_s", "analysis_duration_s"))
         if duration is not None:
@@ -321,7 +392,7 @@ class ResultsParser:
         keys = (
             "measurement_start_s", "measurement_end_s", "measurement_duration_s",
             "traffic_start_s", "traffic_stop_s", "drain_duration_s", "warmup_s",
-            "energy_scope", "energy_profile", "data_layer", "simulator_source", "packet_loss_definition",
+            "energy_scope", "energy_profile", "data_layer", "simulator_source", "packet_loss_definition", "qos_source",
             "tx_packets", "rx_packets", "lost_packets", "monitor_lost_packets", "delay_sum_s",
         )
         metadata = {key: raw[key] for key in keys if key in raw}
@@ -335,9 +406,9 @@ class ResultsParser:
             "energy_efficiency_bit_per_j": "delivered useful bits / modeled energy over the same window",
             "energy_per_mbit_j": "modeled joules / delivered Mbit over the same window; undefined with zero delivery",
             "throughput_mbit_per_s": "delivered Mbit / measurement duration (includes idle and drain time)",
-            "delivered_mbit": "estimated integral of reported PDCP bitrate; not an IP receive counter",
+            "delivered_mbit": "received UDP application bytes including SeqTsHeader" if metadata.get("data_layer") == "udp_application_payload" else "estimated integral of reported PDCP bitrate; not an IP receive counter",
             "delay_ms": "sum of end-to-end delays / received packets; undefined without received packets",
-            "packet_loss_pct": "final: packets not received by the end / transmitted packets; live: FlowMonitor declared losses",
+            "packet_loss_pct": "final: packets not received after drain / transmitted packets; live: not received yet, including packets in transit" if metadata.get("qos_source") == "udp_application_seq_ts" else "final: packets not received by the end / transmitted packets; historical live: FlowMonitor declared losses",
             "mean_sinr_db": "arithmetic mean of KPM per-report mean SINR values over the measurement window",
             "p05_sinr_db": "arithmetic mean of KPM per-report p05 SINR values over the measurement window",
             "mean_prb_pct": "arithmetic mean of reported per-cell DL PRB utilization over the measurement window",
@@ -544,6 +615,14 @@ class ResultsParser:
             "metrics": {}, "quality": {}, "series": {},
             "series_sources": {}, "metadata": {},
         }
+        if energy_files:
+            end_times = [times[-1] for times, _ in energy_files]
+            skew = max(end_times) - min(end_times)
+            native["metadata"]["energy_cell_max_timestamp_skew_s"] = skew
+            if skew > 1e-6:
+                # Licznik cichej komórki nie obejmuje jej ostatniego odcinka
+                # pracy. Hold jest użyteczny live, ale nie daje energii końcowej.
+                energy_files = []
         energy_series: List[Dict[str, float]] = []
         power_series: List[Dict[str, float]] = []
         energy_end: Optional[float] = None

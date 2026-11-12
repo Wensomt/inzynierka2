@@ -398,8 +398,8 @@ class LiveMetricsCollector:
                 skew = self._energy_file_max_skew_s
                 series_sources["energy_j"] = (
                     "energyfilecell*.csv (NetEnergy; sample-and-hold, max skew {:.6g} s)".format(skew)
-                    if skew is not None
-                    else "energyfilecell*.csv (NetEnergy; sample-and-hold)"
+                    if skew is not None and skew > 1e-6
+                    else "energyfilecell*.csv (NetEnergy)"
                 )
             if series.get("power_w"):
                 series_sources["power_w"] = (

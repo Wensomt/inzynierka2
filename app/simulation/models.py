@@ -7,6 +7,9 @@ from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
 
+DEFAULT_SIM_TIME_S = 5
+
+
 def now_utc() -> str:
     return datetime.now(timezone.utc).isoformat()
 

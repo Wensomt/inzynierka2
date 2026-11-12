@@ -36,8 +36,8 @@ class ToolTip:
                 self.window,
                 text=self.text,
                 justify="left",
-                background="#101419",
-                foreground="#e5e9ef",
+                background="#fffbdc",
+                foreground="#202020",
                 relief="solid",
                 borderwidth=1,
                 padx=7,
@@ -144,9 +144,9 @@ class ScenariosView(ttk.Frame):
             title,
             height=2,
             wrap="word",
-            background="#171b20",
-            foreground="#e5e9ef",
-            insertbackground="#e5e9ef",
+            background="#ffffff",
+            foreground="#202020",
+            insertbackground="#202020",
             relief="flat",
         )
         self.description_text.grid(row=2, column=1, columnspan=2, sticky="ew", pady=(6, 0))

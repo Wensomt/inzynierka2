@@ -639,7 +639,7 @@ def test_live_snapshot_adds_only_reported_kpm_quality_data() -> None:
     assert payload["current_metrics"]["mean_prb_pct"] == 6.0
     assert payload["current_metrics"]["delay_ms"] == 3.0
     assert payload["current_metrics"]["active_ues"] == 3.0
-    assert payload["series"]["p05_sinr_db"] == [{"x": 2.0, "y": 12.0}]
+    assert payload["series"]["p05_sinr_db"] == [{"x": 1.0, "y": 10.0}, {"x": 2.0, "y": 12.0}]
     assert payload["series_sources"]["p05_sinr_db"] == "KPM: cu-cp-cell-1.txt"
     assert payload["kpm_live"]["data_status"]["source_file_count"] == 3
 
@@ -800,6 +800,28 @@ def test_required_live_artifact_cannot_be_silently_replaced_by_energy_only(tmp_p
         SimulationRunner._verify_required_live_timeseries(tmp_path, item)
 
     assert item.runtime["live_metrics_contract"]["state"] == "artifact_missing"
+
+
+def test_live_snapshot_keeps_polling_timeseries_after_choosing_it() -> None:
+    processes = FakeProcesses(ns3=FakeProcess([]), ric=FakeProcess([]), xapp=FakeProcess([]))
+    item = simulation()
+    item.status = item.status.RUNNING
+    runner = runner_for_wait()
+    header = "Time_s,DeliveredBits,TotalEnergy_J,IntervalPower_W,IntervalThroughput_bps,CumulativeEE_bit_per_J\n"
+    contents = iter((header + "1,1000000,100,100,1000000,10000\n", header + "1,1000000,100,100,1000000,10000\n2,3000000,200,100,2000000,15000\n"))
+    runner._read_live_metrics_tail = lambda *_args: (None, "brak metrics.csv")
+    runner._read_live_timeseries_tail = lambda *_args: (next(contents), None)
+    collector = LiveMetricsCollector()
+    received = []
+
+    async def run():
+        for elapsed in (1.0, 2.0):
+            await runner._publish_live_snapshot(processes, "/ns3", collector, item, lambda *args: received.append(args), elapsed, {})
+
+    asyncio.run(run())
+    assert received[-1][3]["current_metrics"]["total_energy_j"] == 200
+    assert received[-1][3]["current_metrics"]["delivered_mbit"] == 3
+    assert len(received[-1][3]["series"]["energy_j"]) == 2
 
 
 def test_live_snapshot_uses_real_energy_file_fallback_without_inventing_traffic() -> None:

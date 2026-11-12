@@ -13,11 +13,12 @@ REQUIRED_PARAMETERS = (
     "RngRun",
 )
 
-INTEGER_PARAMETERS = frozenset({"N_MmWaveEnbNodes", "N_Ues", "RngRun", "UdpPacketSizeBytes", "UdpIntervalUs", "bufferSize", "numberOfRaPreambles", "KPM_E2functionID", "RC_E2functionID"})
+INTEGER_PARAMETERS = frozenset({"CellLayout", "N_MmWaveEnbNodes", "N_Ues", "RngRun", "UdpPacketSizeBytes", "UdpIntervalUs", "bufferSize", "numberOfRaPreambles", "KPM_E2functionID", "RC_E2functionID"})
 
 # Bounds verified against the bundled ns-3 classes (UdpClient, MmWaveEnbMac)
 # and the scenario's indexed UE/cell arrays, not just its looser GlobalValues.
 BACKEND_BOUNDS = {
+    "CellLayout": (0, 1),
     "N_MmWaveEnbNodes": (1, 255), "N_Ues": (1, 512),
     "UdpPacketSizeBytes": (12, 65507), "UdpIntervalUs": (1, 4294967295),
     "numberOfRaPreambles": (4, 64), "indicationPeriodicity": (0.01, 2),
@@ -41,6 +42,8 @@ def validate_configuration(
         errors.append("Nieznany scenariusz: {}".format(configuration.scenario))
     if configuration.xapp != "none" and configuration.xapp not in xapps:
         errors.append("Nieznany xApp: {}".format(configuration.xapp))
+    if configuration.xapp == "optimized" and configuration.scenario != "optimized":
+        errors.append("My Energy wymaga scenariusza My Energy z zegarem KPM czasu ns-3.")
 
     parameters = configuration.parameters
     scenario_item = scenarios.get(configuration.scenario) or {}

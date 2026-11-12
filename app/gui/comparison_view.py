@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import itertools
 import math
 import tkinter as tk
 from tkinter import ttk
@@ -38,6 +37,8 @@ class ComparisonView(ttk.Frame):
         self._on_export = on_export
         self._labels: Dict[str, Simulation] = {}
         self._metrics: Dict[str, MetricComparison] = {}
+        self._selected_metric: Optional[str] = None
+        self._shown_pair: Optional[Tuple[Simulation, Simulation]] = None
         self._build()
 
     def _build(self) -> None:
@@ -60,6 +61,8 @@ class ComparisonView(ttk.Frame):
         self.right_var = tk.StringVar()
         self.right_choice = ttk.Combobox(chooser, state="readonly", textvariable=self.right_var)
         self.right_choice.grid(row=0, column=3, sticky="ew", padx=(8, 12))
+        for choice in (self.left_choice, self.right_choice):
+            choice.bind("<<ComboboxSelected>>", lambda _event: self.refresh_comparison())
         ttk.Button(chooser, text="Pokaż porównanie", command=self.refresh_comparison).grid(
             row=0, column=4, padx=(0, 6)
         )
@@ -70,17 +73,17 @@ class ComparisonView(ttk.Frame):
 
         diff_box = ttk.LabelFrame(content, text="RÓŻNICE W KONFIGURACJI", padding=8)
         diff_box.grid(row=1, column=0, sticky="nsew", pady=(10, 0))
-        self.config_tree = self._tree(diff_box, ("parameter", "left", "right"), ("Parametr", "Pierwsza", "Druga"))
+        self.config_tree = self._tree(diff_box, ("parameter", "left", "right"), ("Parametr", "Pierwsza", "Druga"), height=3)
 
         tables = ttk.Frame(content)
         tables.grid(row=2, column=0, sticky="nsew", pady=(10, 0))
         tables.columnconfigure(0, weight=1)
         tables.columnconfigure(1, weight=1)
         energy_box = ttk.LabelFrame(tables, text="ENERGIA", padding=8)
-        energy_box.grid(row=0, column=0, sticky="nsew", padx=(0, 5))
+        energy_box.grid(row=0, column=0, columnspan=2, sticky="nsew")
         quality_box = ttk.LabelFrame(tables, text="JAKOŚĆ TRANSMISJI", padding=8)
-        quality_box.grid(row=0, column=1, sticky="nsew", padx=(5, 0))
-        self.energy_tree = self._tree(energy_box, ("metric", "left", "right", "difference"), ("Metryka", "Pierwsza", "Druga", "Różnica"))
+        quality_box.grid(row=1, column=0, columnspan=2, sticky="nsew", pady=(8, 0))
+        self.energy_tree = self._tree(energy_box, ("metric", "left", "right", "difference"), ("Metryka", "Pierwsza", "Druga", "Różnica"), height=4)
         self.quality_tree = self._tree(quality_box, ("metric", "left", "right", "difference"), ("Metryka", "Pierwsza", "Druga", "Różnica"))
         self.energy_tree.bind("<<TreeviewSelect>>", self._metric_selected, add=True)
         self.quality_tree.bind("<<TreeviewSelect>>", self._metric_selected, add=True)
@@ -90,7 +93,7 @@ class ComparisonView(ttk.Frame):
         chart_box.columnconfigure(0, weight=1)
         self.chart_title = tk.StringVar(value="Wybierz metrykę, aby wyświetlić przebiegi obu symulacji.")
         ttk.Label(chart_box, textvariable=self.chart_title).grid(row=0, column=0, sticky="w")
-        self.chart = tk.Canvas(chart_box, height=300, background="#171b22", highlightthickness=0)
+        self.chart = tk.Canvas(chart_box, height=300, background="#ffffff", highlightthickness=0)
         self.chart.grid(row=1, column=0, sticky="ew", pady=(6, 0))
         self.chart.bind("<Configure>", lambda _event: self._draw_selected_chart())
 
@@ -112,15 +115,10 @@ class ComparisonView(ttk.Frame):
             row=2, column=0, columnspan=3, sticky="w", pady=(8, 0))
 
         self.warning_var = tk.StringVar(value="")
-        self.warning_label = ttk.Label(content, textvariable=self.warning_var, foreground="#d4a847", justify="left", wraplength=700)
+        self.warning_label = ttk.Label(content, textvariable=self.warning_var, foreground="#8a5a12", justify="left", wraplength=700)
         self.warning_label.grid(
             row=5, column=0, sticky="w", pady=(8, 0)
         )
-
-        pairs = ttk.LabelFrame(content, text="WSZYSTKIE PARY", padding=8)
-        pairs.grid(row=6, column=0, sticky="nsew", pady=(10, 0))
-        self.pairs_tree = self._tree(pairs, ("left", "right"), ("Pierwsza", "Druga"), height=5)
-        ttk.Button(pairs, text="Otwórz wybraną parę", command=self.open_selected_pair).pack(anchor="e", pady=(6, 0))
 
     def _update_warning_wrap(self, event: Any) -> None:
         try:
@@ -137,7 +135,7 @@ class ComparisonView(ttk.Frame):
         tree = ttk.Treeview(holder, columns=columns, show="headings", height=height)
         for column, heading in zip(columns, headings):
             tree.heading(column, text=heading)
-            tree.column(column, width=130 if column != "parameter" else 220, anchor="w")
+            tree.column(column, width=350 if column in {"parameter", "metric"} else 150, anchor="w")
         vertical_scroll = ttk.Scrollbar(holder, orient="vertical", command=tree.yview)
         horizontal_scroll = ttk.Scrollbar(holder, orient="horizontal", command=tree.xview)
         tree.configure(yscrollcommand=vertical_scroll.set, xscrollcommand=horizontal_scroll.set)
@@ -166,32 +164,35 @@ class ComparisonView(ttk.Frame):
         self.left_var.set(previous_left if previous_left in self._labels else (values[0] if values else ""))
         default_right = values[1] if len(values) > 1 else (values[0] if values else "")
         self.right_var.set(previous_right if previous_right in self._labels else default_right)
-        self._refresh_pairs(values)
-
-    def _refresh_pairs(self, values: List[str]) -> None:
-        self._clear(self.pairs_tree)
-        for left, right in itertools.combinations(values, 2):
-            self.pairs_tree.insert("", "end", values=(left, right))
-
-    def open_selected_pair(self) -> None:
-        selected = self.pairs_tree.selection()
-        if not selected:
-            return
-        left, right = self.pairs_tree.item(selected[0], "values")
-        self.left_var.set(left)
-        self.right_var.set(right)
         self.refresh_comparison()
 
     def refresh_comparison(self) -> None:
         left, right = self._labels.get(self.left_var.get()), self._labels.get(self.right_var.get())
         if left is None or right is None or left.id == right.id:
+            self._shown_pair = None
+            self._selected_metric = None
+            self._metrics.clear()
+            for tree in (self.config_tree, self.energy_tree, self.quality_tree):
+                self._clear(tree)
+            self.chart.delete("all")
+            self.chart_title.set("Wybierz dwa różne przebiegi z zapisanymi wynikami.")
+            self.assessment_var.set("")
+            self.warning_var.set("")
             return
         try:
             limits = {key: float(var.get().strip().replace(",", ".")) for key, var in self.qos_vars.items() if var.get().strip()}
             comparison = compare_simulations(left, right, limits)
         except ValueError as exc:
+            self._shown_pair = None
+            self._metrics.clear()
+            self._selected_metric = None
+            for tree in (self.config_tree, self.energy_tree, self.quality_tree):
+                self._clear(tree)
+            self.chart.delete("all")
+            self.chart_title.set("Popraw progi QoS i ponów porównanie.")
             self.assessment_var.set("Niepoprawne progi QoS: {}".format(exc))
             return
+        self._shown_pair = (left, right)
         self._show(comparison)
 
     def export_selected_pair(self) -> None:
@@ -222,11 +223,13 @@ class ComparisonView(ttk.Frame):
             self.config_tree.insert("", "end", values=("Brak różnic", "", ""))
         self._add_metrics(self.energy_tree, comparison.energy)
         self._add_metrics(self.quality_tree, comparison.quality)
+        self._selected_metric = self._selected_metric if self._selected_metric in self._metrics else "energy_efficiency_bit_per_j"
+        self._draw_selected_chart()
 
     def _add_metrics(self, tree: ttk.Treeview, rows: Iterable[MetricComparison]) -> None:
         for item in rows:
             self._metrics[item.key] = item
-            tree.insert(item.key, "", "end", values=(
+            tree.insert("", "end", iid=item.key, values=(
                 item.label,
                 self._value(self._display_value(item.key, item.left), item.unit),
                 self._value(self._display_value(item.key, item.right), item.unit),
@@ -239,14 +242,12 @@ class ComparisonView(ttk.Frame):
         if not selection:
             return
         key = selection[0]
+        self._selected_metric = key
         self._draw_metric_chart(key)
 
     def _draw_selected_chart(self) -> None:
-        for tree in (self.energy_tree, self.quality_tree):
-            selection = tree.selection()
-            if selection:
-                self._draw_metric_chart(selection[0])
-                return
+        if self._selected_metric:
+            self._draw_metric_chart(self._selected_metric)
 
     def _draw_metric_chart(self, key: str) -> None:
         item = self._metrics.get(key)
@@ -258,17 +259,17 @@ class ComparisonView(ttk.Frame):
                 "Aktywne UE: wartość skalarna; pominięto wykres przebiegu czasowego."
             )
             return
-        left = self._labels.get(self.left_var.get())
-        right = self._labels.get(self.right_var.get())
-        if left is None or right is None:
+        if self._shown_pair is None:
             return
+        left, right = self._shown_pair
         series_key = self._SERIES_KEYS.get(key, key)
         left_points = self._series_points(left, series_key)
         right_points = self._series_points(right, series_key)
         if key == "energy_efficiency_bit_per_j":
             left_points = [(x, y / 1_000_000.0) for x, y in left_points]
             right_points = [(x, y / 1_000_000.0) for x, y in right_points]
-        self.chart_title.set("{} [{}] — {} vs {}".format(item.label, item.unit, left.name, right.name))
+        chart_label = {"average_power_w": "Moc w przedziale próbkowania", "throughput_mbit_per_s": "Przepływność w przedziale próbkowania"}.get(key, item.label)
+        self.chart_title.set("{} [{}] — {} / {}".format(chart_label, item.unit, left.name, right.name))
         canvas = self.chart
         canvas.delete("all")
         width = max(440, canvas.winfo_width())
@@ -276,10 +277,10 @@ class ComparisonView(ttk.Frame):
         margin_left, margin_right, margin_top, margin_bottom = 70, 25, 18, 45
         plot_width = width - margin_left - margin_right
         plot_height = height - margin_top - margin_bottom
-        points_by_run = [(left_points, "#54a6e8"), (right_points, "#ed9d58")]
+        points_by_run = [(left_points, "#2166a0"), (right_points, "#b85c17")]
         all_points = [point for points, _color in points_by_run for point in points]
         if not all_points:
-            canvas.create_text(width / 2, height / 2, text="Brak zapisanej serii czasowej dla tej metryki.", fill="#bdc6d2")
+            canvas.create_text(width / 2, height / 2, text="Brak zapisanej serii czasowej dla tej metryki.", fill="#59636e")
             return
         x_values = [point[0] for point in all_points]
         y_values = [point[1] for point in all_points]
@@ -301,16 +302,16 @@ class ComparisonView(ttk.Frame):
             fraction = tick / 4.0
             y = margin_top + fraction * plot_height
             value = y_max - fraction * (y_max - y_min)
-            canvas.create_line(margin_left, y, width - margin_right, y, fill="#343b46")
-            canvas.create_text(margin_left - 9, y, text="{:.4g}".format(value), anchor="e", fill="#c7ced8", font=("Segoe UI", 8))
+            canvas.create_line(margin_left, y, width - margin_right, y, fill="#dddddd")
+            canvas.create_text(margin_left - 9, y, text="{:.4g}".format(value), anchor="e", fill="#59636e", font=("Segoe UI", 8))
             x = margin_left + fraction * plot_width
             x_value = x_min + fraction * (x_max - x_min)
-            canvas.create_line(x, margin_top, x, margin_top + plot_height, fill="#292f38")
-            canvas.create_text(x, margin_top + plot_height + 17, text="{:.4g}".format(x_value), fill="#c7ced8", font=("Segoe UI", 8))
+            canvas.create_line(x, margin_top, x, margin_top + plot_height, fill="#eaeaea")
+            canvas.create_text(x, margin_top + plot_height + 17, text="{:.4g}".format(x_value), fill="#59636e", font=("Segoe UI", 8))
         canvas.create_line(margin_left, margin_top, margin_left, margin_top + plot_height, fill="#9aa5b1")
         canvas.create_line(margin_left, margin_top + plot_height, width - margin_right, margin_top + plot_height, fill="#9aa5b1")
-        canvas.create_text(18, margin_top + plot_height / 2, text=item.unit, angle=90, fill="#d8dee7")
-        canvas.create_text(margin_left + plot_width / 2, height - 8, text="Czas symulacji [s]", fill="#d8dee7")
+        canvas.create_text(18, margin_top + plot_height / 2, text=item.unit, angle=90, fill="#202020")
+        canvas.create_text(margin_left + plot_width / 2, height - 8, text="Czas symulacji [s]", fill="#202020")
         legend_x = margin_left + 8
         for (points, color), label in zip(points_by_run, (left.name, right.name)):
             if points:
@@ -326,7 +327,7 @@ class ComparisonView(ttk.Frame):
             else:
                 label += " (brak serii)"
             canvas.create_line(legend_x, margin_top + 4, legend_x + 22, margin_top + 4, fill=color, width=2)
-            canvas.create_text(legend_x + 28, margin_top + 4, text=label, anchor="w", fill="#e1e6ed", font=("Segoe UI", 8))
+            canvas.create_text(legend_x + 28, margin_top + 4, text=label, anchor="w", fill="#202020", font=("Segoe UI", 8))
             legend_x += min(270, max(150, len(label) * 7 + 50))
 
     @staticmethod

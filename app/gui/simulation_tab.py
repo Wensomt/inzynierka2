@@ -14,6 +14,7 @@ class SimulationTab(ttk.Frame):
     """Jedna czytelna zakładka konfiguracji symulacji."""
 
     INTEGER_PARAMETERS = {
+        "CellLayout",
         "N_Ues",
         "N_MmWaveEnbNodes",
         "RngRun",
@@ -22,16 +23,17 @@ class SimulationTab(ttk.Frame):
     }
 
     FIELDS = (
-        ("simTime", "Czas symulacji [s]", "scenario"),
+        ("simTime", "Czas ns-3 [s]", "scenario"),
         ("N_Ues", "Liczba UE", "scenario"),
-        ("N_MmWaveEnbNodes", "Liczba gNB", "scenario"),
+        ("N_MmWaveEnbNodes", "Liczba komórek NR", "scenario"),
+        ("CellLayout", "Układ: 0 środek, 1 wielokąt", "scenario"),
         ("RngRun", "RngRun", "scenario"),
         ("UdpPacketSizeBytes", "Rozmiar pakietu [B]", "traffic"),
         ("UdpIntervalUs", "Odstęp pakietów [µs]", "traffic"),
         ("Bandwidth", "Szerokość pasma [Hz]", "radio"),
         ("CenterFrequency", "Częstotliwość [Hz]", "radio"),
-        ("IntersideDistanceUEs", "Odległość UE [m]", "radio"),
-        ("IntersideDistanceCells", "Odległość gNB [m]", "radio"),
+        ("IntersideDistanceUEs", "Promień obszaru UE [m]", "radio"),
+        ("IntersideDistanceCells", "Rozstaw komórek [m]", "radio"),
         ("indicationPeriodicity", "Okres KPM [s]", "technical"),
     )
 
@@ -40,7 +42,7 @@ class SimulationTab(ttk.Frame):
         parent: tk.Misc,
         simulation: Simulation,
         application_config: Dict[str, Any],
-        on_duplicate: Callable[[str], None],
+        on_duplicate: Optional[Callable[[str], None]],
     ) -> None:
         super().__init__(parent)
         self.simulation = simulation
@@ -68,7 +70,8 @@ class SimulationTab(ttk.Frame):
         ttk.Label(header, text="Nazwa:").grid(row=0, column=0, sticky="w")
         self.name_var = tk.StringVar(value=self.simulation.name)
         ttk.Entry(header, textvariable=self.name_var, width=38).grid(row=0, column=1, sticky="ew", padx=(8, 12))
-        ttk.Button(header, text="Duplikuj", command=lambda: self.on_duplicate(self.simulation.id)).grid(row=0, column=2, sticky="e")
+        if self.on_duplicate is not None:
+            ttk.Button(header, text="Duplikuj", command=lambda: self.on_duplicate(self.simulation.id)).grid(row=0, column=2, sticky="e")
         self.status_var = tk.StringVar(value="Stan: {}".format(self.simulation.status.value))
         ttk.Label(header, textvariable=self.status_var).grid(row=0, column=3, sticky="e", padx=(12, 0))
 

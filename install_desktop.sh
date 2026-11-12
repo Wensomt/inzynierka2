@@ -11,7 +11,7 @@ cat > "$ENTRY_FILE" <<DESKTOP
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=O-RAN Energy Lab
+Name=Symulator O-RAN
 Comment=Lokalne laboratorium symulacji ns-3/FlexRIC/xApp
 Exec=/usr/bin/env bash "$APP_DIR/run.sh" --desktop
 TryExec=/usr/bin/env
@@ -38,11 +38,11 @@ if [[ -z "$DESKTOP_PATH" || "$DESKTOP_PATH" == "$HOME" ]]; then
   DESKTOP_PATH="$HOME/Desktop"
 fi
 mkdir -p -- "$DESKTOP_PATH"
-cp -- "$ENTRY_FILE" "$DESKTOP_PATH/O-RAN Energy Lab.desktop"
-chmod +x "$DESKTOP_PATH/O-RAN Energy Lab.desktop"
+cp -- "$ENTRY_FILE" "$DESKTOP_PATH/Symulator O-RAN.desktop"
+chmod +x "$DESKTOP_PATH/Symulator O-RAN.desktop"
 if command -v gio >/dev/null 2>&1; then
-  gio set "$DESKTOP_PATH/O-RAN Energy Lab.desktop" metadata::trusted true 2>/dev/null || true
+  gio set "$DESKTOP_PATH/Symulator O-RAN.desktop" metadata::trusted true 2>/dev/null || true
 fi
 
 echo "Zainstalowano skrót w menu: $ENTRY_FILE"
-echo "Zainstalowano skrót na pulpicie: $DESKTOP_PATH/O-RAN Energy Lab.desktop"
+echo "Zainstalowano skrót na pulpicie: $DESKTOP_PATH/Symulator O-RAN.desktop"

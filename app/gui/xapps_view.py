@@ -91,9 +91,9 @@ class XAppsView(ttk.Frame):
             wrap="word",
             state="disabled",
             font=("TkFixedFont", 9),
-            background="#171b20",
-            foreground="#e5e9ef",
-            insertbackground="#e5e9ef",
+            background="#ffffff",
+            foreground="#202020",
+            insertbackground="#202020",
             relief="flat",
         )
         self.details.grid(row=0, column=0, sticky="ew")
@@ -109,9 +109,9 @@ class XAppsView(ttk.Frame):
             wrap="none",
             state="disabled",
             font=("TkFixedFont", 9),
-            background="#171b20",
-            foreground="#e5e9ef",
-            insertbackground="#e5e9ef",
+            background="#ffffff",
+            foreground="#202020",
+            insertbackground="#202020",
             relief="flat",
         )
         self.log.grid(row=0, column=0, sticky="nsew")

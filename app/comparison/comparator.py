@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+import math
+import hashlib
+import json
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from app.simulation.models import Simulation, SimulationStatus
@@ -48,7 +51,7 @@ QUALITY_ROWS: Tuple[Tuple[str, str, str], ...] = (
     ("throughput_mbit_per_s", "Średnia przepływność użyteczna", "Mbit/s"),
     ("delay_ms", "Średnie opóźnienie odebranych pakietów", "ms"),
     ("packet_loss_pct", "Packet loss", "%"),
-    ("delivered_mbit", "Dostarczone dane (estymata PDCP)", "Mbit"),
+    ("delivered_mbit", "Dostarczone dane", "Mbit"),
 )
 
 OPTIONAL_QUALITY_ROWS: Tuple[Tuple[str, str, str], ...] = (
@@ -178,22 +181,66 @@ def _assess(left: Simulation, right: Simulation, limits: Dict[str, float]) -> Tu
                    and left_config.get(key) != right_config.get(key)]
     if confounders:
         blockers.append("Różne warunki eksperymentu: " + ", ".join(_configuration_label(key) for key in confounders) + ".")
+    first_source = (left.runtime.get("scenario_source") or {}).get("sha256")
+    second_source = (right.runtime.get("scenario_source") or {}).get("sha256")
+    if not first_source or not second_source:
+        blockers.append("Brak udokumentowanej wersji źródła scenariusza (provenance unknown).")
+    elif first_source != second_source:
+        blockers.append("Różna wersja źródła scenariusza.")
+    clocks = [item.runtime.get("kpm_clock_patch_sha256") for item in (left, right)]
+    if not all(clocks):
+        blockers.append("Brak udokumentowanej wersji zegara KPM (provenance unknown).")
+    elif clocks[0] != clocks[1]:
+        blockers.append("Różna wersja zegara KPM.")
+    manifests = [manifest for item in (left, right)
+                 for manifest in [item.runtime.get("provenance_manifest")] if isinstance(manifest, dict)]
+    if len(manifests) == 2:
+        for section, key in (("image", "image_id"), ("configuration", "backend_config_sha256")):
+            values = [(manifest.get(section) or {}).get(key) if isinstance(manifest.get(section), dict) else None
+                      for manifest in manifests]
+            if all(values) and values[0] != values[1]:
+                blockers.append("Różne środowisko provenance_manifest: {}.{}.".format(section, key))
     for item in (left, right):
+        assert item.result is not None
+        blockers.extend("{}: provenance_manifest {}.".format(item.name, issue) for issue in _provenance_issues(item))
         if item.status != SimulationStatus.COMPLETED:
             blockers.append("{}: przebieg nie został ukończony.".format(item.name))
         termination = item.runtime.get("termination") or {}
         if item.runtime.get("experiment_valid") is False or (isinstance(termination, dict) and termination.get("partial")):
             blockers.append("{}: przebieg częściowy lub zaburzone działanie xAppa.".format(item.name))
-        if item.result.metadata.get("measurement_consistent") is False:
+        metadata = item.result.metadata
+        counters = {key: _number(metadata[key]) for key in ("tx_packets", "rx_packets", "lost_packets") if key in metadata}
+        tx, rx = counters.get("tx_packets"), counters.get("rx_packets")
+        if (metadata.get("invalid_packet_counters") or
+                any(value is None or value < 0 or not value.is_integer() or isinstance(metadata[key], bool)
+                    for key, value in counters.items()) or
+                (tx is not None and rx is not None and rx > tx)):
+            blockers.append("{}: niepoprawne liczniki pakietów.".format(item.name))
+        elif tx is not None and rx is not None:
+            lost = counters.get("lost_packets")
+            loss = _number(item.result.metrics.get("packet_loss_pct"))
+            if ((lost is not None and lost != tx - rx) or
+                    (tx > 0 and loss is not None and not math.isclose(
+                        loss, 100 * (tx - rx) / tx, rel_tol=1e-5, abs_tol=1e-6))):
+                blockers.append("{}: sprzeczne liczniki pakietów lub packet loss.".format(item.name))
+        if metadata.get("measurement_consistent") is not True:
             blockers.append("{}: metryki pochodzą z niespójnych lub nieokreślonych okien pomiarowych.".format(item.name))
+        start, end, duration = (_number(item.result.metadata.get(key)) for key in
+                                ("measurement_start_s", "measurement_end_s", "measurement_duration_s"))
+        # Serialization roundoff only, not an experimental/QoS tolerance.
+        if (start is None or end is None or duration is None or start < 0 or end <= start
+                or duration <= 0 or not math.isclose(duration, end - start, rel_tol=1e-9, abs_tol=1e-9)):
+            blockers.append("{}: niemożliwe lub nieokreślone okno pomiaru.".format(item.name))
     first_meta, second_meta = left.result.metadata, right.result.metadata
     for key, label in (("measurement_duration_s", "czas pomiaru"), ("energy_scope", "zakres modelu energii")):
         if first_meta.get(key) is None or second_meta.get(key) is None:
             blockers.append("Brak informacji o {} w co najmniej jednym wyniku.".format(label))
         elif first_meta[key] != second_meta[key]:
             blockers.append("Wyniki mają różny {}.".format(label))
-    for key in ("simulator_source", "data_layer", "packet_loss_definition", "measurement_start_s"):
-        if first_meta.get(key) != second_meta.get(key):
+    for key in ("simulator_source", "data_layer", "packet_loss_definition", "measurement_start_s", "measurement_end_s", "qos_source", "accounting_source"):
+        if any(meta.get(key) in (None, "") for meta in (first_meta, second_meta)):
+            blockers.append("Brak definicji lub pochodzenia pomiaru: {} (unknown).".format(key))
+        elif first_meta.get(key) != second_meta.get(key):
             blockers.append("Różna definicja lub pochodzenie pomiaru: {}.".format(key))
     if any(meta.get("simulator_source") == "SOURCE_LOCAL_DISCRETE_SIMULATOR" for meta in (first_meta, second_meta)):
         blockers.append("Uproszczony model lokalny nie stanowi walidacji wyników ns-3/O-RAN.")
@@ -234,6 +281,66 @@ def _assess(left: Simulation, right: Simulation, limits: Dict[str, float]) -> Tu
         saving = float(b["total_energy_j"]) < float(a["total_energy_j"])
         return "improved", ("W tej parze: wyższa EE i mniejsza energia przy spełnionych kryteriach QoS." if saving else "W tej parze: wyższa EE przy spełnionych kryteriach QoS; brak zmniejszenia energii całkowitej."), warnings
     return "no_improvement", "Kryteria QoS spełnione, ale nie zaobserwowano wzrostu EE.", warnings
+
+
+def _provenance_issues(item: Simulation) -> List[str]:
+    """Schema-1 completeness for descriptive comparison, not RNG independence.
+
+    An image ID identifies the model/backend even for a local image without a
+    registry digest. Unknown backend version strings/streams must be explicit;
+    neither two absent fields nor a mutable tag establish equality.
+    """
+    assert item.result is not None
+    manifest = item.runtime.get("provenance_manifest")
+    if not isinstance(manifest, dict) or manifest.get("schema_version") != 1:
+        return ["brak obsługiwanego manifestu (unknown)"]
+    def value(*path):
+        current = manifest
+        for key in path:
+            if not isinstance(current, dict):
+                return None
+            current = current.get(key)
+        return current
+    issues = []
+    image_id = value("image", "image_id")
+    if (not isinstance(image_id, str) or not image_id.startswith("sha256:") or len(image_id) != 71
+            or any(char not in "0123456789abcdefABCDEF" for char in image_id[7:])):
+        issues.append("image.image_id unknown/invalid")
+    for section in ("backend", "configuration", "sources", "rng", "timestamps", "termination", "windows", "baseline_reuse"):
+        if not isinstance(value(section), dict):
+            issues.append(section + " unknown")
+    if not value("backend", "versions") and not value("backend", "unknown_reason"):
+        issues.append("backend.versions unknown bez przyczyny")
+    canonical = json.dumps(item.configuration.to_dict(), sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    if value("configuration", "sha256") != hashlib.sha256(canonical.encode("utf-8")).hexdigest():
+        issues.append("configuration.sha256 brak lub sprzeczny z konfiguracją")
+    if not value("configuration", "backend_config_sha256"):
+        issues.append("configuration.backend_config_sha256 unknown")
+    for name, digest in (("scenario", (item.runtime.get("scenario_source") or {}).get("sha256")),
+                         ("clock_patch", item.runtime.get("kpm_clock_patch_sha256"))):
+        if not digest or value("sources", name, "sha256") != digest:
+            issues.append("sources." + name + " brak lub sprzeczny")
+    for key, expected in (("started_at", item.started_at), ("ended_at", item.ended_at)):
+        if not expected or value("timestamps", key) != expected:
+            issues.append("timestamps." + key + " unknown/sprzeczny")
+    termination = item.runtime.get("termination")
+    if (not isinstance(termination, dict) or termination.get("partial") is not False
+            or termination.get("reason") != "natural" or value("termination") != termination):
+        issues.append("termination brak potwierdzonego naturalnego zakończenia")
+    for key in ("start_s", "end_s", "duration_s"):
+        if value("windows", "actual", key) != item.result.metadata.get("measurement_" + key):
+            issues.append("windows.actual." + key + " sprzeczny")
+    if value("windows", "measurement_consistent") is not True:
+        issues.append("windows.measurement_consistent unknown/false")
+    for key, parameter in (("seed", "RngSeed"), ("run", "RngRun")):
+        expected = item.configuration.parameters.get(parameter)
+        if value("rng", key) != expected or (expected is None and not value("rng", "unknown_reasons", key)):
+            issues.append("rng." + key + " unknown/sprzeczny")
+    if value("rng", "stream_mapping") is None and not value("rng", "unknown_reasons", "stream_mapping"):
+        issues.append("rng.stream_mapping unknown bez przyczyny")
+    if not isinstance(value("baseline_reuse", "reused"), bool):
+        issues.append("baseline_reuse unknown")
+    return issues
 
 
 def _configuration_differences(left: Simulation, right: Simulation) -> List[ConfigurationDifference]:

@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import asyncio
 import csv
+import hashlib
 import io
 import json
 import math
+import os
 import posixpath
 import re
 import shlex
@@ -26,9 +28,11 @@ from app.monitoring.live_metrics import LiveMetricsCollector
 from app.monitoring.live_topology import LiveTopologyCollector
 from app.monitoring.xapp_decisions import XappDecisionCollector
 from app.services.xapp_service import XAppService
+from app.services.my_energy_sources import source_path
 from app.simulation.kpm_live import KpmLiveCollector
 
 from .docker_session import DockerSession, DockerSessionManager
+from .csv_tail import CSV_TAIL_READER
 from .models import Simulation, SimulationStatus, now_utc
 from .scenario_sync import (
     packaged_scenario_path,
@@ -37,6 +41,42 @@ from .scenario_sync import (
     sync_packaged_scenario,
 )
 from .validation import INTEGER_PARAMETERS, validate_configuration
+
+
+def _q3_validate_plan(anchor, observed):
+    """Compare an inventory; the returned plan never authorizes execution.
+
+    The caller must independently establish trust and inventory completeness.
+    This pure helper is not connected to either production entry point.
+    """
+    if type(anchor) is not dict or type(observed) is not dict:
+        raise ValueError("invalid inventory")
+    if set(anchor) != {"image", "artifacts"} or set(observed) != {"image", "artifacts"}:
+        raise ValueError("invalid inventory fields")
+    image = anchor["image"]
+    if type(image) is not str or len(image) != 71 or not image.startswith("sha256:") or any(c not in "0123456789abcdef" for c in image[7:]):
+        raise ValueError("invalid image identity")
+    if observed["image"] != image:
+        raise ValueError("image mismatch")
+    expected, actual = anchor["artifacts"], observed["artifacts"]
+    if type(expected) is not dict or type(actual) is not dict or not expected or set(expected) != set(actual):
+        raise ValueError("artifact inventory mismatch")
+    categories = set()
+    for path, digest in expected.items():
+        if type(path) is not str or not path.isascii() or "\\" in path or any(part in ("", ".", "..") for part in path.split("/")):
+            raise ValueError("invalid artifact path")
+        parts = path.split("/")
+        if len(parts) < 2 or parts[0] not in ("source", "patch", "elf", "dependency"):
+            raise ValueError("invalid artifact category")
+        categories.add(parts[0])
+        if type(digest) is not str or len(digest) != 64 or any(c not in "0123456789abcdef" for c in digest):
+            raise ValueError("invalid artifact digest")
+        blob = actual[path]
+        if type(blob) is not bytes or hashlib.sha256(blob).hexdigest() != digest:
+            raise ValueError("artifact mismatch")
+    if categories != {"source", "patch", "elf", "dependency"}:
+        raise ValueError("incomplete artifact categories")
+    return ("verify-image", "verify-artifacts", "execution-blocked")
 
 
 # Public callbacks historically accepted three arguments.  The fourth one is an
@@ -156,6 +196,8 @@ class SimulationRunner:
     def run(self, simulation: Simulation, progress: Optional[ProgressCallback] = None) -> Simulation:
         """Wersja blokująca, przeznaczona dla wątku kolejki GUI."""
 
+        if os.environ.get("ORAN_LAB_Q3_ISOLATED") == "1":
+            raise RuntimeError("Q3 blocked: binary provenance and authorization not verified")
         return asyncio.run(self._run_with_retry(simulation, progress))
 
     async def _run_with_retry(
@@ -348,7 +390,57 @@ class SimulationRunner:
         if callable(save):
             save(simulation)
 
+    @staticmethod
+    def _record_provenance(
+        simulation: Simulation, config: Mapping[str, Any], image: Optional[Dict[str, Any]] = None,
+    ) -> None:
+        """Record observations for this attempt only; never upgrade legacy history."""
+        runtime = simulation.runtime
+        previous = runtime.get("provenance_manifest") or {}
+        parameters = simulation.configuration.parameters
+        metadata = simulation.result.metadata if simulation.result is not None else {}
+        configuration = simulation.configuration.to_dict()
+        canonical = json.dumps(configuration, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+        sources = {}
+        for name, value in (("scenario", (runtime.get("scenario_source") or {}).get("sha256")),
+                            ("xapp", (runtime.get("xapp_source") or {}).get("sha256")),
+                            ("clock_patch", runtime.get("kpm_clock_patch_sha256"))):
+            sources[name] = {"sha256": value or None,
+                             "unknown_reason": None if value else "Source not observed/used in this attempt"}
+        runtime["provenance_manifest"] = {
+            "schema_version": 1,
+            "recorded_at": now_utc(),
+            "image": image if image is not None else previous.get("image", {
+                "image_id": None, "image_id_unknown_reason": "No session image observed",
+                "repo_digests": None, "repo_digests_unknown_reason": "No session image observed"}),
+            "backend": {"versions": None, "unknown_reason": "Backend version strings not observed; see image and source identities"},
+            "sources": sources,
+            "configuration": {"sha256": hashlib.sha256(canonical.encode("utf-8")).hexdigest(),
+                              "encoding": "canonical JSON UTF-8, sorted keys, compact, ensure_ascii=false",
+                              "backend_config_sha256": hashlib.sha256(json.dumps(config, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")).hexdigest()},
+            "rng": {"seed": parameters.get("RngSeed"), "run": parameters.get("RngRun"),
+                    "stream_mapping": None,
+                    "unknown_reasons": {key: reason for key, reason in (
+                        ("seed", None if parameters.get("RngSeed") is not None else "RngSeed not explicitly configured"),
+                        ("run", None if parameters.get("RngRun") is not None else "RngRun not explicitly configured"),
+                        ("stream_mapping", "Backend stream assignment not observed; independence not established")) if reason}},
+            "timestamps": {"started_at": simulation.started_at, "ended_at": simulation.ended_at,
+                           "unknown_reasons": {key: "Attempt has not reached this lifecycle timestamp"
+                                               for key, timestamp in (("started_at", simulation.started_at), ("ended_at", simulation.ended_at))
+                                               if timestamp is None}},
+            "termination": runtime.get("termination") or {"reason": None, "unknown_reason": "Termination not yet observed"},
+            "windows": {
+                "planned": {"start_s": 0, "end_s": parameters.get("simTime"), "meaning": "configured simulation horizon, not a measured interval"},
+                "actual": {key: metadata.get("measurement_" + key) for key in ("start_s", "end_s", "duration_s")},
+                "actual_unknown_reason": None if all(metadata.get("measurement_" + key) is not None for key in ("start_s", "end_s", "duration_s")) else "No complete measured window observed",
+                "measurement_consistent": metadata.get("measurement_consistent"),
+            },
+            "baseline_reuse": {"reused": False, "meaning": "New runner attempt, not a reused historical baseline"},
+        }
+
     async def _run(self, simulation: Simulation, progress: Optional[ProgressCallback]) -> Simulation:
+        if os.environ.get("ORAN_LAB_Q3_ISOLATED") == "1":
+            raise RuntimeError("Q3 blocked: binary provenance and authorization not verified")
         cfg = self.config.as_dict()
         self._live_sequences = {}
         # Only queue/retry metadata belongs to the next attempt. A failed
@@ -365,9 +457,12 @@ class SimulationRunner:
         if errors:
             simulation.runtime = dict(simulation.runtime or {})
             simulation.runtime["failure_kind"] = "validation"
+            simulation.runtime["termination"] = {"reason": "validation", "partial": True}
+            simulation.started_at = None
             simulation.status = SimulationStatus.FAILED
             simulation.error = "; ".join(errors)
             simulation.ended_at = now_utc()
+            self._record_provenance(simulation, cfg)
             self.storage.save(simulation)
             self._emit(simulation, "FAILED", simulation.error, progress)
             return simulation
@@ -404,6 +499,7 @@ class SimulationRunner:
                 simulation.runtime["queue_timing"] = pending_queue_timing
             if pending_retry is not None:
                 simulation.runtime["run_retry"] = pending_retry
+            self._record_provenance(simulation, cfg, DockerSessionManager.image_provenance(session.container))
             self.storage.save(simulation)
             self._emit(
                 simulation,
@@ -491,6 +587,19 @@ class SimulationRunner:
             scenario_expression = self._scenario_expression(
                 cfg, discovery, root, simulation, remote_scenario=remote_scenario
             )
+            if simulation.configuration.scenario == "optimized" and local_scenario is not None:
+                clock_patch = (RESOURCE_DIR / "resources" / "patch_kpm_clock.py").read_text(encoding="utf-8")
+                clock_source = posixpath.join(root, "contrib/oran-interface/model/kpm-indication.cc")
+                code, output = await run_in_thread(
+                    processes.exec_text,
+                    "python3 -c {} {}".format(shlex.quote(clock_patch), shlex.quote(clock_source)),
+                )
+                if code != 0:
+                    raise RuntimeError("Nie można ustawić zegara KPM: " + output[-1500:])
+                simulation.runtime["kpm_clock"] = "simulation_us"
+                simulation.runtime["kpm_clock_patch_sha256"] = hashlib.sha256(
+                    (RESOURCE_DIR / "resources" / "patch_kpm_clock.py").read_bytes()
+                ).hexdigest()
             if local_scenario is not None and live_contract["required"]:
                 # ``ns3 run`` normally builds its target, but an explicit
                 # build here turns a stale/invalid scratch target into a
@@ -762,6 +871,7 @@ class SimulationRunner:
                     self._append_log(simulation, "Błąd sprzątania kontenera: {}".format(exc))
             self._current_session = None
             simulation.ended_at = now_utc()
+            self._record_provenance(simulation, cfg)
             self.storage.save(simulation)
         return simulation
 
@@ -994,7 +1104,7 @@ class SimulationRunner:
         Use the same CMake ownership rules as the explicit xApp build service,
         and launch the binary actually produced by this build.
         """
-        source = RESOURCE_DIR / "resources" / "xapp_my_energy_optimized.c"
+        source = source_path(config, "xapp")
         if not source.is_file():
             raise RuntimeError("Brak dostarczonego źródła xAppa My Energy: {}".format(source))
         entry = (config.get("xapps") or {}).get("optimized") or {}
@@ -1391,20 +1501,14 @@ class SimulationRunner:
         if filename not in allowed:
             raise ValueError("Niedozwolony plik metryk live: {}".format(filename))
         path = posixpath.join(root, filename)
-        script_source = "\n".join(
+        script_source = CSV_TAIL_READER + "\n" + "\n".join(
             [
                 "import collections, os, sys",
                 "path = sys.argv[1]",
                 "limit = int(sys.argv[2])",
                 "if not os.path.isfile(path):",
                 "    raise SystemExit(3)",
-                "with open(path, 'r', encoding='utf-8', errors='replace') as handle:",
-                "    header = handle.readline()",
-                "    rows = collections.deque(handle, maxlen=limit)",
-                "while rows and not rows[-1].endswith(('\\n', '\\r')):",
-                "    rows.pop()",
-                "sys.stdout.write(header)",
-                "sys.stdout.writelines(rows)",
+                "sys.stdout.write(read_csv_tail(path, limit))",
             ]
         )
         script = "python3 -c {} {} {}".format(
@@ -1455,7 +1559,7 @@ class SimulationRunner:
         arbitralnych ścieżek z kontenera.
         """
 
-        script_source = "\n".join(
+        script_source = CSV_TAIL_READER + "\n" + "\n".join(
             [
                 "import collections, glob, json, os, sys",
                 "root = sys.argv[1]",
@@ -1466,12 +1570,7 @@ class SimulationRunner:
                 "for path in sorted(glob.glob(pattern))[:maximum]:",
                 "    if not os.path.isfile(path):",
                 "        continue",
-                "    with open(path, 'r', encoding='utf-8', errors='replace') as handle:",
-                "        header = handle.readline()",
-                "        rows = collections.deque(handle, maxlen=limit)",
-                "    while rows and not rows[-1].endswith(('\\n', '\\r')):",
-                "        rows.pop()",
-                "    result[os.path.basename(path)] = header + ''.join(rows)",
+                "    result[os.path.basename(path)] = read_csv_tail(path, limit)",
                 "print(json.dumps(result))",
             ]
         )
@@ -1511,7 +1610,7 @@ class SimulationRunner:
         ścisłej listy wzorców, żeby nie przekazać dalej arbitralnych ścieżek.
         """
 
-        script_source = "\n".join(
+        script_source = CSV_TAIL_READER + "\n" + "\n".join(
             [
                 "import collections, glob, json, os, sys",
                 "root = sys.argv[1]",
@@ -1527,12 +1626,7 @@ class SimulationRunner:
                 "            paths.append(path)",
                 "result = {}",
                 "for path in paths[:maximum]:",
-                "    with open(path, 'r', encoding='utf-8', errors='replace') as handle:",
-                "        header = handle.readline()",
-                "        rows = collections.deque(handle, maxlen=limit)",
-                "    while rows and not rows[-1].endswith(('\\n', '\\r')):",
-                "        rows.pop()",
-                "    result[os.path.basename(path)] = header + ''.join(rows)",
+                "    result[os.path.basename(path)] = read_csv_tail(path, limit)",
                 "print(json.dumps(result))",
             ]
         )
@@ -1724,6 +1818,7 @@ class SimulationRunner:
         kpm_series = dict(kpm_series) if isinstance(kpm_series, Mapping) else {}
         kpm_sources = kpm_snapshot.get("metric_sources")
         kpm_sources = dict(kpm_sources) if isinstance(kpm_sources, Mapping) else {}
+        primary_has_data = current_metrics.get("delivered_mbit") is not None
         mappings = (
             ("throughput_mbit_per_s", "throughput_mbit_per_s"),
             ("delivered_mbit", "delivered_mbit"),
@@ -1735,7 +1830,7 @@ class SimulationRunner:
         )
         for target, source in mappings:
             value = kpm_metrics.get(source)
-            if current_metrics.get(target) is None and value is not None:
+            if target != "throughput_mbit_per_s" and current_metrics.get(target) is None and value is not None:
                 current_metrics[target] = value
             existing = series.get(target)
             kpm_points = kpm_series.get(source)
@@ -1753,12 +1848,15 @@ class SimulationRunner:
             delivered_mbit = kpm_snapshot.get("integrated_delivered_mbit")
         if current_metrics.get("delivered_mbit") is None and delivered_mbit is not None:
             current_metrics["delivered_mbit"] = delivered_mbit
+        delivered_mbit = current_metrics.get("delivered_mbit")
         energy_j = current_metrics.get("total_energy_j")
         sample_time_s = kpm_snapshot.get("sample_time_s")
+        if not primary_has_data and delivered_mbit is not None and isinstance(sample_time_s, (int, float)) and sample_time_s > 0:
+            current_metrics["throughput_mbit_per_s"] = delivered_mbit / sample_time_s
         energy_points_for_current = series.get("energy_j")
         energy_source = str(series_sources.get("energy_j") or "").lower()
         energy_is_cell_fallback = "energyfilecell" in energy_source
-        if isinstance(sample_time_s, (int, float)) and isinstance(energy_points_for_current, list):
+        if energy_is_cell_fallback and isinstance(sample_time_s, (int, float)) and isinstance(energy_points_for_current, list):
             aligned = [
                 point for point in energy_points_for_current
                 if isinstance(point, Mapping)
@@ -1799,7 +1897,7 @@ class SimulationRunner:
 
         delivered_points = kpm_series.get("delivered_mbit")
         energy_points = series.get("energy_j")
-        if isinstance(delivered_points, list) and isinstance(energy_points, list):
+        if energy_is_cell_fallback and isinstance(delivered_points, list) and isinstance(energy_points, list):
             aligned_energy = sorted(
                 (point for point in energy_points if isinstance(point, Mapping)),
                 key=lambda point: float(point.get("x", 0.0)),
@@ -1900,7 +1998,7 @@ class SimulationRunner:
                         accepted += metrics_accepted
             except Exception as exc:
                 metrics_error = "Nie można przetworzyć metrics.csv: {}".format(exc)
-        if collector.primary_source is None:
+        if collector.primary_source in (None, self.LIVE_TIMESERIES_FILE):
             try:
                 text, timeseries_error = await run_in_thread(
                     self._read_live_timeseries_tail, processes, root
@@ -2100,7 +2198,10 @@ class SimulationRunner:
             simulation.runtime["live_metrics_contract"] = live_contract
         if primary_available and (accepted or accepted_rows):
             collection_state = "OK"
-        elif fallback_streaming and not primary_required:
+        elif fallback_streaming and not primary_required and all(
+            current_metrics.get(key) is not None
+            for key in ("total_energy_j", "delivered_mbit", "energy_efficiency_bit_per_j")
+        ):
             collection_state = "LIVE"
         elif has_live_data:
             collection_state = "PARTIAL"

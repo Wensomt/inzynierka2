@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping, Optional
 from uuid import uuid4
 
-from app.simulation.models import SimulationConfiguration
+from app.simulation.models import DEFAULT_SIM_TIME_S, SimulationConfiguration
 from app.simulation.validation import validate_configuration
 
 
@@ -58,12 +58,17 @@ class SavedScenario:
 # Dane opisowe są oparte na GlobalValue aktywnego, dostarczonego scenariusza.
 # Gdy scenariusz nie deklaruje danego klucza w config.json, widok go nie pokaże.
 PARAMETER_META: Dict[str, Dict[str, Any]] = {
+    "CellLayout": {
+        "group": "RADIO", "label": "Układ: 0 środek, 1 wielokąt", "unit": "",
+        "description": "Osobne gNB: 0 środek i pierścień, 1 regularny wielokąt. To nie są sektory wspólnego masztu.",
+        "default": 1, "minimum": 0, "maximum": 1, "kind": "integer",
+    },
     "simTime": {
         "group": "GENERAL",
         "label": "Czas symulacji",
         "unit": "s",
-        "description": "Czas modelowany przez ns-3.",
-        "default": 1000,
+        "description": "Czas modelowany przez ns-3, niezależny od zegara komputera. Zacznij od krótkiego przebiegu.",
+        "default": DEFAULT_SIM_TIME_S,
         "minimum": 0.2,
         "maximum": 100000.0,
         "kind": "float",
@@ -127,7 +132,7 @@ PARAMETER_META: Dict[str, Dict[str, Any]] = {
     },
     "IntersideDistanceUEs": {
         "group": "UE",
-        "label": "Odległość UE",
+        "label": "Promień obszaru UE",
         "unit": "m",
         "description": "Wartość odległości używana przy rozmieszczeniu UE.",
         "default": 500,
@@ -135,7 +140,7 @@ PARAMETER_META: Dict[str, Dict[str, Any]] = {
     },
     "IntersideDistanceCells": {
         "group": "RADIO",
-        "label": "Odległość komórek",
+        "label": "Rozstaw komórek NR",
         "unit": "m",
         "description": "Wartość odległości używana przy rozmieszczeniu komórek.",
         "default": 600,

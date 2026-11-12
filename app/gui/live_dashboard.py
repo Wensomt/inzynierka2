@@ -40,29 +40,29 @@ METRIC_META = {
     "total_energy_j": ("Zużyta energia", "J"),
     "average_power_w": ("Średnia moc", "W"),
     "latest_power_w": ("Ostatnia moc", "W"),
-    "delivered_mbit": ("Dane dostarczone — estymata", "Mbit"),
-    "throughput_mbit_per_s": ("Przepływność ostatniego raportu", "Mbit/s"),
+    "delivered_mbit": ("Dostarczone dane", "Mbit"),
+    "throughput_mbit_per_s": ("Średnia przepływność", "Mbit/s"),
     "delay_ms": ("Średnie opóźnienie", "ms"),
-    "packet_loss_pct": ("Packet loss", "%"),
+    "packet_loss_pct": ("Niedostarczone pakiety", "%"),
     "mean_sinr_db": ("Średni SINR", "dB"),
     "p05_sinr_db": ("SINR p05", "dB"),
     "mean_prb_pct": ("Średnie użycie PRB", "%"),
-    "active_ues": ("Aktywne UE", ""),
+    "active_ues": ("UE w raportach KPM", ""),
 }
 
 SERIES_META = {
-    "power_w": ("Moc chwilowa", "W", "#55b87a"),
-    "energy_j": ("Energia skumulowana", "J", "#d4a847"),
-    "energy_efficiency_bit_per_j": ("EE skumulowana", "Mbit/J", "#3b88c3"),
-    "energy_per_mbit_j": ("Koszt energii danych", "J/Mbit", "#d66b6b"),
-    "throughput_mbit_per_s": ("Przepływność raportowana", "Mbit/s", "#7d9dde"),
-    "delivered_mbit": ("Dane PDCP — estymata", "Mbit", "#b68cc9"),
-    "mean_sinr_db": ("Średni SINR", "dB", "#56b4a9"),
-    "p05_sinr_db": ("SINR p05", "dB", "#4fb3bf"),
-    "mean_prb_pct": ("Użycie PRB", "%", "#df9f4a"),
-    "active_ues": ("Aktywne UE — suma raportów komórek", "UE", "#87b56a"),
-    "packet_loss_pct": ("Packet loss", "%", "#db6d78"),
-    "delay_ms": ("Średnie opóźnienie", "ms", "#a88bd3"),
+    "power_w": ("Moc w przedziale próbkowania", "W", "#287441"),
+    "energy_j": ("Energia skumulowana", "J", "#8a5a12"),
+    "energy_efficiency_bit_per_j": ("EE skumulowana", "Mbit/J", "#2166a0"),
+    "energy_per_mbit_j": ("Koszt energii danych", "J/Mbit", "#b13939"),
+    "throughput_mbit_per_s": ("Przepływność w przedziale próbkowania", "Mbit/s", "#4f6bb2"),
+    "delivered_mbit": ("Dostarczone dane", "Mbit", "#845aa5"),
+    "mean_sinr_db": ("Średni SINR", "dB", "#287e75"),
+    "p05_sinr_db": ("SINR p05", "dB", "#287783"),
+    "mean_prb_pct": ("Użycie PRB", "%", "#9d681d"),
+    "active_ues": ("UE — suma raportów KPM komórek", "UE", "#507934"),
+    "packet_loss_pct": ("Niedostarczone pakiety", "%", "#b13939"),
+    "delay_ms": ("Średnie opóźnienie", "ms", "#7d55a5"),
 }
 
 MAJOR_METRICS = (
@@ -272,6 +272,8 @@ def metric_rows(snapshot: Mapping[str, Any]) -> List[Tuple[str, Any]]:
             for metric, value in values.items():
                 if value is not None:
                     collected[metric] = value
+                elif container is result:
+                    collected.pop(metric, None)
     return [(key, collected[key]) for key in sorted(collected)]
 
 
@@ -315,7 +317,7 @@ class LiveDashboard(ttk.Frame):
     wyłącznie wtedy, gdy backend je przekazał.
     """
 
-    CHART_COLUMNS = 3
+    CHART_COLUMNS = 2
 
     def __init__(self, parent: tk.Misc, **kwargs: Any) -> None:
         super().__init__(parent, **kwargs)
@@ -357,41 +359,49 @@ class LiveDashboard(ttk.Frame):
         self._build_progress(content)
         self._build_metric_cards(content)
         self._build_quality_cards(content)
-        self._build_runtime_strip(content)
-        self._build_xapp_decisions(content)
-        self._build_charts(content)
-        self._build_topology(content)
+        self.detail_notebook = ttk.Notebook(content)
+        self.detail_notebook.grid(row=4, column=0, sticky="ew", pady=(4, 0))
+        charts = ttk.Frame(self.detail_notebook)
+        runtime = ttk.Frame(self.detail_notebook)
+        self.map_frame = ttk.Frame(self.detail_notebook)
+        for page, label in ((charts, "Wykresy"), (runtime, "Procesy i decyzje xApp"), (self.map_frame, "Mapa sieci")):
+            page.columnconfigure(0, weight=1)
+            self.detail_notebook.add(page, text=label)
+        self._build_charts(charts)
+        self._build_runtime_strip(runtime)
+        self._build_xapp_decisions(runtime)
+        self._build_topology(self.map_frame)
 
     def _configure_local_styles(self) -> None:
         style = ttk.Style(self)
         style.configure(
             "LiveMajorValue.TLabel",
-            background="#252b33",
-            foreground="#6eb6e7",
+            background="#f3f3f3",
+            foreground="#2166a0",
             font=("TkDefaultFont", 17, "bold"),
         )
         style.configure(
             "LiveMinorValue.TLabel",
-            background="#252b33",
-            foreground="#e5e9ef",
+            background="#f3f3f3",
+            foreground="#202020",
             font=("TkDefaultFont", 12, "bold"),
         )
         style.configure(
             "LiveStateValue.TLabel",
-            background="#252b33",
-            foreground="#aab4c0",
+            background="#f3f3f3",
+            foreground="#59636e",
             font=("TkDefaultFont", 10, "bold"),
         )
         style.configure(
             "LiveChartTitle.TLabel",
-            background="#252b33",
-            foreground="#aab4c0",
+            background="#f3f3f3",
+            foreground="#59636e",
             font=("TkDefaultFont", 9, "bold"),
         )
         style.configure(
             "LiveHint.TLabel",
-            background="#252b33",
-            foreground="#aab4c0",
+            background="#f3f3f3",
+            foreground="#59636e",
             font=("TkDefaultFont", 9),
         )
 
@@ -426,6 +436,7 @@ class LiveDashboard(ttk.Frame):
     def _build_metric_cards(self, parent: tk.Misc) -> None:
         metrics_box = ttk.LabelFrame(parent, text="ENERGIA I DANE — NA ŻYWO", padding=(7, 6))
         metrics_box.grid(row=2, column=0, sticky="ew", pady=(0, 7))
+        metrics_box.columnconfigure(0, weight=1)
 
         major = ttk.Frame(metrics_box)
         major.grid(row=0, column=0, sticky="ew")
@@ -448,14 +459,16 @@ class LiveDashboard(ttk.Frame):
             quality_box.columnconfigure(index, weight=1, uniform="quality-metrics")
         for index, key in enumerate(QUALITY_METRICS):
             self._metric_card(quality_box, key, index, "minor")
+        ttk.Label(quality_box, text="Na żywo: niedostarczone obejmują też pakiety w drodze. Wynik końcowy uwzględnia czas opróżniania kolejek.", style="LiveHint.TLabel").grid(row=1, column=0, columnspan=len(QUALITY_METRICS), sticky="w", pady=(4, 0))
 
     def _metric_card(self, parent: tk.Misc, key: str, column: int, size: str) -> None:
         label, _unit = METRIC_META[key]
-        card = ttk.LabelFrame(parent, text=label.upper(), padding=(7, 4))
+        card = ttk.Frame(parent, padding=(7, 4))
         card.grid(row=0, column=column, sticky="ew", padx=(0 if column == 0 else 6, 0))
         value = tk.StringVar(value="—")
         self._metric_vars[key] = value
         style = "LiveMajorValue.TLabel" if size == "major" else "LiveMinorValue.TLabel"
+        ttk.Label(card, text=label, style="LiveHint.TLabel").pack(anchor="w")
         ttk.Label(card, textvariable=value, style=style).pack(anchor="w")
 
     def _build_runtime_strip(self, parent: tk.Misc) -> None:
@@ -510,7 +523,7 @@ class LiveDashboard(ttk.Frame):
     def _build_charts(self, parent: tk.Misc) -> None:
         chart_box = ttk.LabelFrame(
             parent,
-            text="REALNE SERIE CZASOWE — ENERGIA, DANE I JAKOŚĆ",
+            text="Przebiegi czasowe",
             padding=(7, 6),
         )
         chart_box.grid(row=6, column=0, sticky="ew", pady=(0, 7))
@@ -529,12 +542,26 @@ class LiveDashboard(ttk.Frame):
             row=0, column=1, sticky="e"
         )
 
-        for index, key in enumerate(LIVE_SERIES_ORDER):
+        chart_tabs = ttk.Notebook(chart_box)
+        chart_tabs.grid(row=1, column=0, columnspan=self.CHART_COLUMNS, sticky="ew")
+        groups = (
+            ("Energia", LIVE_SERIES_ORDER[:4]),
+            ("Ruch", LIVE_SERIES_ORDER[4:6]),
+            ("Jakość transmisji", LIVE_SERIES_ORDER[6:]),
+        )
+        chart_positions = []
+        for label, keys in groups:
+            page = ttk.Frame(chart_tabs, padding=6)
+            chart_tabs.add(page, text=label)
+            for column in range(self.CHART_COLUMNS):
+                page.columnconfigure(column, weight=1, uniform="charts")
+            chart_positions.extend((page, index, key) for index, key in enumerate(keys))
+        for page, index, key in chart_positions:
             row, column = divmod(index, self.CHART_COLUMNS)
             title, unit, _color = SERIES_META[key]
-            card = ttk.Frame(chart_box)
+            card = ttk.Frame(page)
             card.grid(
-                row=row + 1,
+                row=row,
                 column=column,
                 sticky="nsew",
                 padx=(0 if column == 0 else 6, 0),
@@ -549,15 +576,15 @@ class LiveDashboard(ttk.Frame):
             )
             source = tk.StringVar(value="")
             self._chart_source_vars[key] = source
-            ttk.Label(title_row, textvariable=source, style="LiveHint.TLabel").grid(
-                row=0, column=1, sticky="e", padx=(6, 0)
+            ttk.Label(card, textvariable=source, style="LiveHint.TLabel", wraplength=430).grid(
+                row=2, column=0, sticky="w", pady=(3, 0)
             )
             canvas = tk.Canvas(
                 card,
-                height=136,
+                height=175,
                 highlightthickness=1,
-                highlightbackground="#3c4653",
-                background="#171b20",
+                highlightbackground="#c7c7c7",
+                background="#ffffff",
             )
             canvas.grid(row=1, column=0, sticky="ew")
             canvas.bind("<Configure>", lambda _event: self._request_chart_draw(), add=True)
@@ -579,7 +606,8 @@ class LiveDashboard(ttk.Frame):
     def show_topology(self) -> None:
         """Otwiera mapę radiową bez ukrywania wykresów albo zmiany zakładki."""
 
-        self.scroller.scroll_to_widget(self.topology_view)
+        self.detail_notebook.select(self.map_frame)
+        self.scroller.scroll_to_widget(self.detail_notebook)
 
     def clear(self) -> None:
         """Czyści wyłącznie stan prezentacji dashboardu."""
@@ -1166,7 +1194,7 @@ class LiveDashboard(ttk.Frame):
                 width / 2,
                 height / 2,
                 text="Oczekiwanie na realne próbki",
-                fill="#aab4c0",
+                fill="#59636e",
                 font=("TkDefaultFont", 9),
             )
             return
@@ -1178,9 +1206,9 @@ class LiveDashboard(ttk.Frame):
         bottom = height - top - plot_height
         for fraction in (0.0, 0.5, 1.0):
             y = top + plot_height * fraction
-            canvas.create_line(left, y, width - right, y, fill="#28313b")
-        canvas.create_line(left, top, left, height - bottom, fill="#687585")
-        canvas.create_line(left, height - bottom, width - right, height - bottom, fill="#687585")
+            canvas.create_line(left, y, width - right, y, fill="#e5e5e5")
+        canvas.create_line(left, top, left, height - bottom, fill="#77818d")
+        canvas.create_line(left, height - bottom, width - right, height - bottom, fill="#77818d")
         coordinates: List[float] = []
         for x, y in points:
             px = left + (x - x_min) / (x_max - x_min) * plot_width
@@ -1198,19 +1226,19 @@ class LiveDashboard(ttk.Frame):
                 fill=color,
                 outline="",
             )
-        canvas.create_text(left - 4, top, text=self._number_text(y_max), anchor="e", fill="#aab4c0", font=("TkDefaultFont", 8))
-        canvas.create_text(left - 4, height - bottom, text=self._number_text(y_min), anchor="e", fill="#aab4c0", font=("TkDefaultFont", 8))
-        canvas.create_text(left, height - 8, text="{} s".format(self._number_text(x_min)), anchor="w", fill="#aab4c0", font=("TkDefaultFont", 8))
-        canvas.create_text(width - right, height - 8, text="{} s".format(self._number_text(x_max)), anchor="e", fill="#aab4c0", font=("TkDefaultFont", 8))
+        canvas.create_text(left - 4, top, text=self._number_text(y_max), anchor="e", fill="#59636e", font=("TkDefaultFont", 8))
+        canvas.create_text(left - 4, height - bottom, text=self._number_text(y_min), anchor="e", fill="#59636e", font=("TkDefaultFont", 8))
+        canvas.create_text(left, height - 8, text="{} s".format(self._number_text(x_min)), anchor="w", fill="#59636e", font=("TkDefaultFont", 8))
+        canvas.create_text(width - right, height - 8, text="{} s".format(self._number_text(x_max)), anchor="e", fill="#59636e", font=("TkDefaultFont", 8))
         latest = "{} {}".format(self._number_text(points[-1][1]), unit)
-        canvas.create_text(width - right, top, text=latest, anchor="ne", fill="#e5e9ef", font=("TkDefaultFont", 8, "bold"))
+        canvas.create_text(width - right, top, text=latest, anchor="ne", fill="#202020", font=("TkDefaultFont", 8, "bold"))
         if key in self._chart_viewports:
             canvas.create_text(
                 left + 3,
                 top + 2,
                 text="widok ręczny",
                 anchor="nw",
-                fill="#aab4c0",
+                fill="#59636e",
                 font=("TkDefaultFont", 7),
             )
 
@@ -1219,11 +1247,6 @@ class LiveDashboard(ttk.Frame):
 
         if key == "energy_efficiency_bit_per_j":
             return [(x, y / 1_000_000.0) for x, y in points], "Mbit/J"
-        maximum = max(abs(y) for _x, y in points)
-        if key == "energy_j" and maximum >= 1_000.0:
-            return [(x, y / 1_000.0) for x, y in points], "kJ"
-        if key == "delivered_mbit" and maximum >= 1_000.0:
-            return [(x, y / 1_000.0) for x, y in points], "Gbit"
         return points, SERIES_META[key][1]
 
     def _metric_value_text(self, key: str, value: Any) -> str:

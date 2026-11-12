@@ -115,11 +115,11 @@ def test_total_budget_gives_every_run_the_same_real_limit_without_copying_sim_ti
     assert runner.calls[1]["parameters"]["RngRun"] == 17
     # A 10-minute budget split over two items means 5 real minutes for each.
     # It must never turn an observed ns-3 time from run 1 into run 2's input.
-    assert runner.calls[0]["parameters"]["simTime"] == 1000
-    assert runner.calls[1]["parameters"]["simTime"] == 1000
+    assert runner.calls[0]["parameters"]["simTime"] == 5
+    assert runner.calls[1]["parameters"]["simTime"] == 5
     assert [item.configuration.parameters["simTime"] for item in controller.simulations] == [
-        1000,
-        1000,
+        5,
+        5,
     ]
     assert [item.configuration.parameters["RngRun"] for item in controller.simulations] == [17, 17]
     assert [call["queue_timing"]["per_run_target_active_real_s"] for call in runner.calls] == [
@@ -162,8 +162,8 @@ def test_total_budget_starts_next_run_without_any_ns3_time_observation(tmp_path:
     wait_until_idle(controller)
 
     assert len(runner.calls) == 2
-    assert runner.calls[0]["parameters"]["simTime"] == 1000
-    assert runner.calls[1]["parameters"]["simTime"] == 1000
+    assert runner.calls[0]["parameters"]["simTime"] == 5
+    assert runner.calls[1]["parameters"]["simTime"] == 5
     assert runner.calls[0]["parameters"]["RngRun"] == runner.calls[1]["parameters"]["RngRun"]
     timing = controller.queue_time_budget()
     assert timing["calibration_state"] == "per_run_hard_real_time"
@@ -188,7 +188,7 @@ def test_total_budget_records_metrics_csv_as_observation_only(tmp_path: Path) ->
     wait_until_idle(controller)
 
     assert len(runner.calls) == 2
-    assert runner.calls[1]["parameters"]["simTime"] == 1000
+    assert runner.calls[1]["parameters"]["simTime"] == 5
     timing = controller.queue_time_budget()
     assert timing["calibration_state"] == "per_run_hard_real_time"
     assert timing["observed_simulated_times_s"] == {

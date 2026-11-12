@@ -11,6 +11,7 @@ from threading import RLock
 from typing import Any, Dict, Optional
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+APP_TITLE = "Symulator efektywności energetycznej sieci O-RAN"
 RESOURCE_DIR = Path(getattr(sys, "_MEIPASS", BASE_DIR)) if getattr(sys, "frozen", False) else BASE_DIR
 
 
@@ -51,7 +52,31 @@ class ConfigStore:
         with self._lock:
             self._ensure_config_file()
             self._data = json.loads(self.path.read_text(encoding="utf-8"))
+            self._upgrade_my_energy_metadata()
             return self.as_dict()
+
+    def _upgrade_my_energy_metadata(self) -> None:
+        """Dodaje nowe pole do starej konfiguracji EXE, zachowując ustawienia."""
+        scenario = (self._data.get("scenarios") or {}).get("optimized") or {}
+        if Path(str(scenario.get("path", "")).replace("\\", "/")).name != "my_energy_scenario_optimized.cc":
+            return
+        allowed = scenario.get("allowed_params")
+        if not isinstance(allowed, list):
+            return
+        changed = False
+        if "CellLayout" not in allowed:
+            allowed.append("CellLayout")
+            changed = True
+        parameters = ((self._data.get("xapps") or {}).get("optimized") or {}).get("parameters") or {}
+        for key in ("EE_DECISION_PERIOD_SEC", "EE_SHUTDOWN_CONFIRMATION_SEC", "EE_SHUTDOWN_TIMEOUT_SEC", "EE_CELL_SWITCH_COOLDOWN_SEC", "EE_KPM_MAX_AGE_SEC"):
+            if key in parameters and parameters[key].get("unit") != "s ns-3":
+                parameters[key]["unit"] = "s ns-3"
+                changed = True
+        if changed:
+            backup = self.path.with_name(self.path.stem + ".before-my-energy-editor.json")
+            if not backup.exists():
+                shutil.copy2(self.path, backup)
+            self._atomic_write(self._data)
 
     def as_dict(self) -> Dict[str, Any]:
         with self._lock:

@@ -183,52 +183,28 @@ class SimulationStorage:
         if not directory.is_dir():
             return simulation
         old = simulation.result
-        if old is None:
-            has_artifacts = any(directory.glob("energyfilecell*.csv")) or any(
-                (directory / "timeseries").glob("energyfilecell*.csv")
-            )
-            if not has_artifacts:
-                return simulation
-        else:
+        if old is not None:
             try:
                 parser_version = int(old.metadata.get("result_parser_version") or 0)
             except (TypeError, ValueError):
                 parser_version = 0
             if parser_version >= ResultsParser.VERSION:
                 return simulation
+        # Sam result.json może być importowany bez surowych artefaktów.
+        artifacts = any((directory / name).is_file() for name in ("summary.json", "analysis.json", "summary.csv", "ee_summary.csv", "ee_timeseries.csv", "metrics.csv"))
+        artifacts = artifacts or any(directory.glob("energyfilecell*.csv")) or any((directory / "timeseries").glob("*.csv"))
+        if not artifacts:
+            return simulation
         parsed = ResultsParser().parse(directory)
         if old is not None:
-            old_score = self._result_data_score(old)
-            new_score = self._result_data_score(parsed)
-            if new_score <= old_score:
-                # Keep the richer historic metric payload, but carry forward
-                # newly computed audit metadata and warnings (for example a
-                # shortened common KPM/energy window) when the parser version
-                # changes without adding another numeric series.
-                old.metadata.update(parsed.metadata)
-                old.warnings = list(dict.fromkeys(old.warnings + parsed.warnings))
-                old.sources.update(
-                    {
-                        key: value
-                        for key, value in parsed.sources.items()
-                        if value and not old.sources.get(key)
-                    }
-                )
-                old.metadata["result_parser_version"] = ResultsParser.VERSION
-                self.save(simulation)
-                return simulation
+            # Więcej liczb nie oznacza lepszego wyniku: nowy parser może
+            # celowo odrzucić błędne wartości. Zachowujemy kopię do porównania.
+            backup = directory / "result.before-parser-{}.json".format(parser_version)
+            if not backup.exists():
+                self._write_json(backup, old.to_dict())
         simulation.result = parsed
         self.save(simulation)
         return simulation
-
-    @staticmethod
-    def _result_data_score(result: Any) -> int:
-        metrics = getattr(result, "metrics", {}) or {}
-        quality = getattr(result, "quality", {}) or {}
-        series = getattr(result, "series", {}) or {}
-        values = sum(value is not None for value in metrics.values())
-        values += sum(value is not None for value in quality.values())
-        return values * 1000 + sum(len(points or []) for points in series.values())
 
     def save_configuration(
         self,
@@ -992,7 +968,7 @@ class SimulationStorage:
                 raise ValueError("Archiwum przekracza limit importu.")
             regular_infos.append(info)
         if manifest_info is None:
-            raise ValueError("Archiwum nie ma manifestu O-RAN Energy Lab.")
+            raise ValueError("Archiwum nie ma manifestu wyników symulatora O-RAN.")
         try:
             manifest = json.loads(archive.read(manifest_info).decode("utf-8"))
         except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:

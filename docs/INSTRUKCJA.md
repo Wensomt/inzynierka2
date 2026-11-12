@@ -1,4 +1,4 @@
-# O-RAN Energy Lab
+# Symulator efektywności energetycznej sieci O-RAN
 
 ## Uruchomienie
 
@@ -22,7 +22,7 @@ albo obrazu symulatora.
 ## Linux: instalacja i skrót na pulpicie
 
 Na Ubuntu/Debianie użyj jednorazowo `bash install_linux.sh`. Skrypt tworzy
-skrót **O-RAN Energy Lab** na pulpicie i w menu, a kolejne uruchomienia odbywają
+skrót **Symulator O-RAN** na pulpicie i w menu, a kolejne uruchomienia odbywają
 się jednym kliknięciem. Pełna procedura, w tym bezpieczne dostarczenie obrazu
 symulatora, jest w [INSTALACJA_LINUX.md](INSTALACJA_LINUX.md).
 
@@ -31,10 +31,10 @@ symulatora, jest w [INSTALACJA_LINUX.md](INSTALACJA_LINUX.md).
 1. Wybierz liczbę symulacji i kliknij **Nowa sesja**.
 2. Ustaw parametry w osobnej zakładce każdej symulacji.
 3. Kliknij **URUCHOM WSZYSTKIE**. Symulacje są wykonywane kolejno.
-4. Otwórz **Dashboard**, aby zobaczyć aktualny etap, postęp czasu ns-3,
+4. Otwórz **Na żywo**, aby zobaczyć aktualny etap, postęp czasu ns-3,
    czas rzeczywisty, ostrożnie wyliczony ETA, metryki i wykres z danych
    dostępnych w bieżącym runie.
-5. Otwórz **Docker**, aby sprawdzić jeden kontener sesji oraz procesy RIC,
+5. Otwórz **Docker i logi**, aby sprawdzić jeden kontener sesji oraz procesy RIC,
    ns-3 i xApp. Każdy proces ma osobny, przyrostowy log z filtrem i limitem
    widocznej historii.
 6. Otwórz **Scenariusze**, aby zapisać, powielić, importować, eksportować i
@@ -51,18 +51,14 @@ aplikacja zapisuje je jako wynik niepełny z odpowiednim ostrzeżeniem. Błąd
 pojedynczej symulacji nie zatrzymuje kolejnych pozycji kolejki, o ile cleanup
 jej kontenera został potwierdzony.
 
-### Wspólny czas modelowany z budżetu rzeczywistego
+### Opcjonalny limit czasu rzeczywistego
 
-Pole **Łączny budżet czasu rzeczywistego ns-3** jest opcjonalne. Nie ustawia
-ono `simTime`. Dla przykładu: przy 10 minutach i dwóch symulacjach pierwsza,
-już gotowa symulacja dostaje 5 minut aktywnej pracy w czasie rzeczywistym.
-Po tej chwili aplikacja wysyła żądanie zatrzymania ns-3, odczytuje ostatni
-faktycznie zapisany czas modelowany i wymusza tę samą wartość `simTime` oraz
-ten sam `RngRun` w każdej następnej symulacji. Rozruch kontenera/RIC i zapis
-wyników nie są częścią limitu. Następne runy zawsze są wykonywane, także gdy
-rzeczywisty czas całej kolejki przekroczy pierwotny budżet; po pierwszym runie
-dashboard pokazuje orientacyjną datę zakończenia opartą na jego faktycznym
-czasie.
+Pole **Łączny budżet czasu rzeczywistego ns-3** dzieli limit po równo między
+przebiegi. Przy 10 minutach i dwóch symulacjach każdy dostaje 5 minut aktywnej
+pracy po rozruchu RIC/ns-3/xApp. Nie przepisuje czasu zaobserwowanego w pierwszym
+przebiegu do kolejnego. `simTime` pozostaje ustawionym czasem modelowanym.
+Wynik ucięty limitem jest częściowy i nie potwierdza korzyści EE/QoS.
+Do porównania pełnych eksperymentów zostaw to pole puste.
 
 Gdy xApp zakończy się przed ns-3, aplikacja zapisuje kod i czas zdarzenia,
 próbuje go uruchomić ponownie do ustawionego limitu, a po jego wyczerpaniu
@@ -73,8 +69,10 @@ xAppa pozostają osobne.
 
 `optimized` zapisuje `ee_timeseries.csv` około co 0,1 s czasu symulowanego.
 Zawiera czas, dostarczone bity, energię, moc interwałową, throughput interwałowy,
-EE, packet loss oraz średnie opóźnienie. Packet loss i delay pochodzą z
-FlowMonitor ograniczonego do rzeczywistych UDP downlinków UE; delay pozostaje
+EE, udział pakietów jeszcze niedostarczonych oraz średnie opóźnienie.
+Liczniki pochodzą z UdpClient i PacketSink, a czas wysłania z SeqTsHeader.
+Wskaźnik niedostarczonych na żywo obejmuje pakiety w drodze; wynik końcowy
+jest liczony po opróżnianiu kolejek. Opóźnienie pozostaje
 brakiem danych przed pierwszym odebranym pakietem. To jest źródło dashboardu;
 aplikacja odczytuje tylko jego ostatnie kompletne wiersze.
 
@@ -84,8 +82,8 @@ odpowiedni strumień KPM. Nie są zastępowane wymyślonymi wartościami.
 Gdy ustawiono całkowity budżet czasu kolejki, jest on dzielony równo na aktywną
 pracę każdego runu w **czasie rzeczywistym**. Dla 10 min / 2 runów każdy run
 zostaje zatrzymany po ok. 5 min od pełnej gotowości (RIC → ns-3 → xApp).
-`simTime` pozostaje wyłącznie odczytem ns-3 i nie steruje paskiem postępu ani
-czasem kolejnej symulacji.
+`simTime` nie jest zmieniany przez ten limit. W tym trybie pasek pokazuje
+wykorzystanie czasu rzeczywistego; bez limitu pokazuje postęp czasu ns-3.
 
 Kontener Docker uruchomiony przez aplikację jest jeden na run. nearRT-RIC,
 ns-3 i xApp są procesami `docker exec` w tym kontenerze, co ma znaczenie przy
@@ -96,8 +94,14 @@ interpretacji widoku Docker i logów.
 **Zapisz konfigurację** zapisuje zestaw zakładek bez wyników. Wynik każdej
 symulacji zawiera jej konfigurację, stan, log i dane odczytane z artefaktów.
 
-W szczegółach wyniku dostępne są eksporty JSON i CSV. Historia pokazuje
-zakończone symulacje zapisane przez desktopową aplikację.
+Zakładka **Wyniki** łączy bieżącą sesję i zapisane przebiegi. Zaznacz wiersz,
+aby otworzyć wykresy, szczegóły lub pliki. Menu **Eksportuj** zawiera CSV, JSON
+i pełne archiwum, a **Więcej** — import, folder oraz kosz wyników.
+
+W **Porównaniu** wybierz dwa różne przebiegi. Tabela pojawi się automatycznie;
+kliknięcie metryki zmienia wykres. Progi QoS można wpisać przed kliknięciem
+**Pokaż porównanie**. Zmiany SINR i opóźnienia są różnicami bezwzględnymi,
+a strat — punktami procentowymi.
 
 ## Pakowanie na Windows
 
@@ -105,7 +109,7 @@ zakończone symulacje zapisane przez desktopową aplikację.
 ./scripts/build-windows.ps1
 ```
 
-Plik wykonywalny powstaje w `dist/O-RAN Energy Lab/`. Docker Desktop i obraz
+Plik wykonywalny powstaje w `dist/Symulator O-RAN/`. Docker Desktop i obraz
 symulatora pozostają wymagani także dla wersji `.exe`. W wersji spakowanej
 konfiguracje i wyniki są zapisywane domyślnie w `%LOCALAPPDATA%\O-RAN Energy Lab`
 (można wskazać inną lokalizację przez `ORAN_LAB_DATA_DIR`).

@@ -14,6 +14,7 @@ from typing import Any, Dict, List, Mapping, Optional, Tuple
 from uuid import uuid4
 
 from app.config import ConfigStore, RESOURCE_DIR
+from app.services.my_energy_sources import source_path
 from app.infrastructure.lab_discovery import DockerLabDiscovery
 from app.simulation.docker_session import DockerSessionManager
 
@@ -149,7 +150,7 @@ class XAppService:
         target = "xapp_{}_{}".format(slug, unique_suffix)
         project = self.projects_root / key
         project.mkdir(parents=False, exist_ok=False)
-        template = RESOURCE_DIR / "resources" / "xapp_my_energy_optimized.c"
+        template = source_path(self.config.as_dict(), "xapp")
         if not template.is_file():
             raise FileNotFoundError("Brak źródła szablonu My Energy: {}".format(template))
         source = project / (target + ".c")
@@ -311,7 +312,7 @@ class XAppService:
     def _configured_records(self, cfg: Mapping[str, Any]) -> List[XAppRecord]:
         result: List[XAppRecord] = []
         source_map = {
-            "optimized": RESOURCE_DIR / "resources" / "xapp_my_energy_optimized.c",
+            "optimized": source_path(cfg, "xapp"),
         }
         for key, raw in (cfg.get("xapps") or {}).items():
             if key == "none":

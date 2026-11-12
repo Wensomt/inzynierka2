@@ -54,8 +54,10 @@ def test_kpm_collector_aggregates_only_reported_kpm_values() -> None:
         "p05_sinr_db": ["cu-cp-cell-1.txt"],
         "mean_prb_utilization_pct": ["du-cell-1.txt"],
         "active_ues": ["du-cell-1.txt"],
+        "delivered_mbit": ["cu-up-cell-1.txt"],
     }
     assert snapshot["series"]["throughput_mbit_per_s"] == [
+        {"x": 1.0, "y": 0.036000000000000004},
         {"x": 2.0, "y": 0.036000000000000004}
     ]
 

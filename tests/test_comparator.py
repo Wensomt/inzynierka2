@@ -73,11 +73,114 @@ def controlled_pair():
     for item in (left, right):
         item.status = SimulationStatus.COMPLETED
         item.result.metrics["delay_ms"] = 5.0
+        item.runtime = {"scenario_source": {"sha256": "scenario-fixture"},
+                        "kpm_clock_patch_sha256": "clock-fixture"}
         item.result.metadata = {"measurement_duration_s": 10.0, "measurement_start_s": 0.0,
+                                "measurement_end_s": 10.0, "measurement_consistent": True,
+                                "accounting_source": "summary.json", "qos_source": "udp_application_seq_ts",
+                                "packet_loss_definition": "tx-rx / tx",
                                 "energy_scope": "nr_radio_model", "data_layer": "udp_application_payload",
                                 "simulator_source": "mmwave_LENA_oran_custom"}
+        # Synthetic complete write-path manifest, not a real ns-3 run.
+        from app.simulation.runner import SimulationRunner
+        item.started_at = "2026-01-01T00:00:00+00:00"
+        item.ended_at = "2026-01-01T00:01:00+00:00"
+        item.runtime["termination"] = {"reason": "natural", "partial": False}
+        SimulationRunner._record_provenance(item, {}, {"image_id": "sha256:" + "a" * 64})
     right.result.metrics["total_energy_j"] = 80.0
     return left, right
+
+
+@pytest.mark.parametrize('side', [0, 1, 'both'])
+def test_two_source_hashes_without_manifest_do_not_certify_pair(side):
+    items = controlled_pair()
+    for index in ([0, 1] if side == 'both' else [side]):
+        items[index].runtime.pop('provenance_manifest')
+    result = compare_simulations(*items)
+    assert result.assessment_kind == 'inconclusive'
+    assert any('manifest' in warning.lower() for warning in result.warnings)
+
+
+@pytest.mark.parametrize('problem', ['image', 'backend', 'configuration', 'source', 'clock',
+    'timestamps', 'termination', 'termination_partial_missing', 'window', 'rng', 'reuse', 'image_mismatch'])
+def test_incomplete_manifest_cannot_certify_pair(problem):
+    left, right = controlled_pair()
+    manifest = right.runtime['provenance_manifest']
+    if problem == 'image_mismatch':
+        manifest['image']['image_id'] = 'sha256:' + 'b' * 64
+    elif problem == 'termination_partial_missing':
+        right.runtime['termination'].pop('partial')
+    elif problem in ('source', 'clock'):
+        manifest['sources']['scenario' if problem == 'source' else 'clock_patch']['sha256'] = None
+    elif problem == 'window':
+        manifest['windows']['actual']['end_s'] = 9
+    elif problem == 'reuse':
+        manifest.pop('baseline_reuse')
+    else:
+        manifest.pop(problem)
+    assert compare_simulations(left, right).assessment_kind == 'inconclusive'
+
+
+@pytest.mark.parametrize('tx,rx', [(100, 101), (-1, -1), (100.5, 100.5), (float('inf'), 1), (100, float('nan'))])
+def test_imported_counter_marker_does_not_override_impossible_counts(tx, rx):
+    left, right = controlled_pair()
+    right.result.metadata.update(tx_packets=tx, rx_packets=rx, measurement_consistent=True)
+    assert compare_simulations(left, right).assessment_kind == 'inconclusive'
+
+
+def test_nonhex_image_id_cannot_certify_pair():
+    left, right = controlled_pair()
+    for item in (left, right):
+        item.runtime['provenance_manifest']['image']['image_id'] = 'sha256:' + 'z' * 64
+    comparison = compare_simulations(left, right)
+    assert comparison.assessment_kind == 'inconclusive'
+    assert any('image_id' in warning for warning in comparison.warnings)
+
+
+@pytest.mark.parametrize('counters,loss', [
+    ({'tx_packets': 100, 'rx_packets': 90, 'lost_packets': 0}, 10.0),
+    ({'tx_packets': 100, 'rx_packets': 90, 'lost_packets': 10}, 0.0),
+    ({'tx_packets': 100, 'rx_packets': 90}, 0.0),
+])
+def test_contradictory_imported_packet_loss_cannot_certify_pair(counters, loss):
+    left, right = controlled_pair()
+    right.result.metadata.update(counters)
+    right.result.metrics['packet_loss_pct'] = loss
+    result = compare_simulations(left, right)
+    assert result.assessment_kind == 'inconclusive'
+    assert any('pakiet' in warning for warning in result.warnings)
+
+
+@pytest.mark.parametrize('counters,loss', [
+    ({'tx_packets': 100, 'rx_packets': 90, 'lost_packets': 10}, 10.0),
+    ({'tx_packets': 100, 'rx_packets': 90}, 10.0),
+    ({}, 1.2),
+])
+def test_consistent_or_absent_counters_are_not_contradictions(counters, loss):
+    left, right = controlled_pair()
+    right.result.metadata.update(counters)
+    right.result.metrics['packet_loss_pct'] = loss
+    result = compare_simulations(left, right)
+    assert not any('sprzeczne liczniki pakietów' in warning for warning in result.warnings)
+    assert result.assessment_kind in ('improved', 'tradeoff')
+
+
+def test_zero_rx_with_correct_loss_is_not_counter_contradiction():
+    left, right = controlled_pair()
+    right.result.metadata.update(tx_packets=100, rx_packets=0, lost_packets=100)
+    right.result.metrics.update(packet_loss_pct=100.0, delivered_mbit=0)
+    result = compare_simulations(left, right)
+    assert result.assessment_kind == 'inconclusive'
+    assert not any('sprzeczne liczniki pakietów' in warning for warning in result.warnings)
+
+
+def test_valid_hex_image_without_repo_digest_can_certify_pair():
+    left, right = controlled_pair()
+    for item in (left, right):
+        image = item.runtime['provenance_manifest']['image']
+        image['image_id'] = 'sha256:' + 'f' * 64
+        image['repo_digests'] = None
+    assert compare_simulations(left, right).assessment_kind == 'improved'
 
 
 def test_energy_saving_requires_qos_without_degradation():
@@ -87,6 +190,18 @@ def test_energy_saving_requires_qos_without_degradation():
     comparison = compare_simulations(left, right)
     assert comparison.assessment_kind == "tradeoff"
     assert "packet loss" in comparison.assessment
+
+
+@pytest.mark.parametrize("kind", ["scenario", "clock"])
+def test_edited_model_cannot_be_presented_as_isolated_xapp_improvement(kind):
+    left, right = controlled_pair()
+    if kind == "scenario":
+        left.runtime["scenario_source"] = {"sha256": "before"}
+        right.runtime["scenario_source"] = {"sha256": "after"}
+    else:
+        left.runtime["kpm_clock_patch_sha256"] = "before"
+        right.runtime["kpm_clock_patch_sha256"] = "after"
+    assert compare_simulations(left, right).assessment_kind == "inconclusive"
 
 
 def test_lower_delivered_data_is_not_automatically_an_energy_success():

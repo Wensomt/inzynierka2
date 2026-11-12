@@ -17,6 +17,8 @@ data/trash/
 data/xapps/
 data/*.sqlite3
 data/*.sqlite3-*
+data/*.log
+data/my_energy/
 runtime/
 .simulator-src/
 resources/wcnc_tap.tar

@@ -63,20 +63,20 @@ start_ready() {
     fi
     if [[ "$status" -ne 0 ]]; then
         if command -v zenity >/dev/null 2>&1; then
-            zenity --error --title="O-RAN Energy Lab" --text="Aplikacja zakończyła się błędem. Szczegóły: $log_file" || true
+            zenity --error --title="Symulator O-RAN" --text="Aplikacja zakończyła się błędem. Szczegóły: $log_file" || true
         elif command -v notify-send >/dev/null 2>&1; then
-            notify-send "O-RAN Energy Lab" "Aplikacja zakończyła się błędem. Szczegóły: $log_file" || true
+            notify-send "Symulator O-RAN" "Aplikacja zakończyła się błędem. Szczegóły: $log_file" || true
         fi
     fi
     return "$status"
 }
 
 show_no_terminal_error() {
-    local message="Brakuje składnika O-RAN Energy Lab. Uruchom ręcznie: bash '$SETUP' --launch"
+    local message="Brakuje składnika Symulator O-RAN. Uruchom ręcznie: bash '$SETUP' --launch"
     if command -v zenity >/dev/null 2>&1; then
-        zenity --error --title="O-RAN Energy Lab" --text="$message" || true
+        zenity --error --title="Symulator O-RAN" --text="$message" || true
     elif command -v notify-send >/dev/null 2>&1; then
-        notify-send "O-RAN Energy Lab" "$message" || true
+        notify-send "Symulator O-RAN" "$message" || true
     fi
     printf '%s\n' "$message" >&2
 }

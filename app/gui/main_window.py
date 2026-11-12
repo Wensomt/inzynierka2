@@ -1,35 +1,39 @@
 from __future__ import annotations
 
 import json
+import os
+import copy
 import queue
 import threading
 import time
 import tkinter as tk
 from pathlib import Path
-from tkinter import font as tkfont
 from tkinter import filedialog, messagebox, ttk
 from typing import Any, Dict, Iterable, List
 
-from app.config import APP_DATA_DIR, ConfigStore
+from app.config import APP_DATA_DIR, APP_TITLE, ConfigStore
 from app.data.results_parser import ResultsParser
 from app.data.storage import SimulationStorage
 from app.infrastructure.file_browser import open_in_file_manager
 from app.services.scenario_service import SavedScenario, ScenarioService
 from app.services.xapp_service import XAppService
 from app.simulation.runner import SimulationRunner
+from app.simulation.models import Simulation
 from app.simulation.session_controller import QueueEvent, SessionController
 
 from .comparison_view import ComparisonView
 from .configuration_library import ConfigurationLibraryDialog
 from .docker_view import DockerView
 from .live_dashboard import LiveDashboard, format_estimated_completion
-from .results_view import HistoryView, ResultsView
+from .results_view import ResultsView
 from .run_data_dialog import RunDataDialog
 from .run_trash_dialog import RunTrashDialog
 from .scenarios_view import ScenariosView
 from .simulation_tab import SimulationTab
 from .topology_view import parse_topology_artifacts
 from .xapps_view import XAppsView
+from .theme import COLORS, configure_theme
+from .my_energy_view import MyEnergyView
 
 
 class MainWindow:
@@ -50,17 +54,20 @@ class MainWindow:
         self.controller = SessionController(self.application_config, self.storage, self.runner)
         self.simulation_tabs: Dict[str, SimulationTab] = {}
         self._visible_live_log_lines = 0
-        self._system_items: Dict[str, ttk.Label] = {}
         self._closing = False
+        self._history_cache: List[Any] = []
+        self._history_loading = False
+        self._history_refresh_pending = False
         self._close_requested_at = 0.0
         self._build_window()
         self.root.protocol("WM_DELETE_WINDOW", self._on_close)
         self.root.after(100, self._poll_events)
-        threading.Thread(target=self._recover_orphans, name="oran-lab-recovery", daemon=True).start()
+        if os.environ.get("ORAN_LAB_Q3_ISOLATED") != "1":
+            threading.Thread(target=self._recover_orphans, name="oran-lab-recovery", daemon=True).start()
 
     def _build_window(self) -> None:
-        self.root.title("O-RAN Energy Lab")
-        self.root.minsize(1040, 720)
+        self.root.title(APP_TITLE)
+        self.root.minsize(1040, 700)
         self.root.geometry("1260x840")
         self._configure_style()
 
@@ -68,15 +75,14 @@ class MainWindow:
         shell.pack(fill="both", expand=True)
         header = ttk.Frame(shell)
         header.pack(fill="x", pady=(0, 10))
-        ttk.Label(header, text="O-RAN Energy Lab", style="Title.TLabel").pack(side="left")
+        ttk.Label(header, text="Symulator sieci O-RAN", style="Title.TLabel").pack(side="left")
         self.state_var = tk.StringVar(value="Laboratorium gotowe")
         ttk.Label(header, textvariable=self.state_var, style="Status.TLabel").pack(side="right")
 
         body = ttk.Frame(shell)
         body.pack(fill="both", expand=True)
-        self._build_system_panel(body)
         content = ttk.Frame(body)
-        content.pack(side="left", fill="both", expand=True, padx=(10, 0))
+        content.pack(fill="both", expand=True)
 
         self.notebook = ttk.Notebook(content)
         self.notebook.pack(fill="both", expand=True)
@@ -100,18 +106,11 @@ class MainWindow:
             self._comparison_candidates,
             on_export=self._export_comparison_csv,
         )
-        self.results_frame = ResultsView(
-            self.notebook,
-            self._show_details,
-            self._show_log,
-            on_export_csv=self._export_csv,
-            on_export_json=self._export_json,
-            on_export_bundle=self._export_bundle,
-            on_data=self._show_run_data,
-            on_charts=self._show_saved_charts,
-            on_open_folder=self._open_run_folder,
+        self.my_energy_frame = MyEnergyView(
+            self.notebook, self.config_store, self._add_my_energy_pair,
+            lambda: not self.controller.running,
         )
-        self.history_frame = HistoryView(
+        self.results_frame = ResultsView(
             self.notebook,
             self._show_details,
             self._show_log,
@@ -127,15 +126,15 @@ class MainWindow:
         )
         self.docker_frame = DockerView(self.notebook)
         self.settings_frame = ttk.Frame(self.notebook, padding=18)
-        self.notebook.add(self.dashboard_frame, text="Dashboard")
         self.notebook.add(self.home_frame, text="Start")
         self.notebook.add(self.session_frame, text="Symulacje")
+        self.notebook.add(self.dashboard_frame, text="Na żywo")
+        self.notebook.add(self.results_frame, text="Wyniki")
+        self.notebook.add(self.comparison_frame, text="Porównanie")
+        self.notebook.add(self.my_energy_frame, text="My Energy")
         self.notebook.add(self.scenarios_frame, text="Scenariusze")
         self.notebook.add(self.xapps_frame, text="xApps")
-        self.notebook.add(self.comparison_frame, text="Porównanie")
-        self.notebook.add(self.results_frame, text="Wyniki")
-        self.notebook.add(self.history_frame, text="Historia")
-        self.notebook.add(self.docker_frame, text="Docker")
+        self.notebook.add(self.docker_frame, text="Docker i logi")
         self.notebook.add(self.settings_frame, text="Ustawienia")
         self._build_home()
         self._build_session()
@@ -143,153 +142,14 @@ class MainWindow:
         self._refresh_views()
 
     def _configure_style(self) -> None:
-        style = ttk.Style(self.root)
-        try:
-            style.theme_use("clam")
-        except tk.TclError:
-            pass
-        try:
-            interface_font = tkfont.nametofont("TkDefaultFont").cget("family")
-            fixed_font = tkfont.nametofont("TkFixedFont").cget("family")
-        except tk.TclError:
-            interface_font, fixed_font = "Arial", "Courier"
-        self._fixed_font = (fixed_font, 9)
-        colors = {
-            "bg": "#1d2229",
-            "panel": "#252b33",
-            "panel_alt": "#2b323c",
-            "field": "#171b20",
-            "fg": "#e5e9ef",
-            "muted": "#aab4c0",
-            "blue": "#3b88c3",
-            "green": "#55b87a",
-            "yellow": "#d4a847",
-            "red": "#d66b6b",
-        }
-        self._colors = colors
-        self.root.configure(background=colors["bg"])
-        style.configure(".", background=colors["panel"], foreground=colors["fg"], font=(interface_font, 10))
-        style.configure("TFrame", background=colors["panel"])
-        style.configure("TLabel", background=colors["panel"], foreground=colors["fg"], font=(interface_font, 10))
-        style.configure("Title.TLabel", background=colors["panel"], foreground=colors["fg"], font=(interface_font, 18, "bold"))
-        style.configure("Status.TLabel", background=colors["panel"], foreground=colors["blue"], font=(interface_font, 10, "bold"))
-        style.configure("Muted.TLabel", background=colors["panel"], foreground=colors["muted"], font=(interface_font, 9))
-        style.configure("TButton", background=colors["panel_alt"], foreground=colors["fg"], font=(interface_font, 10), padding=(9, 5))
-        style.map("TButton", background=[("active", "#37404c"), ("disabled", colors["panel"])], foreground=[("disabled", "#77818d")])
-        style.configure("Accent.TButton", background=colors["blue"], foreground="#ffffff", font=(interface_font, 10, "bold"), padding=(12, 6))
-        style.map("Accent.TButton", background=[("active", "#4a9bd8"), ("disabled", colors["panel_alt"])])
-        style.configure("TNotebook", background=colors["bg"], borderwidth=0)
-        style.configure("TNotebook.Tab", background=colors["panel_alt"], foreground=colors["muted"], padding=(12, 7))
-        style.map("TNotebook.Tab", background=[("selected", colors["panel"]), ("active", "#37404c")], foreground=[("selected", colors["fg"]), ("active", colors["fg"])])
-        style.configure("TLabelframe", background=colors["panel"], foreground=colors["muted"], bordercolor="#3c4653")
-        style.configure("TLabelframe.Label", background=colors["panel"], foreground=colors["muted"], font=(interface_font, 9, "bold"))
-        # ``clam`` nie dziedziczy kolorów pola dla Spinboxa z ``TEntry``.
-        # Bez osobnego stylu systemowy biały field potrafił łączyć się z
-        # jasnym tekstem motywu i ukrywać wpisaną wartość.
-        field_border = "#3c4653"
-        field_focus = "#1f2b36"
-        field_disabled = "#2b323c"
-        field_states = [
-            ("disabled", field_disabled),
-            ("readonly", colors["field"]),
-            ("focus", field_focus),
-            ("!disabled", colors["field"]),
-        ]
-        foreground_states = [
-            ("disabled", "#77818d"),
-            ("readonly", colors["fg"]),
-            ("!disabled", colors["fg"]),
-        ]
-        border_states = [
-            ("disabled", "#303842"),
-            ("focus", colors["blue"]),
-            ("!disabled", field_border),
-        ]
-        for field_style in ("TEntry", "TSpinbox", "TCombobox"):
-            style.configure(
-                field_style,
-                fieldbackground=colors["field"],
-                background=colors["panel_alt"],
-                foreground=colors["fg"],
-                bordercolor=field_border,
-                lightcolor=field_border,
-                darkcolor="#15191e",
-                insertcolor=colors["fg"],
-                padding=(5, 3),
-            )
-            style.map(
-                field_style,
-                fieldbackground=field_states,
-                foreground=foreground_states,
-                bordercolor=border_states,
-            )
-        style.configure("TSpinbox", arrowcolor=colors["fg"])
-        style.map(
-            "TSpinbox",
-            background=[("disabled", field_disabled), ("active", "#37404c"), ("!disabled", colors["panel_alt"])],
-            arrowcolor=[("disabled", "#77818d"), ("!disabled", colors["fg"])],
-        )
-        style.configure("TCombobox", arrowcolor=colors["fg"])
-        style.map(
-            "TCombobox",
-            background=[("disabled", field_disabled), ("active", "#37404c"), ("!disabled", colors["panel_alt"])],
-            arrowcolor=[("disabled", "#77818d"), ("!disabled", colors["fg"])],
-        )
-        # Lista rozwijana Comboboxa jest zwykłym Tk Listboxem, a więc nie
-        # dostaje automatycznie kolorów ttk.
-        for pattern, value in (
-            ("*TCombobox*Listbox.background", colors["field"]),
-            ("*TCombobox*Listbox.foreground", colors["fg"]),
-            ("*TCombobox*Listbox.selectBackground", "#315e83"),
-            ("*TCombobox*Listbox.selectForeground", "#ffffff"),
-            ("*TEntry*selectBackground", "#315e83"),
-            ("*TEntry*selectForeground", "#ffffff"),
-            ("*TSpinbox*selectBackground", "#315e83"),
-            ("*TSpinbox*selectForeground", "#ffffff"),
-        ):
-            self.root.option_add(pattern, value, 80)
-        style.configure("Treeview", background=colors["field"], fieldbackground=colors["field"], foreground=colors["fg"], rowheight=25, font=(interface_font, 9), bordercolor="#3c4653")
-        style.map("Treeview", background=[("selected", "#315e83")], foreground=[("selected", "#ffffff")])
-        style.configure("Treeview.Heading", background=colors["panel_alt"], foreground=colors["fg"], font=(interface_font, 9, "bold"))
-        style.configure("Horizontal.TProgressbar", background=colors["blue"], troughcolor=colors["field"], bordercolor=colors["field"], lightcolor=colors["blue"], darkcolor=colors["blue"])
-        style.configure("TScrollbar", background=colors["panel_alt"], troughcolor=colors["field"], arrowcolor=colors["fg"], bordercolor=colors["panel"])
-        style.map("TScrollbar", background=[("active", "#3b4654"), ("pressed", "#4a5a6c")])
-
-    def _build_system_panel(self, parent: ttk.Frame) -> None:
-        panel = ttk.LabelFrame(parent, text="SYSTEM", padding=(9, 10))
-        panel.pack(side="left", fill="y")
-        ttk.Label(panel, text="Stan bieżącej sesji", style="Muted.TLabel").pack(anchor="w", pady=(0, 8))
-        labels = (
-            ("docker", "Docker"),
-            ("ric", "RIC"),
-            ("ns3", "ns-3"),
-            ("xapp", "xApp"),
-            ("collector", "Dane live"),
-        )
-        for key, title in labels:
-            row = ttk.Frame(panel)
-            row.pack(fill="x", pady=2)
-            label = ttk.Label(row, text="●", foreground=self._colors["muted"], width=2)
-            label.pack(side="left")
-            button = ttk.Button(row, text=title, command=lambda value=key: self._open_component(value))
-            button.pack(side="left", fill="x", expand=True)
-            self._system_items[key] = label
-        ttk.Separator(panel).pack(fill="x", pady=10)
-        ttk.Button(panel, text="Dashboard", command=lambda: self.notebook.select(self.dashboard_frame)).pack(fill="x")
-        ttk.Button(panel, text="Docker / logi", command=lambda: self.notebook.select(self.docker_frame)).pack(fill="x", pady=(5, 0))
-
-    def _open_component(self, component: str) -> None:
-        if component == "collector":
-            self.notebook.select(self.dashboard_frame)
-            return
-        self.notebook.select(self.docker_frame)
-        self.docker_frame.select_component(component)
+        self._colors = COLORS
+        self._fixed_font = configure_theme(self.root)
 
     def _build_home(self) -> None:
         self.home_frame.columnconfigure(0, weight=1)
         content = ttk.Frame(self.home_frame, padding=16)
         content.grid(row=0, column=0, sticky="nw")
-        ttk.Label(content, text="O-RAN Energy Lab", style="Title.TLabel").grid(row=0, column=0, sticky="w")
+        ttk.Label(content, text=APP_TITLE, style="Title.TLabel").grid(row=0, column=0, sticky="w")
         ttk.Label(
             content,
             text="Skonfiguruj kilka symulacji, uruchom je kolejno i porównaj zapisane wyniki.",
@@ -301,10 +161,8 @@ class MainWindow:
         ttk.Spinbox(count_box, from_=1, to=20, width=5, textvariable=self.count_var).pack(side="left", padx=(8, 0))
         ttk.Button(content, text="Nowa sesja", style="Accent.TButton", command=self._new_session).grid(row=3, column=0, sticky="w", pady=4)
         ttk.Button(content, text="Wczytaj konfigurację", command=self._load_configuration).grid(row=4, column=0, sticky="w", pady=4)
-        ttk.Button(content, text="Historia wyników", command=lambda: self.notebook.select(self.history_frame)).grid(row=5, column=0, sticky="w", pady=4)
-        ttk.Button(content, text="Scenariusze", command=lambda: self.notebook.select(self.scenarios_frame)).grid(row=6, column=0, sticky="w", pady=4)
-        ttk.Button(content, text="xApps", command=lambda: self.notebook.select(self.xapps_frame)).grid(row=7, column=0, sticky="w", pady=4)
-        ttk.Button(content, text="Ustawienia", command=lambda: self.notebook.select(self.settings_frame)).grid(row=8, column=0, sticky="w", pady=4)
+        ttk.Button(content, text="Zapisane wyniki", command=lambda: self.notebook.select(self.results_frame)).grid(row=5, column=0, sticky="w", pady=4)
+        ttk.Label(content, text="1. Utwórz sesję i ustaw parametry w zakładce Symulacje.\n2. Uruchom kolejkę i obserwuj Na żywo.\n3. Otwórz Wyniki i wybierz dwa przebiegi w Porównaniu.\n\nNowe symulacje mają domyślnie 5 s czasu ns-3.\nNa tym modelu kilka sekund symulacji może oznaczać wiele minut pracy komputera.", justify="left", style="Muted.TLabel").grid(row=6, column=0, sticky="w", pady=(20, 0))
 
     def _build_session(self) -> None:
         self.session_frame.columnconfigure(0, weight=1)
@@ -464,7 +322,7 @@ class MainWindow:
             return
         if not snapshot.get("enabled"):
             self.time_budget_status_var.set(
-                "Opcjonalne: każdy gotowy przebieg ma równy limit czasu rzeczywistego. Czas ns-3 jest tylko odczytem; rozruch Docker/RIC nie wchodzi w limit."
+                "Puste pole: pełny przebieg do simTime. Limit rzeczywisty daje wyniki częściowe."
             )
             return
         try:
@@ -568,7 +426,6 @@ class MainWindow:
         self._update_time_budget_status(self.controller.queue_time_budget())
         self.dashboard_frame.clear()
         self.docker_frame.clear()
-        self._reset_system_panel()
         self._clear_session_live_log()
         self.notebook.select(self.session_frame)
         self._refresh_views()
@@ -609,6 +466,25 @@ class MainWindow:
             return
         target.apply_configuration(saved.configuration)
         self.storage.save(target.simulation)
+        self.notebook.select(self.session_frame)
+
+    def _add_my_energy_pair(self, configuration) -> None:
+        if self.controller.running:
+            raise ValueError("Najpierw zakończ bieżącą kolejkę.")
+        if len(self.controller.simulations) > 18:
+            raise ValueError("Para wymaga dwóch wolnych miejsc w sesji (limit 20).")
+        self._commit_tabs()
+        items = list(self.controller.simulations)
+        for xapp, name in (("none", "Odniesienie — bez xApp"), ("optimized", "My Energy")):
+            cfg = copy.deepcopy(configuration)
+            cfg.xapp = xapp
+            if xapp == "none":
+                cfg.xapp_environment = {}
+            items.append(Simulation(name=name, configuration=cfg))
+        self.controller.replace_session(items)
+        self.count_var.set(str(len(items)))
+        self._build_simulation_tabs()
+        self.simulation_notebook.select(self.simulation_tabs[items[-2].id])
         self.notebook.select(self.session_frame)
 
     def _reload_application_configuration(self) -> None:
@@ -679,7 +555,6 @@ class MainWindow:
         # snapshotu albo wykresów poprzedniego uruchomienia tej samej sesji.
         self.dashboard_frame.clear()
         self.docker_frame.clear()
-        self._reset_system_panel()
         self._clear_session_live_log()
         self._build_simulation_tabs()
         self._update_time_budget_status(self.controller.queue_time_budget())
@@ -729,7 +604,6 @@ class MainWindow:
         self._update_time_budget_status(self.controller.queue_time_budget())
         self.dashboard_frame.clear()
         self.docker_frame.clear()
-        self._reset_system_panel()
         self._clear_session_live_log()
         self._refresh_views()
         self.notebook.select(self.session_frame)
@@ -772,6 +646,18 @@ class MainWindow:
             self.root.after(10 if processed >= self.MAX_EVENTS_PER_TICK else 100, self._poll_events)
 
     def _handle_event(self, event: QueueEvent) -> None:
+        if event.phase == "HISTORY_LOADED":
+            self._history_cache = event.payload["history"]
+            self._history_loading = False
+            self._render_results()
+            if self._history_refresh_pending:
+                self._history_refresh_pending = False
+                self._refresh_views()
+            return
+        if event.phase == "HISTORY_FAILED":
+            self._history_loading = False
+            self.state_var.set(event.message)
+            return
         if event.phase == "ENVIRONMENT":
             self.settings_status.set(event.message)
             return
@@ -782,7 +668,6 @@ class MainWindow:
         if event.phase in {"SESSION_STARTED", "RUN_RETRYING"}:
             self.dashboard_frame.clear()
             self.docker_frame.clear()
-            self._reset_system_panel()
         if event.phase == "LOG":
             source = str(payload.get("log_source") or "log")
             records = payload.get("logs")
@@ -792,7 +677,6 @@ class MainWindow:
         else:
             self.dashboard_frame.update_snapshot(payload)
             self.docker_frame.update_snapshot(payload)
-            self._update_system_panel(payload)
         time_budget = payload.get("time_budget")
         if isinstance(time_budget, dict):
             self._update_time_budget_status(time_budget)
@@ -975,54 +859,6 @@ class MainWindow:
                 result["xapp_status"] = component_state
         return result
 
-    def _update_system_panel(self, payload: Dict[str, Any]) -> None:
-        processes = payload.get("processes") if isinstance(payload.get("processes"), dict) else {}
-        container = payload.get("container") if isinstance(payload.get("container"), dict) else {}
-        states = {}
-        phase = str(payload.get("phase") or "").upper()
-        normal_shutdown = bool(payload.get("queue_terminal")) or phase == "COMPLETED"
-        if container:
-            state = container.get("state") or "unknown"
-            if normal_shutdown:
-                # Snapshot kontenera może pochodzić sprzed cleanupu. Po
-                # poprawnym końcu nie zostawiamy więc mylącej zielonej kropki
-                # dla sesji, która właśnie została posprzątana.
-                state = "unused"
-            states["docker"] = (state, container.get("health"))
-        for key in ("ric", "ns3", "xapp"):
-            process = processes.get(key)
-            if isinstance(process, dict):
-                state = process.get("status") or process.get("state") or "unknown"
-                if normal_shutdown:
-                    state = "unused"
-                states[key] = (state, None)
-        if "data_collection" in payload:
-            collector_state = payload.get("data_collection") or "unknown"
-            if normal_shutdown:
-                collector_state = "unused"
-            states["collector"] = (collector_state, None)
-        for key, (state, health) in states.items():
-            label = self._system_items.get(key)
-            if label is None:
-                continue
-            label.configure(foreground=self._status_color(str(state), health))
-
-    def _status_color(self, state: str, health: Any = None) -> str:
-        lowered = "{} {}".format(state, health or "").lower()
-        if any(item in lowered for item in ("error", "failed", "exited", "stopped", "dead", "unhealthy")):
-            return self._colors["red"]
-        if any(item in lowered for item in ("starting", "restart", "waiting", "degraded", "unknown")):
-            return self._colors["yellow"]
-        if any(item in lowered for item in ("unused", "disabled", "none")):
-            return self._colors["muted"]
-        if any(item in lowered for item in ("running", "ready", "healthy", "ok")):
-            return self._colors["green"]
-        return self._colors["muted"]
-
-    def _reset_system_panel(self) -> None:
-        for label in self._system_items.values():
-            label.configure(foreground=self._colors["muted"])
-
     def _clear_session_live_log(self) -> None:
         self.live_log.configure(state="normal")
         self.live_log.delete("1.0", "end")
@@ -1032,12 +868,29 @@ class MainWindow:
             self.queue_tree.delete(item)
 
     def _refresh_views(self) -> None:
-        self.results_frame.refresh(self.controller.simulations)
-        self.history_frame.refresh(self.storage.history(finished_only=True))
+        self._render_results()
+        if self._history_loading:
+            self._history_refresh_pending = True
+            return
+        self._history_loading = True
+
+        def read_history() -> None:
+            try:
+                history = self.storage.history(finished_only=True)
+                self.controller.events.put(QueueEvent(None, "HISTORY_LOADED", "", payload={"history": history}))
+            except Exception as exc:
+                self.controller.events.put(QueueEvent(None, "HISTORY_FAILED", "Nie można odczytać historii: {}".format(exc)))
+
+        threading.Thread(target=read_history, name="oran-lab-history", daemon=True).start()
+
+    def _render_results(self) -> None:
+        runs = {item.id: item for item in self._history_cache}
+        runs.update({item.id: item for item in self.controller.simulations})
+        self.results_frame.refresh(runs.values())
         self.comparison_frame.refresh_candidates()
 
     def _comparison_candidates(self) -> Iterable[Any]:
-        merged = {item.id: item for item in self.storage.history()}
+        merged = {item.id: item for item in self._history_cache}
         merged.update({item.id: item for item in self.controller.simulations})
         return list(merged.values())
 
@@ -1337,7 +1190,7 @@ class MainWindow:
         source = filedialog.askopenfilename(
             parent=self.root,
             title="Importuj pełne archiwum runu",
-            filetypes=(("Archiwum O-RAN Energy Lab", "*.zip"), ("Wszystkie pliki", "*.*")),
+            filetypes=(("Wyniki symulatora O-RAN", "*.zip"), ("Wszystkie pliki", "*.*")),
         )
         if not source:
             return
@@ -1346,11 +1199,12 @@ class MainWindow:
         except Exception as exc:
             messagebox.showerror("Nie można zaimportować", str(exc), parent=self.root)
             return
+        self._history_cache.append(simulation)
         self._refresh_views()
-        self.history_frame.select_simulation(simulation.id)
+        self.results_frame.select_simulation(simulation.id)
         messagebox.showinfo(
             "Zaimportowano wynik",
-            "Zaimportowano „{}” do Historii.".format(simulation.name),
+            "Zaimportowano „{}” do Wyników.".format(simulation.name),
             parent=self.root,
         )
 
@@ -1373,6 +1227,10 @@ class MainWindow:
         except Exception as exc:
             messagebox.showerror("Nie można przenieść do kosza", str(exc), parent=self.root)
             return
+        self._history_cache = [item for item in self._history_cache if item.id != simulation.id]
+        if any(item.id == simulation.id for item in self.controller.simulations):
+            self.controller.simulations = [item for item in self.controller.simulations if item.id != simulation.id]
+            self._build_simulation_tabs()
         self._refresh_views()
         messagebox.showinfo(
             "Przeniesiono do kosza",
@@ -1382,8 +1240,9 @@ class MainWindow:
 
     def _show_deleted_runs(self) -> None:
         def restored(simulation: Any) -> None:
+            self._history_cache.append(simulation)
             self._refresh_views()
-            self.history_frame.select_simulation(simulation.id)
+            self.results_frame.select_simulation(simulation.id)
 
         RunTrashDialog(self.root, self.storage, restored)
 

@@ -619,7 +619,7 @@ class TopologyView(ttk.Frame):
             row=0, column=3, sticky="e", padx=(4, 0)
         )
         ttk.Button(map_tools, text="Dopasuj", command=self.fit_to_data).grid(row=0, column=4, sticky="e", padx=(4, 0))
-        self.canvas = tk.Canvas(map_box, background="#171b20", highlightthickness=0, height=290)
+        self.canvas = tk.Canvas(map_box, background="#ffffff", highlightthickness=0, height=290)
         self.canvas.grid(row=1, column=0, sticky="nsew")
         self.canvas.bind("<Configure>", lambda _event: self._request_draw(), add=True)
         self.canvas.bind("<ButtonPress-1>", self._on_pan_start, add=True)
@@ -850,7 +850,7 @@ class TopologyView(ttk.Frame):
                 width / 2,
                 height / 2,
                 text="Brak pozycji radiowych w bieżącej próbce",
-                fill="#aab4c0",
+                fill="#59636e",
             )
             return
         x_min, x_max, y_min, y_max = self._current_viewport()
@@ -891,18 +891,18 @@ class TopologyView(ttk.Frame):
             x, y = point(cell.x, cell.y)
             color = "#697581" if cell.tx_sleeping else self._cell_color(cell.id)
             radius = 8 if cell.role.lower() == "gnb" else 6
-            canvas.create_oval(x - radius, y - radius, x + radius, y + radius, fill=color, outline="#e5e9ef", width=1)
+            canvas.create_oval(x - radius, y - radius, x + radius, y + radius, fill=color, outline="#202020", width=1)
             suffix = " (TX off)" if cell.tx_sleeping else ""
-            canvas.create_text(x + 10, y - 10, text="{} {}{}".format(cell.role, cell.id, suffix), anchor="sw", fill="#e5e9ef", font=("TkDefaultFont", 8))
+            canvas.create_text(x + 10, y - 10, text="{} {}{}".format(cell.role, cell.id, suffix), anchor="sw", fill="#202020", font=("TkDefaultFont", 8))
 
         for index, ue in enumerate(self._snapshot.ues):
             x, y = point(ue.x, ue.y)
-            color = self._cell_color(ue.serving_cell) if ue.serving_cell else "#55b87a"
+            color = self._cell_color(ue.serving_cell) if ue.serving_cell else "#287441"
             canvas.create_oval(x - 4, y - 4, x + 4, y + 4, fill=color, outline="#101419")
             if len(self._snapshot.ues) <= 28 or index < 12:
-                canvas.create_text(x + 6, y + 6, text="UE {}".format(ue.id), anchor="nw", fill="#dce3eb", font=("TkDefaultFont", 8))
+                canvas.create_text(x + 6, y + 6, text="UE {}".format(ue.id), anchor="nw", fill="#202020", font=("TkDefaultFont", 8))
 
-        canvas.create_text(8, height - 8, text="gNB/eNB: komórka   •   UE: urządzenie   - - -: raportowane przypisanie   ···: ślad ruchu", anchor="sw", fill="#aab4c0", font=("TkDefaultFont", 8))
+        canvas.create_text(8, height - 8, text="gNB/eNB: komórka   •   UE: urządzenie   - - -: raportowane przypisanie   ···: ślad ruchu", anchor="sw", fill="#59636e", font=("TkDefaultFont", 8))
 
     def _view_transform(
         self,
@@ -951,8 +951,8 @@ class TopologyView(ttk.Frame):
             y = y_min + (y_max - y_min) * fraction
             left_x, bottom_y = point(x, y_min)
             right_x, top_y = point(x_max, y)
-            canvas.create_line(left_x, 0, left_x, canvas.winfo_height(), fill="#252c34")
-            canvas.create_line(0, bottom_y, canvas.winfo_width(), bottom_y, fill="#252c34")
+            canvas.create_line(left_x, 0, left_x, canvas.winfo_height(), fill="#e1e1e1")
+            canvas.create_line(0, bottom_y, canvas.winfo_width(), bottom_y, fill="#e1e1e1")
             if fraction in (0.0, 0.5, 1.0):
                 canvas.create_text(left_x + 2, canvas.winfo_height() - 21, text="{:.0f} m".format(x), anchor="sw", fill="#7e8995", font=("TkDefaultFont", 7))
                 canvas.create_text(3, bottom_y - 2, text="{:.0f}".format(y), anchor="sw", fill="#7e8995", font=("TkDefaultFont", 7))

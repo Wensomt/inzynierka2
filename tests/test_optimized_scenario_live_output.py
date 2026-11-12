@@ -22,18 +22,13 @@ def test_live_timeseries_has_the_complete_declared_schema_and_durable_append():
     assert 'Cannot create live metrics file ee_timeseries.csv' in source
 
 
-def test_live_timeseries_uses_real_flow_monitor_quality_for_the_downlink_only():
+def test_live_timeseries_measures_udp_endpoints_without_byte_tags():
     source = _source()
 
-    assert '#include "ns3/flow-monitor-module.h"' in source
-    assert "trackedDlFlowMonitor = trackedFlowMonitorHelper.Install (remoteHostContainer);" in source
-    assert "trackedFlowMonitorHelper.Install (ueNodes);" in source
-    assert "tuple.destinationPort != TRACKED_DL_PORT" in source
-    assert "trackedDlFlowMonitor->CheckForLostPackets ();" in source
-    # Live loss counts declared drops/timeouts, while the final finite-window
-    # delivery failure ratio also includes packets outstanding after drain.
-    live = source[source.index("ReadTrackedDlFlowQuality ("):source.index("WriteEeTimeseries ()")]
-    assert "quality.monitorLostPackets" in live
+    assert 'TraceConnectWithoutContext ("Rx", MakeCallback (&TrackDlReceive))' in source
+    assert "client->GetTotalTx () / trackedUdpPacketSize" in source
+    assert "Simulator::Now () - header.GetTs ()" in source
+    assert "FlowMonitorHelper" not in source
     assert "quality.txPackets - quality.rxPackets" in source
     assert "not_received_by_measurement_end" in source
 
@@ -43,8 +38,8 @@ def test_scenario_stops_traffic_before_measurement_end_and_preserves_counters():
     assert "clientApp.Stop(Seconds(trafficStopS));" in source
     assert "const double trafficStopS = simTime - drainTimeS;" in source
     assert "ReadTotalRadioEnergyJ ();" in source
-    assert 'SerializeToXmlFile ("flow-monitor.xml", false, false)' in source
-    assert "tx_packets,rx_packets,lost_packets,monitor_lost_packets,delay_sum_s" in source
+    assert "tx_packets,rx_packets,lost_packets,delay_sum_s" in source
+    assert "udp_application_seq_ts" in source
 
 
 def test_energy_getter_is_not_called_twice_at_the_same_simulation_instant():

@@ -443,17 +443,17 @@ install_desktop_entry() {
 start_gui() {
     local state_dir log_file
     if ! docker info >/dev/null 2>&1; then
-        printf '\nDodano użytkownika do grupy docker. Wyloguj się i zaloguj ponownie, a następnie kliknij ikonę O-RAN Energy Lab.\n'
+        printf '\nDodano użytkownika do grupy docker. Wyloguj się i zaloguj ponownie, a następnie kliknij ikonę Symulator O-RAN.\n'
         return 0
     fi
     state_dir="$(orlab_state_dir)"
     mkdir -p -- "$state_dir"
     log_file="$state_dir/launcher.log"
     nohup bash "$SCRIPT_DIR/launcher.sh" --start-ready >"$log_file" 2>&1 &
-    printf 'O-RAN Energy Lab został uruchomiony. Log startu: %s\n' "$log_file"
+    printf 'Symulator O-RAN został uruchomiony. Log startu: %s\n' "$log_file"
 }
 
-printf 'Przygotowanie O-RAN Energy Lab dla użytkownika %s\n' "$RUN_USER"
+printf 'Przygotowanie Symulator O-RAN dla użytkownika %s\n' "$RUN_USER"
 ensure_system_python
 ensure_docker_engine
 ensure_docker_group
@@ -463,7 +463,7 @@ ensure_simulator_image
 
 if [[ "$GROUP_WAS_ADDED" -eq 1 ]]; then
     printf '\nDodano użytkownika %s do grupy docker. Wyloguj się i zaloguj ponownie; jest to wymagane przez system.\n' "$RUN_USER"
-    printf 'Skrót O-RAN Energy Lab został już utworzony.\n'
+    printf 'Skrót Symulator O-RAN został już utworzony.\n'
     exit 0
 fi
 

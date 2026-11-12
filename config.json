@@ -40,7 +40,8 @@
         "e2cuUp",
         "e2cuCp",
         "reducedPmValues",
-        "controlFileName"
+        "controlFileName",
+        "CellLayout"
       ]
     },
     "orange_cell_util": {
@@ -124,21 +125,21 @@
           "label": "Potwierdzenie wyłączenia",
           "description": "Czas potwierdzania wyłączenia komórki.",
           "type": "integer",
-          "unit": "s",
+          "unit": "s ns-3",
           "default": 5
         },
         "EE_SHUTDOWN_TIMEOUT_SEC": {
           "label": "Timeout wyłączenia",
           "description": "Maksymalny czas oczekiwania na wyłączenie komórki.",
           "type": "integer",
-          "unit": "s",
+          "unit": "s ns-3",
           "default": 30
         },
         "EE_CELL_SWITCH_COOLDOWN_SEC": {
           "label": "Cooldown przełączenia",
           "description": "Czas przerwy przed kolejnym przełączeniem stanu komórki.",
           "type": "integer",
-          "unit": "s",
+          "unit": "s ns-3",
           "default": 60
         },
         "EE_PROTECTED_CELL_ID": {
@@ -151,8 +152,8 @@
           "label": "Okres decyzji",
           "description": "Odstęp między kolejnymi ocenami polityki xAppa.",
           "type": "integer",
-          "unit": "s",
-          "default": 5
+          "unit": "s ns-3",
+          "default": 1
         },
         "EE_WAIT_FOR_E2_SEC": {
           "label": "Oczekiwanie na E2",
@@ -165,7 +166,7 @@
           "label": "Maksymalny wiek raportu KPM",
           "description": "Odrzuca nieaktualne raporty serving i sąsiadów przed decyzją o handover lub wyłączeniu.",
           "type": "integer",
-          "unit": "s",
+          "unit": "s ns-3",
           "minimum": 1,
           "default": 5
         },

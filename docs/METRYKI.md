@@ -39,18 +39,23 @@ ruchu i drain muszą pozostawić dodatni czas generowania. Przy przeciążeniu
 należy sprawdzić wrażliwość wyniku na wydłużenie drain — wartość domyślna nie
 dowodzi opróżnienia wszystkich kolejek.
 
-FlowMonitor obejmuje końce UDP downlink do portu 1234. Live packet loss liczy
-straty już stwierdzone przez monitor (drop/timeout). Wynik końcowy liczy
-wszystkie pakiety niedostarczone do końca okna, także pozostające w kolejkach.
-`packet_loss_definition=not_received_by_measurement_end` opisuje tę definicję;
-`monitor_lost_packets` zachowuje osobny licznik monitora. Nie są to wyłącznie
-straty radiowe.
+Nadajnik UdpClient dostarcza liczbę wysłanych bajtów, dzieloną przez stały
+rozmiar pakietu. Odbiornik PacketSink zlicza otrzymane pakiety, a z SeqTsHeader
+odczytujemy czas wysłania. Sumujemy różnice `Simulator::Now() − timestamp`.
+Dane i QoS dotyczą więc tych samych downlinków UDP do UE.
+`qos_source=udp_application_seq_ts` identyfikuje tę metodę.
 
-Potrzebę oddzielenia końca aplikacji od końca symulacji opisuje
-[ns-3 FlowMonitor](https://www.nsnam.org/docs/models/html/flow-monitor.html).
-Monitor liczy bajty IP; jego `rxBytes` nie zastępuje D w goodput/EE. Duże
-datagramy mogą podlegać fragmentacji — należy kontrolować MTU i jej wpływ
-na statystyki pakietowe.
+Live pokazuje `100 × (Tx − Rx) / Tx`: udział pakietów **jeszcze niedostarczonych**,
+w tym pakietów w drodze. Ten wskaźnik może maleć podczas drain. Dopiero na końcu
+jest to odsetek niedostarczonych do zadeklarowanego końca pomiaru
+(`packet_loss_definition=not_received_by_measurement_end`). Nie jest to
+wyłącznie radiowy packet loss.
+
+W dostarczonym backendzie `mc-ue-pdcp.cc` wywołuje `RemoveAllByteTags()`.
+Dlatego poprzedni FlowMonitor nie rejestrował odbioru, choć PacketSink odbierał
+dane. Aktualny scenariusz nie używa FlowMonitor i nie tworzy `flow-monitor.xml`.
+Historyczne wyniki z dodatnimi danymi UDP i `rx_packets=0` mają odrzucony pomiar
+strat i opóźnienia. Nie należy używać ich w badaniu QoS.
 
 ## Ocena EE razem z QoS
 
@@ -68,8 +73,14 @@ algorytmu. Zmianę SINR podajemy w dB, a packet loss w punktach procentowych.
 
 Agregaty nie potwierdzają QoS każdego UE ani opóźnienia p95/p99. Do takich tez
 potrzebne są rozkłady i wyniki per UE/przepływ oraz wymagania konkretnej usługi.
-Liczniki per przepływ zapisuje `flow-monitor.xml`. Liczba UE i SINR w xAppie
-są warunkami ostrożnego sterowania, nie dowodem gwarancji QoS.
+Bieżący scenariusz zapisuje agregaty sieciowe, nie wyniki per UE/przepływ.
+Wskaźnik UE w raportach KPM nie oznacza liczby unikalnych użytkowników.
+Po handoverze raporty komórek mogą jeszcze obejmować wcześniejsze konteksty;
+w kontroli 12 UE suma raportów osiągała 16. Liczbę urządzeń określa `N_Ues`,
+a ich zapisane przypisania pokazuje `ue_position.txt`. Potwierdzenia handoverów
+i wyłączenie komórki sprawdzamy osobno w CSV decyzji i `gnbs.txt`.
+Liczba UE i SINR w xAppie są warunkami ostrożnego sterowania, nie dowodem
+gwarancji QoS.
 
 ## Pochodzenie i porównywalność
 
@@ -88,4 +99,4 @@ Pojedyncza para nie jest testem istotności. Organizację generatorów opisuje
 Definicja EE jako ruchu na energię odpowiada kierunkowi
 [ETSI ES 203 228, v1.4.1](https://www.etsi.org/deliver/etsi_es/203200_203299/203228/01.04.01_60/es_203228v010401p.pdf).
 Aplikacja nie realizuje pełnej procedury pomiarowej ani oceny zgodności z tą
-normą. Zakres weryfikacji opisuje [audyt](AUDYT_2026-10-02.md).
+normą. Zakres weryfikacji opisuje [przegląd](PRZEGLAD_2026-10-18.md).

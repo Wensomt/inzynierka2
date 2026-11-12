@@ -197,9 +197,9 @@ class DockerView(ttk.Frame):
             wrap="word",
             state="disabled",
             font=("TkFixedFont", 9),
-            background="#171b20",
-            foreground="#e5e9ef",
-            insertbackground="#e5e9ef",
+            background="#ffffff",
+            foreground="#202020",
+            insertbackground="#202020",
             relief="flat",
         )
         details_scroll = ttk.Scrollbar(details_box, orient="vertical", command=self.details.yview)
@@ -249,9 +249,9 @@ class DockerView(ttk.Frame):
             wrap="none",
             state="disabled",
             font=("TkFixedFont", 9),
-            background="#171b20",
-            foreground="#e5e9ef",
-            insertbackground="#e5e9ef",
+            background="#ffffff",
+            foreground="#202020",
+            insertbackground="#202020",
             relief="flat",
         )
         log_y = ttk.Scrollbar(log_frame, orient="vertical", command=self.log_text.yview)

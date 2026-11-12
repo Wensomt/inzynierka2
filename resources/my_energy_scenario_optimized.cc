@@ -50,7 +50,8 @@
 #include <iomanip>
 #include <sstream>
 #include "ns3/packet-sink.h"
-#include "ns3/flow-monitor-module.h"
+#include "ns3/udp-client.h"
+#include "ns3/seq-ts-header.h"
 #include "ns3/basic-energy-source-helper.h"
 #include "ns3/mmwave-radio-energy-model-enb-helper.h"
 #include "ns3/isotropic-antenna-model.h"
@@ -80,12 +81,26 @@ double sum_curr_total_energy_consumption = 0;
 int num_of_mmdev = 0;
 ApplicationContainer trackedDlSinks;
 energy::DeviceEnergyModelContainer trackedEnergyModels;
-// FlowMonitor observes the same real UDP downlink flows as the PacketSink
-// counter below.  It is deliberately limited to destination port 1234, so
-// control-plane traffic does not become an invented radio-QoS measurement.
-Ptr<FlowMonitor> trackedDlFlowMonitor;
-Ptr<Ipv4FlowClassifier> trackedDlFlowClassifier;
-static const uint16_t TRACKED_DL_PORT = 1234;
+// MC PDCP removes byte tags, so FlowMonitor cannot observe receives here.
+// Measure the actual UDP applications instead; SeqTsHeader survives the radio path.
+ApplicationContainer trackedDlClients;
+uint32_t trackedUdpPacketSize = 200;
+uint64_t trackedDlRxPackets = 0;
+double trackedDlDelaySeconds = 0.0;
+
+void
+TrackDlReceive (Ptr<const Packet> packet, const Address& from)
+{
+  SeqTsHeader header;
+  if (packet->GetSize () < header.GetSerializedSize ())
+    {
+      return;
+    }
+  packet->PeekHeader (header);
+  ++trackedDlRxPackets;
+  trackedDlDelaySeconds += (Simulator::Now () - header.GetTs ()).GetSeconds ();
+}
+
 double previousEeSampleTime = 0.0;
 double previousEeSampleEnergyJ = 0.0;
 double previousEeSampleDeliveredBits = 0.0;
@@ -122,7 +137,6 @@ struct DlFlowQuality
 {
   uint64_t txPackets = 0;
   uint64_t rxPackets = 0;
-  uint64_t monitorLostPackets = 0;
   double delaySeconds = 0.0;
 };
 
@@ -130,24 +144,16 @@ DlFlowQuality
 ReadTrackedDlFlowCounters ()
 {
   DlFlowQuality quality;
-  if (!trackedDlFlowMonitor || !trackedDlFlowClassifier)
+  for (uint32_t i = 0; i < trackedDlClients.GetN (); ++i)
     {
-      return quality;
-    }
-  trackedDlFlowMonitor->CheckForLostPackets ();
-  for (const auto& flow : trackedDlFlowMonitor->GetFlowStats ())
-    {
-      const Ipv4FlowClassifier::FiveTuple tuple =
-          trackedDlFlowClassifier->FindFlow (flow.first);
-      if (tuple.protocol != 17 || tuple.destinationPort != TRACKED_DL_PORT)
+      Ptr<UdpClient> client = DynamicCast<UdpClient> (trackedDlClients.Get (i));
+      if (client)
         {
-          continue;
+          quality.txPackets += client->GetTotalTx () / trackedUdpPacketSize;
         }
-      quality.txPackets += flow.second.txPackets;
-      quality.rxPackets += flow.second.rxPackets;
-      quality.monitorLostPackets += flow.second.lostPackets;
-      quality.delaySeconds += flow.second.delaySum.GetSeconds ();
     }
+  quality.rxPackets = trackedDlRxPackets;
+  quality.delaySeconds = trackedDlDelaySeconds;
   return quality;
 }
 
@@ -426,17 +432,12 @@ ReadTrackedDlFlowQuality (double& packetLossPct, double& meanDelayMs)
 {
   packetLossPct = 0.0;
   meanDelayMs = 0.0;
-  if (!trackedDlFlowMonitor || !trackedDlFlowClassifier)
-    {
-      return false;
-    }
-
-  // Live loss includes only drops/timeout reported by the monitor; packets
-  // still in flight must not be counted as loss during the run.
+  // Live: packets not received YET, including those still in transit.
+  // Final: the same counters after the declared queue-drain period.
   const DlFlowQuality quality = ReadTrackedDlFlowCounters ();
   const uint64_t txPackets = quality.txPackets;
   const uint64_t rxPackets = quality.rxPackets;
-  const uint64_t lostPackets = quality.monitorLostPackets;
+  const uint64_t lostPackets = txPackets > rxPackets ? txPackets - rxPackets : 0;
   const double delaySeconds = quality.delaySeconds;
 
   if (txPackets == 0)
@@ -632,6 +633,10 @@ static ns3::GlobalValue bandwidth_value ("Bandwidth", "Bandwidth Value",
 // static ns3::GlobalValue num_antennas_MmWave ("N_AntennasMmWave", "Number of Antenna as MmWave",
 //                                       ns3::IntegerValue (1),
 //                                       ns3::MakeIntegerChecker<int> ());
+
+// 0 preserves the original centre-and-ring example; 1 gives a regular polygon.
+static ns3::GlobalValue cell_layout("CellLayout", "0: centre and ring, 1: regular polygon of separate NR sites",
+                                    ns3::UintegerValue(1), ns3::MakeUintegerChecker<uint32_t>(0, 1));
 
 static ns3::GlobalValue interside_distance_value_ue ("IntersideDistanceUEs", "Interside Distance Value",
                                       ns3::DoubleValue (500),
@@ -895,18 +900,21 @@ Config::SetDefault ("ns3::ThreeGppChannelConditionModel::UpdatePeriod",
   // Install Mobility Model
   Ptr <ListPositionAllocator> enbPositionAlloc = CreateObject<ListPositionAllocator>();
 
-  // We want a center with one LTE enb and one mmWave co-located in the same place
+  // One LTE anchor plus separate NR sites. These are not sectors of one mast.
+  centerPosition.z = 10.0;
   enbPositionAlloc->Add(centerPosition);
-  enbPositionAlloc->Add(centerPosition);
-  double x, y;
-  double nConstellation = nMmWaveEnbNodes - 1;
-
-  // This guarantee that each of the rest BSs is placed at the same distance from the two co-located in the center
-  for (uint32_t i = 0; i < nConstellation; ++i) {
-      x = isd_cell * cos((2 * M_PI * i) / (nConstellation));
-      y = isd_cell * sin((2 * M_PI * i) / (nConstellation));
-      enbPositionAlloc->Add(Vector(centerPosition.x + x, centerPosition.y + y, 3));
-    }
+  GlobalValue::GetValueByName("CellLayout", uintegerValue);
+  const bool polygon = uintegerValue.Get() == 1;
+  if (!polygon || nMmWaveEnbNodes == 1)
+    enbPositionAlloc->Add(centerPosition);
+  const uint32_t ringCount = polygon && nMmWaveEnbNodes > 1 ? nMmWaveEnbNodes : nMmWaveEnbNodes - 1;
+  // In the polygon variant isd_cell is the distance between adjacent sites.
+  const double radius = polygon && ringCount > 1 ? isd_cell / (2.0 * sin(M_PI / ringCount)) : isd_cell;
+  for (uint32_t i = 0; i < ringCount; ++i) {
+    const double angle = 2 * M_PI * i / ringCount;
+    enbPositionAlloc->Add(Vector(centerPosition.x + radius * cos(angle),
+                                centerPosition.y + radius * sin(angle), 10.0));
+  }
 
   MobilityHelper enbmobility;
   enbmobility.SetMobilityModel("ns3::ConstantPositionMobilityModel");
@@ -920,6 +928,7 @@ Config::SetDefault ("ns3::ThreeGppChannelConditionModel::UpdatePeriod",
   uePositionAlloc->SetX(centerPosition.x);
   uePositionAlloc->SetY(centerPosition.y);
   uePositionAlloc->SetRho(isd_ue);
+  uePositionAlloc->SetZ(1.5);
   Ptr <UniformRandomVariable> speed = CreateObject<UniformRandomVariable>();
   speed->SetAttribute("Min", DoubleValue(2.0));
   speed->SetAttribute("Max", DoubleValue(4.0));
@@ -1041,12 +1050,15 @@ Config::SetDefault ("ns3::ThreeGppChannelConditionModel::UpdatePeriod",
       // Full traffic
       PacketSinkHelper dlPacketSinkHelper("ns3::UdpSocketFactory",
                                            InetSocketAddress(Ipv4Address::GetAny(), 1234));
-      sinkApp.Add(dlPacketSinkHelper.Install(ueNodes.Get(u)));
+      ApplicationContainer ueSink = dlPacketSinkHelper.Install(ueNodes.Get(u));
+      ueSink.Get (0)->TraceConnectWithoutContext ("Rx", MakeCallback (&TrackDlReceive));
+      sinkApp.Add(ueSink);
       UdpClientHelper dlClient(ueIpIface.GetAddress(u), 1234);
       GlobalValue::GetValueByName("UdpIntervalUs", uintegerValue);
       uint32_t udpIntervalUs = uintegerValue.Get();
       GlobalValue::GetValueByName("UdpPacketSizeBytes", uintegerValue);
       uint32_t udpPacketSizeBytes = uintegerValue.Get();
+      trackedUdpPacketSize = udpPacketSizeBytes;
       dlClient.SetAttribute("Interval", TimeValue(MicroSeconds(udpIntervalUs)));
       dlClient.SetAttribute("MaxPackets", UintegerValue(UINT32_MAX));
       dlClient.SetAttribute("PacketSize", UintegerValue(udpPacketSizeBytes)); // default 200 in Orange scenario
@@ -1056,6 +1068,9 @@ Config::SetDefault ("ns3::ThreeGppChannelConditionModel::UpdatePeriod",
   // Start applications
 
   trackedDlSinks = sinkApp;
+  trackedDlClients = clientApp;
+  trackedDlRxPackets = 0;
+  trackedDlDelaySeconds = 0.0;
   previousEeSampleTime = 0.0;
   previousEeSampleEnergyJ = 0.0;
   previousEeSampleDeliveredBits = 0.0;
@@ -1072,16 +1087,6 @@ Config::SetDefault ("ns3::ThreeGppChannelConditionModel::UpdatePeriod",
     eeSeriesFile << "Time_s,DeliveredBits,TotalEnergy_J,IntervalPower_W,IntervalThroughput_bps,CumulativeEE_bit_per_J,PacketLoss_pct,MeanDelay_ms" << std::endl;
     eeSeriesFile.close ();
   }
-  // Exactly one helper is created for the process.  The monitor sees the
-  // actual IP/UDP downlink traffic and its current values are appended to the
-  // very same live CSV as energy and delivered data.
-  FlowMonitorHelper trackedFlowMonitorHelper;
-  // Endpoints suffice for end-to-end statistics. Avoid monitoring GTP tunnel
-  // traffic and intermediate forwarding probes as independent data flows.
-  trackedDlFlowMonitor = trackedFlowMonitorHelper.Install (remoteHostContainer);
-  trackedFlowMonitorHelper.Install (ueNodes);
-  trackedDlFlowClassifier = DynamicCast<Ipv4FlowClassifier> (
-      trackedFlowMonitorHelper.GetClassifier ());
   for (int i = 1; i < numPrints; ++i)
     {
       // Schedule just after the cell energy samples at the same nominal instant.
@@ -1168,8 +1173,8 @@ Config::SetDefault ("ns3::ThreeGppChannelConditionModel::UpdatePeriod",
       // after the declared drain. This is distinct from live monitor loss.
       const uint64_t undeliveredPackets = quality.txPackets > quality.rxPackets
           ? quality.txPackets - quality.rxPackets : 0;
+      const bool countersValid = quality.rxPackets <= quality.txPackets;
       const double deliveredBits = static_cast<double>(deliveredBytes) * 8.0;
-      const double eeBitPerJ = totalEnergyJ > 0.0 ? deliveredBits / totalEnergyJ : 0.0;
 
       std::ofstream summaryFile;
       summaryFile.open("ee_summary.csv", std::ios_base::out | std::ios_base::trunc);
@@ -1179,15 +1184,32 @@ Config::SetDefault ("ns3::ThreeGppChannelConditionModel::UpdatePeriod",
           Simulator::Destroy ();
           return 1;
         }
-      summaryFile << "simTime_s,nMmWaveCells,nUes,deliveredData_bits,totalEnergy_J,EE_bit_per_J,measurement_start_s,measurement_duration_s,traffic_start_s,traffic_stop_s,drain_duration_s,tx_packets,rx_packets,lost_packets,monitor_lost_packets,delay_sum_s,packet_loss_pct,mean_delay_ms,avg_throughput_mbps,energy_scope,data_layer,packet_loss_definition,simulator_source" << std::endl;
+      summaryFile << "simTime_s,nMmWaveCells,nUes,deliveredData_bits,totalEnergy_J,EE_bit_per_J,measurement_start_s,measurement_duration_s,traffic_start_s,traffic_stop_s,drain_duration_s,tx_packets,rx_packets,lost_packets,delay_sum_s,packet_loss_pct,mean_delay_ms,avg_throughput_mbps,energy_scope,data_layer,packet_loss_definition,simulator_source,qos_source" << std::endl;
       summaryFile << std::setprecision (17)
                   << simTime << "," << unsigned(nMmWaveEnbNodes) << "," << nUeNodes << ","
-                  << deliveredBits << "," << totalEnergyJ << "," << eeBitPerJ << ",0,"
+                  << deliveredBits << "," << totalEnergyJ << ",";
+      if (totalEnergyJ > 0.0)
+        {
+          summaryFile << deliveredBits / totalEnergyJ;
+        }
+      else
+        {
+          summaryFile << "N/A";
+        }
+      summaryFile << ",0,"
                   << simTime << "," << trafficStartS << "," << trafficStopS << ","
                   << drainTimeS << "," << quality.txPackets << "," << quality.rxPackets << ","
-                  << undeliveredPackets << "," << quality.monitorLostPackets << ","
-                  << quality.delaySeconds << ",";
-      if (quality.txPackets > 0)
+                  ;
+      if (countersValid)
+        {
+          summaryFile << undeliveredPackets;
+        }
+      else
+        {
+          summaryFile << "INVALID";
+        }
+      summaryFile << "," << quality.delaySeconds << ",";
+      if (countersValid && quality.txPackets > 0)
         {
           summaryFile << 100.0 * undeliveredPackets / quality.txPackets;
         }
@@ -1197,10 +1219,9 @@ Config::SetDefault ("ns3::ThreeGppChannelConditionModel::UpdatePeriod",
           summaryFile << 1000.0 * quality.delaySeconds / quality.rxPackets;
         }
       summaryFile << "," << deliveredBits / simTime / 1e6
-                  << ",nr_radio_model,udp_application_payload,not_received_by_measurement_end,mmwave_LENA_oran_custom"
+                  << ",nr_radio_model,udp_application_payload,not_received_by_measurement_end,mmwave_LENA_oran_custom,udp_application_seq_ts"
                   << std::endl;
       summaryFile.close();
-      trackedDlFlowMonitor->SerializeToXmlFile ("flow-monitor.xml", false, false);
     }
 
   NS_LOG_INFO(lteHelper);
