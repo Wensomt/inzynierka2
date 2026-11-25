@@ -1,0 +1,3 @@
+﻿id,xapp,status,rng_run,total_energy_j,energy_per_mbit_j,delivered_mbit,delay_ms,packet_loss_pct,candidates,denials,handovers_sent,handovers_confirmed,switch_off_commands,off_cells_in_topology,first_off_time_s,final_ue_total,final_ue_cell_counts,ues_on_final_off_cells,final_off_cell_interval_energy_j,denial_reasons
+none,none,COMPLETED,1,100,,,,,0,0,0,0,0,[],{},0,{},0,{},{}
+optimized,optimized,RUNNING,1,80,,,,,0,0,0,0,0,[],{},0,{},0,{},{}

@@ -1,0 +1,2 @@
+Time_s,DeliveredBits,TotalEnergy_J,IntervalPower_W,IntervalThroughput_bps,CumulativeEE_bit_per_J
+2,0,100,50,0,0

@@ -1,0 +1,11 @@
+{
+  "scenario": "optimized",
+  "parameters": {
+    "simTime": 5,
+    "RngRun": 17,
+    "N_MmWaveEnbNodes": 3,
+    "N_Ues": 12
+  },
+  "xapp": "none",
+  "xapp_environment": {}
+}

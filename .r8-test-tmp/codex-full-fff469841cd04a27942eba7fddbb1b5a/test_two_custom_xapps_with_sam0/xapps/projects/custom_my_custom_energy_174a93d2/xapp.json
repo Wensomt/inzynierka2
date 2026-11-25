@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "key": "custom_my_custom_energy_174a93d2",
+  "name": "My custom energy",
+  "description": "Kopia rzeczywistego xAppa My Energy/KPM z tego projektu.",
+  "source_path": "xapp_my_custom_energy_174a93d2.c",
+  "target": "xapp_my_custom_energy_174a93d2",
+  "parameters": {
+    "EE_DECISION_PERIOD_SEC": {
+      "default": 5
+    }
+  },
+  "created_at": "2026-11-25T10:55:32.374945+00:00",
+  "last_build": null,
+  "last_build_status": null,
+  "last_build_log": null,
+  "image": null
+}

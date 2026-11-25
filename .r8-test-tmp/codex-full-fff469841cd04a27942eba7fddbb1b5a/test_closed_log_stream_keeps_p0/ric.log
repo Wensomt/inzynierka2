@@ -1,0 +1,3 @@
+READY
+[O-RAN LAB] 2026-11-25T10:55:31.690870+00:00 log stream closed; Docker exec exec still Running; waiting for exit
+[O-RAN LAB] 2026-11-25T10:55:31.941812+00:00 exec=exec finished: exit_code=7

@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.0",
+  "id": "74b935ca-03d4-44c9-b6c5-bf8ab0f399bc",
+  "name": "Symulacja 1",
+  "configuration": {
+    "scenario": "optimized",
+    "parameters": {
+      "simTime": 5,
+      "RngRun": 1,
+      "N_MmWaveEnbNodes": 3,
+      "N_Ues": 12
+    },
+    "xapp": "none",
+    "xapp_environment": {}
+  },
+  "status": "COMPLETED",
+  "created_at": "2026-11-25T10:55:30.291087+00:00",
+  "started_at": null,
+  "ended_at": null,
+  "runtime": {
+    "queue_timing": {
+      "mode": "per_run_real_time_budget",
+      "state": "completed_without_sim_time_observation",
+      "queue_target_total_active_real_s": 1200.0,
+      "per_run_target_active_real_s": 600.0,
+      "run_index": 1,
+      "run_count": 2,
+      "original_rng_run": 1,
+      "rng_run": 1,
+      "rng_policy": "shared_first_run",
+      "rng_was_consistent": true,
+      "cutoff_policy": "hard_real_time_each_run",
+      "sim_time_policy": "observational_only",
+      "original_sim_time_s": 5,
+      "active_elapsed_real_s": 600.0
+    }
+  },
+  "result": {
+    "metrics": {
+      "total_energy_j": 1.0
+    },
+    "quality": {},
+    "series": {},
+    "sources": {},
+    "warnings": [],
+    "metadata": {}
+  },
+  "error": null,
+  "log_path": "C:\\Users\\Dawid\\Documents\\GitHub\\inzynierka2\\.r8-test-tmp\\codex-full-fff469841cd04a27942eba7fddbb1b5a\\test_total_budget_starts_next_0\\simulations\\74b935ca-03d4-44c9-b6c5-bf8ab0f399bc\\logs\\runner.log"
+}

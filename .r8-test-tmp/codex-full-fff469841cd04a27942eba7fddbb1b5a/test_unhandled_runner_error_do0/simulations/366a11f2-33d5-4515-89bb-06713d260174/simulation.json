@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "id": "366a11f2-33d5-4515-89bb-06713d260174",
+  "name": "Symulacja 1",
+  "configuration": {
+    "scenario": "",
+    "parameters": {
+      "simTime": 5,
+      "RngRun": 1,
+      "CellLayout": 1,
+      "N_MmWaveEnbNodes": 3,
+      "N_Ues": 12,
+      "Bandwidth": 20000000,
+      "CenterFrequency": 3500000000,
+      "UdpPacketSizeBytes": 200,
+      "UdpIntervalUs": 2000,
+      "IntersideDistanceUEs": 250,
+      "IntersideDistanceCells": 200,
+      "indicationPeriodicity": 0.1
+    },
+    "xapp": "none",
+    "xapp_environment": {}
+  },
+  "status": "FAILED",
+  "created_at": "2026-11-25T10:55:32.191188+00:00",
+  "started_at": null,
+  "ended_at": "2026-11-25T10:55:32.262869+00:00",
+  "runtime": {
+    "failure_kind": "runner_exception",
+    "experiment_valid": false
+  },
+  "result": null,
+  "error": "unexpected transport failure",
+  "log_path": "C:\\Users\\Dawid\\Documents\\GitHub\\inzynierka2\\.r8-test-tmp\\codex-full-fff469841cd04a27942eba7fddbb1b5a\\test_unhandled_runner_error_do0\\simulations\\366a11f2-33d5-4515-89bb-06713d260174\\logs\\runner.log"
+}

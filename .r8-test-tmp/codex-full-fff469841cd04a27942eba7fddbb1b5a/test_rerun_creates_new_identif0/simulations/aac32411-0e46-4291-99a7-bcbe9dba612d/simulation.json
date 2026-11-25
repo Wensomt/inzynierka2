@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "id": "aac32411-0e46-4291-99a7-bcbe9dba612d",
+  "name": "Symulacja 1",
+  "configuration": {
+    "scenario": "optimized",
+    "parameters": {
+      "simTime": 5,
+      "RngRun": 1,
+      "N_MmWaveEnbNodes": 3,
+      "N_Ues": 12
+    },
+    "xapp": "none",
+    "xapp_environment": {}
+  },
+  "status": "COMPLETED",
+  "created_at": "2026-11-25T10:55:32.291980+00:00",
+  "started_at": null,
+  "ended_at": null,
+  "runtime": {},
+  "result": {
+    "metrics": {
+      "total_energy_j": 3.0
+    },
+    "quality": {},
+    "series": {},
+    "sources": {},
+    "warnings": [],
+    "metadata": {}
+  },
+  "error": null,
+  "log_path": "C:\\Users\\Dawid\\Documents\\GitHub\\inzynierka2\\.r8-test-tmp\\codex-full-fff469841cd04a27942eba7fddbb1b5a\\test_rerun_creates_new_identif0\\simulations\\aac32411-0e46-4291-99a7-bcbe9dba612d\\logs\\runner.log"
+}

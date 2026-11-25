@@ -1,0 +1,8 @@
+{
+  "lab": {
+    "simulator_image": "new-image"
+  },
+  "readiness": {
+    "ric_port": 36421
+  }
+}

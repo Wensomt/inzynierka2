@@ -1,0 +1,72 @@
+{
+  "schema_version": "1.0",
+  "id": "f58ef2f4-d910-4725-b6a5-02df34f7589e",
+  "name": "Stary wynik",
+  "configuration": {
+    "scenario": "optimized",
+    "parameters": {},
+    "xapp": "none",
+    "xapp_environment": {}
+  },
+  "status": "COMPLETED",
+  "created_at": "2026-11-25T10:54:59.437704+00:00",
+  "started_at": null,
+  "ended_at": null,
+  "runtime": {},
+  "result": {
+    "metrics": {
+      "energy_efficiency_bit_per_j": null,
+      "energy_per_mbit_j": null,
+      "total_energy_j": null,
+      "average_power_w": null,
+      "throughput_mbit_per_s": null,
+      "delivered_mbit": null,
+      "delay_ms": null,
+      "packet_loss_pct": null
+    },
+    "quality": {
+      "mean_sinr_db": null,
+      "p05_sinr_db": null,
+      "mean_prb_pct": null,
+      "active_ues": null
+    },
+    "series": {
+      "energy_j": [],
+      "power_w": [],
+      "throughput_mbit_per_s": [],
+      "energy_efficiency_bit_per_j": [],
+      "energy_per_mbit_j": [],
+      "delivered_mbit": [],
+      "packet_loss_pct": [],
+      "delay_ms": []
+    },
+    "sources": {},
+    "warnings": [
+      "Brak danych energii w zapisanych wynikach.",
+      "Brak danych o skutecznie dostarczonych danych.",
+      "Opóźnienie: N/A — brak poprawnego pomiaru lub brak odebranych pakietów.",
+      "Packet loss: N/A — brak poprawnego pomiaru lub brak wysłanych pakietów.",
+      "Brak jawnego opisu okna pomiarowego w podsumowaniu; szeregi skumulowane przyjmują początek t=0.",
+      "Pliki energii komórek kończą się w różnych chwilach (różnica 1 s). Nie wyznaczono z nich końcowej energii ani EE."
+    ],
+    "metadata": {
+      "definitions": {
+        "energy_efficiency_bit_per_j": "delivered useful bits / modeled energy over the same window",
+        "energy_per_mbit_j": "modeled joules / delivered Mbit over the same window; undefined with zero delivery",
+        "throughput_mbit_per_s": "delivered Mbit / measurement duration (includes idle and drain time)",
+        "delivered_mbit": "estimated integral of reported PDCP bitrate; not an IP receive counter",
+        "delay_ms": "sum of end-to-end delays / received packets; undefined without received packets",
+        "packet_loss_pct": "final: packets not received by the end / transmitted packets; historical live: FlowMonitor declared losses",
+        "mean_sinr_db": "arithmetic mean of KPM per-report mean SINR values over the measurement window",
+        "p05_sinr_db": "arithmetic mean of KPM per-report p05 SINR values over the measurement window",
+        "mean_prb_pct": "arithmetic mean of reported per-cell DL PRB utilization over the measurement window",
+        "active_ues": "arithmetic mean of per-cell DRB.MeanActiveUeDl reports; not unique IMSIs"
+      },
+      "measurement_consistent": false,
+      "energy_cell_max_timestamp_skew_s": 1.0,
+      "result_parser_version": 6
+    }
+  },
+  "error": null,
+  "log_path": "C:\\Users\\Dawid\\Documents\\GitHub\\inzynierka2\\.r8-test-tmp\\codex-full-fff469841cd04a27942eba7fddbb1b5a\\test_new_parser_can_remove_an_0\\f58ef2f4-d910-4725-b6a5-02df34f7589e\\logs\\runner.log"
+}

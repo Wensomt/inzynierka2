@@ -1,0 +1,1 @@
+[11:55:29] FAILED: Czas symulacji [s] musi być większe od zera; Liczba gNB ma niepoprawną wartość; Liczba UE ma niepoprawną wartość; RngRun ma niepoprawną wartość; Początek ruchu + czas opróżniania kolejek musi być mniejszy od simTime; Czas symulacji [s] musi być nie mniejszy niż 0.2 dla wybranego scenariusza

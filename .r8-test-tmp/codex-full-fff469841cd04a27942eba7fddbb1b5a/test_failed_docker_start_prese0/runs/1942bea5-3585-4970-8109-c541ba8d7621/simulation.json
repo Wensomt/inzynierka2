@@ -1,0 +1,100 @@
+{
+  "schema_version": "1.0",
+  "id": "1942bea5-3585-4970-8109-c541ba8d7621",
+  "name": "Kontrola xApp",
+  "configuration": {
+    "scenario": "optimized",
+    "parameters": {
+      "simTime": 10
+    },
+    "xapp": "none",
+    "xapp_environment": {}
+  },
+  "status": "FAILED",
+  "created_at": "2026-11-25T10:55:31.499254+00:00",
+  "started_at": "2026-11-25T10:55:31.510007+00:00",
+  "ended_at": "2026-11-25T10:55:31.515679+00:00",
+  "runtime": {
+    "stage": "FAILED",
+    "failure_kind": "runtime",
+    "session_id": "partially-created-session",
+    "experiment_valid": false,
+    "termination": {
+      "reason": "error",
+      "partial": true
+    },
+    "provenance_manifest": {
+      "schema_version": 1,
+      "recorded_at": "2026-11-25T10:55:31.515708+00:00",
+      "image": {
+        "image_id": null,
+        "image_id_unknown_reason": "No session image observed",
+        "repo_digests": null,
+        "repo_digests_unknown_reason": "No session image observed"
+      },
+      "backend": {
+        "versions": null,
+        "unknown_reason": "Backend version strings not observed; see image and source identities"
+      },
+      "sources": {
+        "scenario": {
+          "sha256": null,
+          "unknown_reason": "Source not observed/used in this attempt"
+        },
+        "xapp": {
+          "sha256": null,
+          "unknown_reason": "Source not observed/used in this attempt"
+        },
+        "clock_patch": {
+          "sha256": null,
+          "unknown_reason": "Source not observed/used in this attempt"
+        }
+      },
+      "configuration": {
+        "sha256": "4c8b26a1f986f29698e2889003af1ed110b994906738fedf14da21ec5e2b847d",
+        "encoding": "canonical JSON UTF-8, sorted keys, compact, ensure_ascii=false",
+        "backend_config_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      },
+      "rng": {
+        "seed": null,
+        "run": null,
+        "stream_mapping": null,
+        "unknown_reasons": {
+          "seed": "RngSeed not explicitly configured",
+          "run": "RngRun not explicitly configured",
+          "stream_mapping": "Backend stream assignment not observed; independence not established"
+        }
+      },
+      "timestamps": {
+        "started_at": "2026-11-25T10:55:31.510007+00:00",
+        "ended_at": "2026-11-25T10:55:31.515679+00:00",
+        "unknown_reasons": {}
+      },
+      "termination": {
+        "reason": "error",
+        "partial": true
+      },
+      "windows": {
+        "planned": {
+          "start_s": 0,
+          "end_s": 10,
+          "meaning": "configured simulation horizon, not a measured interval"
+        },
+        "actual": {
+          "start_s": null,
+          "end_s": null,
+          "duration_s": null
+        },
+        "actual_unknown_reason": "No complete measured window observed",
+        "measurement_consistent": null
+      },
+      "baseline_reuse": {
+        "reused": false,
+        "meaning": "New runner attempt, not a reused historical baseline"
+      }
+    }
+  },
+  "result": null,
+  "error": "partial Docker start",
+  "log_path": "C:\\Users\\Dawid\\Documents\\GitHub\\inzynierka2\\.r8-test-tmp\\codex-full-fff469841cd04a27942eba7fddbb1b5a\\test_failed_docker_start_prese0\\runs\\1942bea5-3585-4970-8109-c541ba8d7621\\logs\\runner.log"
+}

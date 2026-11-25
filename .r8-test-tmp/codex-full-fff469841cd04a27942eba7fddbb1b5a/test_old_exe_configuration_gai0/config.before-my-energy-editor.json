@@ -1,0 +1,1 @@
+{"scenarios": {"optimized": {"path": "scratch/my_energy_scenario_optimized.cc", "allowed_params": ["simTime"]}}, "xapps": {"optimized": {"parameters": {"EE_DECISION_PERIOD_SEC": {"unit": "s", "default": 7}}}}}

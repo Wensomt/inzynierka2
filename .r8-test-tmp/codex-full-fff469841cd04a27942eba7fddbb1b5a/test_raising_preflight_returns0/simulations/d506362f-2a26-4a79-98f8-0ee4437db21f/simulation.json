@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "id": "d506362f-2a26-4a79-98f8-0ee4437db21f",
+  "name": "Symulacja 1",
+  "configuration": {
+    "scenario": "",
+    "parameters": {
+      "simTime": 5,
+      "RngRun": 1,
+      "CellLayout": 1,
+      "N_MmWaveEnbNodes": 3,
+      "N_Ues": 12,
+      "Bandwidth": 20000000,
+      "CenterFrequency": 3500000000,
+      "UdpPacketSizeBytes": 200,
+      "UdpIntervalUs": 2000,
+      "IntersideDistanceUEs": 250,
+      "IntersideDistanceCells": 200,
+      "indicationPeriodicity": 0.1
+    },
+    "xapp": "none",
+    "xapp_environment": {}
+  },
+  "status": "DRAFT",
+  "created_at": "2026-11-25T10:55:32.274475+00:00",
+  "started_at": null,
+  "ended_at": null,
+  "runtime": {},
+  "result": null,
+  "error": null,
+  "log_path": "C:\\Users\\Dawid\\Documents\\GitHub\\inzynierka2\\.r8-test-tmp\\codex-full-fff469841cd04a27942eba7fddbb1b5a\\test_raising_preflight_returns0\\simulations\\d506362f-2a26-4a79-98f8-0ee4437db21f\\logs\\runner.log"
+}

@@ -1,26 +1,23 @@
-﻿$ErrorActionPreference = "Stop"
-$projectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
-$localAppData = $env:LOCALAPPDATA
-if (-not $localAppData) {
-    Write-Error "Nie znaleziono katalogu profilu LocalAppData."
-    exit 1
-}
+﻿param([switch]$AllowWindowsHome)
 
-$venvCandidates = @(
-    (Join-Path $localAppData "O-RAN Energy Lab\venv-py3.13\Scripts\python.exe"),
-    (Join-Path $localAppData "O-RAN Energy Lab\venv-py3.12\Scripts\python.exe")
-)
-$venvPython = $venvCandidates | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
-if (-not $venvPython) {
-    Write-Error "Środowisko aplikacji nie jest zainstalowane. Kliknij najpierw install_windows.bat."
-    exit 1
-}
-
-Push-Location $projectRoot
+$ErrorActionPreference = 'Stop'
+$root = $PSScriptRoot
+$lock = $null
+$exitCode = 1
 try {
-    & $venvPython -m app.main
-    exit $LASTEXITCODE
+    . (Join-Path $root 'install_windows.ps1') -LibraryOnly -AllowWindowsHome:$AllowWindowsHome
+    $null = Assert-SupportedHost -AllowWindowsHome:$AllowWindowsHome
+    Assert-LocalDockerEnvironment
+    $lock = Enter-InstallLock -ExistingOnly
+    $script:ReceiptPath = Join-Path (Join-Path $root '.install') 'runtime.json'
+    $contract = Get-SourceContract
+    $receipt = Read-RuntimeState (New-RuntimeState $contract)
+    if (-not $receipt -or $receipt.stage -ne 'ready') { throw 'Dokoncz instalacje przed uruchomieniem.' }
+    Ensure-DockerDesktop
+    Select-LocalDocker
+    Assert-ReadyRuntime $receipt
+    $exitCode = Invoke-ReadyLaunch $receipt
 }
-finally {
-    Pop-Location
-}
+catch { Write-Host "Nie uruchomiono aplikacji: $($_.Exception.Message)" -ForegroundColor Red }
+finally { if ($lock) { $lock.Dispose() } }
+exit $exitCode

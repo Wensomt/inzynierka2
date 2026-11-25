@@ -1,0 +1,9 @@
+{
+    "needs_restart":  true,
+    "restart_boot":  "2026-11-22T10:00:00.0000000Z",
+    "timestamps":  {
+                       "updated_utc":  "2026-11-25T10:55:19.1272498Z",
+                       "created_utc":  "controlled"
+                   },
+    "stage":  "wsl"
+}

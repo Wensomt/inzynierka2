@@ -1,0 +1,1 @@
+{"total_energy_j": 100, "delivered_bits": 0, "tx_packets": 100, "rx_packets": 0, "lost_packets": 100, "delay_sum_s": 0, "measurement_start_s": 0, "measurement_end_s": 10, "measurement_duration_s": 10, "data_layer": "udp_application_payload"}

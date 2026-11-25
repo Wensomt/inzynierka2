@@ -1,0 +1,7 @@
+metric,value,unit
+delivered_mbit,25,Mbit
+total_energy_j,500,J
+average_power_w,50,W
+average_throughput_bps,2500000,bit/s
+ee_bit_per_j,50000,bit/J
+energy_per_mbit_j,20,J/Mbit

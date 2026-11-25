@@ -1,0 +1,2 @@
+simTime_s,deliveredData_bits,totalEnergy_J,EE_bit_per_J,measurement_start_s,measurement_duration_s,tx_packets,rx_packets,delay_sum_s,packet_loss_pct,mean_delay_ms,energy_scope,data_layer,packet_loss_definition,simulator_source
+10,12000000,600,20000,0,10,1000,900,18,0,5,nr_radio_model,udp_application_payload,not_received_by_measurement_end,mmwave_LENA_oran_custom

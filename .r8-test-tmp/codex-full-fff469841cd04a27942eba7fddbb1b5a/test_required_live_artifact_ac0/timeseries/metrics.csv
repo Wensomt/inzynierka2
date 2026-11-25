@@ -1,0 +1,2 @@
+time_s,total_energy_j,total_power_w,delivered_bits,throughput_bps,ee_bit_per_j,j_per_mbit
+1,100,100,1000000,1000000,10000,100

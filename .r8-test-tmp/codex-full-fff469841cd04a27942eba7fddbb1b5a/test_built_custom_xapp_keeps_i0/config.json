@@ -1,0 +1,39 @@
+{
+  "lab": {
+    "simulator_image": "oran-energy-lab-xapp:custom"
+  },
+  "readiness": {
+    "ric_port": 36421
+  },
+  "xapps": {
+    "none": {
+      "label": "Wyłączony"
+    },
+    "optimized": {
+      "label": "My Energy",
+      "executable": "./xapp_my_energy_optimized",
+      "parameters": {
+        "EE_DECISION_PERIOD_SEC": {
+          "default": 5
+        }
+      }
+    },
+    "orange": {
+      "label": "Orange",
+      "executable": "./xapp_es_with_cell_util"
+    },
+    "custom_my_custom_energy_98534416": {
+      "label": "My custom energy",
+      "executable": "./xapp_my_custom_energy_98534416",
+      "cwd": "/opt/flexric/build",
+      "parameters": {
+        "EE_DECISION_PERIOD_SEC": {
+          "default": 5
+        }
+      },
+      "last_build": "2026-11-25T10:55:32.397803+00:00",
+      "build_image": "oran-energy-lab-xapp:custom",
+      "build_log": "C:\\Users\\Dawid\\Documents\\GitHub\\inzynierka2\\.r8-test-tmp\\codex-full-fff469841cd04a27942eba7fddbb1b5a\\test_built_custom_xapp_keeps_i0\\build.log"
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "id": "37c9cb88d45f4fca8f30bbcf72ade295",
+  "name": "Zmieniony",
+  "description": "nowy",
+  "created_at": "2026-11-25T10:55:31.968149+00:00",
+  "updated_at": "2026-11-25T10:55:31.970182+00:00",
+  "configuration": {
+    "scenario": "optimized",
+    "parameters": {
+      "simTime": 20,
+      "N_Ues": 3,
+      "N_MmWaveEnbNodes": 2,
+      "RngRun": 1,
+      "Bandwidth": 20000000
+    },
+    "xapp": "optimized",
+    "xapp_environment": {
+      "EE_DECISION_PERIOD_SEC": 3
+    }
+  }
+}

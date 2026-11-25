@@ -32,27 +32,50 @@ bez przeglądarki oraz bez wymagania terminala w zwykłym workflow.
 
 ## Uruchomienie na Windows
 
-W katalogu projektu kliknij **`install_windows.bat`**. Instalator przygotowuje
-Python 3.12/3.13 i Tkinter, biblioteki aplikacji, WSL2, Docker Desktop z backendem
-WSL2, źródła i obraz `wcnc_tap` oraz skrót na pulpicie. Nie wymaga wcześniej
-zainstalowanego Pythona, Gita, Dockera ani `winget`; w razie braku `winget`
-korzysta z oficjalnych instalatorów producentów. Po instalacji uruchamia
-aplikację. Przy pierwszej konfiguracji Windows może poprosić o zgodę
-administratora i restart; po restarcie kliknij `install_windows.bat` ponownie.
-Przy pierwszym uruchomieniu Docker Desktop pokaże własne warunki korzystania —
-zaakceptuj je, żeby uruchomić silnik.
+Instalator dopuszcza Windows 11 x64 25H2 (build 26200) w edycji Pro,
+Enterprise lub Education oraz 24H2 (build 26100) w edycji Enterprise lub Education,
+zgodnie z macierzą tej wersji. Potrzebne są połączenie z Internetem, aktywna
+wirtualizacja z SLAT, co najmniej 8 GB RAM i miejsce na obraz oraz cache
+kompilacji. Wymagania systemowe Dockera opisuje
+[instrukcja Docker Desktop](https://docs.docker.com/desktop/setup/install/windows-install/#system-requirements).
 
-Wymagane są aktualne Windows 10/11 x64, połączenie z Internetem, wirtualizacja
-sprzętowa w BIOS/UEFI i co najmniej 8 GB RAM. Instalator pobiera przypięte
-źródła symulatora i buduje obraz lokalnie wewnątrz Dockera; nie wymaga
-wcześniejszego checkoutu Gita na Windows. Pierwsza kompilacja może potrwać
-kilkadziesiąt minut i wymaga wolnego miejsca na dysku.
-Logi każdego uruchomienia zapisuje w `%LOCALAPPDATA%\O-RAN Energy Lab\install`.
-Można też dołączyć `resources\wcnc_tap.tar` i opcjonalny plik SHA-256 albo
-ustawić `ORAN_LAB_IMAGE_REF` na adres obrazu z pełnym digestem.
+W terminalu otwartym w katalogu projektu uruchom:
 
-Kolejne uruchomienia: kliknij skrót **Symulator O-RAN** na pulpicie albo
-`run_windows.bat` w katalogu projektu. Build samodzielnego EXE:
+```powershell
+.\install_windows.bat -ImageMode Source -InstallWsl -InstallDocker -InstallPython
+```
+
+Przełączniki pozwalają instalatorowi uzupełnić brakujące WSL 2, Docker Desktop
+i CPython 3.13 x64 z Tk. Po komunikacie o restarcie uruchom ponownie Windows
+i wykonaj to samo polecenie. Jeśli instalator właśnie doinstalował Docker
+Desktop, otwórz go, zaakceptuj jego warunki i poczekaj na uruchomienie silnika
+Linux z WSL 2 przed ponownym wykonaniem polecenia. Git na hoście nie jest
+wymagany. Pierwsza budowa obrazu może potrwać kilkadziesiąt minut.
+
+Tryb `-ImageMode Local -LocalImageId sha256:…` używa istniejącego lokalnego
+obrazu o wskazanym ID i zgodnym manifeście źródeł. Zależności aplikacji trafiają
+do `.venv` w katalogu projektu, a logi instalatora do `.install\logs`.
+Po ukończonej instalacji uruchamiaj aplikację przez `run_windows.bat`.
+
+Na Windows 11 Home x64 26H2 (SKU 101, build 26300) możesz jawnie wybrać tryb
+`-AllowWindowsHome`. Dodaj go do polecenia instalacji i do `run_windows.bat`.
+Tryb nadal wymaga działającego lokalnego silnika Linux/amd64 w Docker Desktop
+z WSL 2.
+
+### Jednoplikowy instalator
+
+Instalator `O-RAN-Energy-Lab-Setup.pyz` zawiera pliki aplikacji i uruchamia
+ten sam instalator Windows. U odbiorcy wystarczy uruchomić
+`py O-RAN-Energy-Lab-Setup.pyz` z zainstalowanym Pythonem. Paczka pobiera
+zależności i buduje obraz Docker na komputerze odbiorcy.
+
+Budowa paczki z tekstami licencji scenariusza i xApp:
+
+```powershell
+python scripts/build_windows_installer.py --licenses "C:\ścieżka\do\LICENSES"
+```
+
+Osobny build deweloperski PyInstaller:
 
 ```powershell
 & .\scripts\build-windows.ps1

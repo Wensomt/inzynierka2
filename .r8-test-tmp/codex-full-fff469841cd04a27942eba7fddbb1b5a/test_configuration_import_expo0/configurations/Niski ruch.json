@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "name": "Niski ruch",
+  "saved_at": "2026-11-25T10:55:32.072419+00:00",
+  "simulations": [
+    {
+      "name": "Baseline",
+      "configuration": {
+        "scenario": "optimized",
+        "parameters": {
+          "simTime": 30,
+          "N_Ues": 4,
+          "N_MmWaveEnbNodes": 2,
+          "RngRun": 1
+        },
+        "xapp": "none",
+        "xapp_environment": {}
+      }
+    }
+  ]
+}

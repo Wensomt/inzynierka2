@@ -20,6 +20,7 @@ data/*.sqlite3-*
 data/*.log
 data/my_energy/
 runtime/
+.install/
 .simulator-src/
 resources/wcnc_tap.tar
 resources/wcnc_tap.tar.sha256

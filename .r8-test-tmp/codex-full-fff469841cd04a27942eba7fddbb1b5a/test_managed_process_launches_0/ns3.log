@@ -1,0 +1,6 @@
+[O-RAN LAB] backend: docker exec
+[O-RAN LAB] container: test-container
+[O-RAN LAB] cwd: /ns3
+[O-RAN LAB] command: ./ns3 run scratch/example
+[O-RAN LAB] supervisor: setsid --wait; lifecycle: Docker Running + ExitCode
+[O-RAN LAB] 2026-11-25T10:55:31.683605+00:00 exec=test-exec finished: exit_code=0

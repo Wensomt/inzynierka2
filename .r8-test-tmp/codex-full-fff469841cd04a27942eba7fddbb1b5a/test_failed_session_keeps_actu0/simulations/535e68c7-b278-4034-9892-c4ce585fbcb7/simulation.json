@@ -1,0 +1,218 @@
+{
+  "schema_version": "1.0",
+  "id": "535e68c7-b278-4034-9892-c4ce585fbcb7",
+  "name": "failed",
+  "configuration": {
+    "scenario": "optimized",
+    "parameters": {
+      "simTime": 12,
+      "N_Ues": 4,
+      "N_MmWaveEnbNodes": 2,
+      "RngRun": 1
+    },
+    "xapp": "none",
+    "xapp_environment": {}
+  },
+  "status": "FAILED",
+  "created_at": "2026-11-25T10:55:29.975135+00:00",
+  "started_at": "2026-11-25T10:55:29.982125+00:00",
+  "ended_at": "2026-11-25T10:55:29.991399+00:00",
+  "runtime": {
+    "session_id": "test-session",
+    "container": "session",
+    "started_at": "2026-11-25T10:55:29.982125+00:00",
+    "provenance_manifest": {
+      "schema_version": 1,
+      "recorded_at": "2026-11-25T10:55:29.991424+00:00",
+      "image": {
+        "image_id": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "image_id_unknown_reason": null,
+        "repo_digests": null,
+        "repo_digests_unknown_reason": "Local image has no RepoDigest",
+        "requested_reference": null
+      },
+      "backend": {
+        "versions": null,
+        "unknown_reason": "Backend version strings not observed; see image and source identities"
+      },
+      "sources": {
+        "scenario": {
+          "sha256": null,
+          "unknown_reason": "Source not observed/used in this attempt"
+        },
+        "xapp": {
+          "sha256": null,
+          "unknown_reason": "Source not observed/used in this attempt"
+        },
+        "clock_patch": {
+          "sha256": null,
+          "unknown_reason": "Source not observed/used in this attempt"
+        }
+      },
+      "configuration": {
+        "sha256": "943e036fe2e9a693302f34e2a7cd33a1f7525cd58197875bc693b2d0bd7c475b",
+        "encoding": "canonical JSON UTF-8, sorted keys, compact, ensure_ascii=false",
+        "backend_config_sha256": "80a46569da44cb008afd6a4245f5f0175cbb536cbe08e5a1ba89b9aa0e652efa"
+      },
+      "rng": {
+        "seed": null,
+        "run": 1,
+        "stream_mapping": null,
+        "unknown_reasons": {
+          "seed": "RngSeed not explicitly configured",
+          "stream_mapping": "Backend stream assignment not observed; independence not established"
+        }
+      },
+      "timestamps": {
+        "started_at": "2026-11-25T10:55:29.982125+00:00",
+        "ended_at": "2026-11-25T10:55:29.991399+00:00",
+        "unknown_reasons": {}
+      },
+      "termination": {
+        "reason": "error",
+        "partial": true
+      },
+      "windows": {
+        "planned": {
+          "start_s": 0,
+          "end_s": 12,
+          "meaning": "configured simulation horizon, not a measured interval"
+        },
+        "actual": {
+          "start_s": null,
+          "end_s": null,
+          "duration_s": null
+        },
+        "actual_unknown_reason": "No complete measured window observed",
+        "measurement_consistent": null
+      },
+      "baseline_reuse": {
+        "reused": false,
+        "meaning": "New runner attempt, not a reused historical baseline"
+      }
+    },
+    "failure_kind": "runtime",
+    "failure_processes": {
+      "ric": {
+        "name": "ric",
+        "status": "stopped",
+        "state": "stopped",
+        "pid": null,
+        "started_at": null,
+        "ended_at": null,
+        "exit_code": null,
+        "returncode": null,
+        "command": [],
+        "cwd": null,
+        "log_path": null,
+        "error": null,
+        "command_display": null,
+        "exec_id": null,
+        "log_generation": 0,
+        "exec_inspection": {}
+      },
+      "ns3": {
+        "name": "ns3",
+        "status": "stopped",
+        "state": "stopped",
+        "pid": null,
+        "started_at": null,
+        "ended_at": null,
+        "exit_code": null,
+        "returncode": null,
+        "command": [],
+        "cwd": null,
+        "log_path": null,
+        "error": null,
+        "command_display": null,
+        "exec_id": null,
+        "log_generation": 0,
+        "exec_inspection": {}
+      },
+      "xapp": {
+        "name": "xapp",
+        "status": "stopped",
+        "state": "stopped",
+        "pid": null,
+        "started_at": null,
+        "ended_at": null,
+        "exit_code": null,
+        "returncode": null,
+        "command": [],
+        "cwd": null,
+        "log_path": null,
+        "error": null,
+        "command_display": null,
+        "exec_id": null,
+        "log_generation": 0,
+        "exec_inspection": {}
+      }
+    },
+    "experiment_valid": false,
+    "termination": {
+      "reason": "error",
+      "partial": true
+    },
+    "stage": "FAILED",
+    "processes": {
+      "ric": {
+        "name": "ric",
+        "status": "stopped",
+        "state": "stopped",
+        "pid": null,
+        "started_at": null,
+        "ended_at": null,
+        "exit_code": null,
+        "returncode": null,
+        "command": [],
+        "cwd": null,
+        "log_path": null,
+        "error": null,
+        "command_display": null,
+        "exec_id": null,
+        "log_generation": 0,
+        "exec_inspection": {}
+      },
+      "ns3": {
+        "name": "ns3",
+        "status": "stopped",
+        "state": "stopped",
+        "pid": null,
+        "started_at": null,
+        "ended_at": null,
+        "exit_code": null,
+        "returncode": null,
+        "command": [],
+        "cwd": null,
+        "log_path": null,
+        "error": null,
+        "command_display": null,
+        "exec_id": null,
+        "log_generation": 0,
+        "exec_inspection": {}
+      },
+      "xapp": {
+        "name": "xapp",
+        "status": "stopped",
+        "state": "stopped",
+        "pid": null,
+        "started_at": null,
+        "ended_at": null,
+        "exit_code": null,
+        "returncode": null,
+        "command": [],
+        "cwd": null,
+        "log_path": null,
+        "error": null,
+        "command_display": null,
+        "exec_id": null,
+        "log_generation": 0,
+        "exec_inspection": {}
+      }
+    },
+    "removed_containers": []
+  },
+  "result": null,
+  "error": "synthetic discovery failure",
+  "log_path": "C:\\Users\\Dawid\\Documents\\GitHub\\inzynierka2\\.r8-test-tmp\\codex-full-fff469841cd04a27942eba7fddbb1b5a\\test_failed_session_keeps_actu0\\simulations\\535e68c7-b278-4034-9892-c4ce585fbcb7\\logs\\runner.log"
+}

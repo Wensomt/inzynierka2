@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "release_id": "portable-20261114-v1",
+  "platform": "linux/amd64",
+  "base_image": "docker.io/library/ubuntu:22.04@sha256:45e9ddc6895604674618a409ca9f73d301da8fdb75fe330e8e9a27b3b219e4ad",
+  "base_image_evidence": {
+    "url": "https://hub.docker.com/v2/repositories/library/ubuntu/tags/22.04",
+    "snapshot_sha256": "fa97aa9b9caf49a4ad69560c7811343dc701ead1a69426e1eb0c34f0b18e950a"
+  },
+  "dockerfile_sha256": "dd1497adee122ba1c32d46d0fe316283a453404845820b854db353b17a2a8fa1",
+  "repositories": [
+    {"id":"e2sim", "url":"https://github.com/MinaYonan123/e2sim-kpmv3-RCv1.03.git", "commit":"acf4f6b2baa8c645af566ea210146abd97de1f48", "submodules":[]},
+    {"id":"mmwave", "url":"https://github.com/MinaYonan123/mmwave-LENA-oran.git", "commit":"f2313c286eda2b0f833f089a2eb1c91dea578685", "submodules":[
+      {"path":"contrib/oran-interface", "url":"https://github.com/MinaYonan123/oran-interface", "commit":"0eedb5ff8e3597e88356b0af005ad144344c6f38"},
+      {"path":"src/nr", "url":"https://github.com/MinaYonan123/ns3-oran-lena-nr.git", "commit":"09a044894e8aa1025cca2e2984ad2431bdcd6c40"}
+    ]},
+    {"id":"asn1c", "url":"https://github.com/mouse07410/asn1c", "commit":"940dd5fa9f3917913fd487b13dfddfacd0ded06e", "submodules":[]},
+    {"id":"flexric", "url":"https://gitlab.eurecom.fr/mosaic5g/flexric.git", "commit":"18c3325091ad6890a706ebb2bba38d3c0fb741e5", "submodules":[]}
+  ],
+  "patches": [
+    {"path":"resources/my_energy_scenario_optimized.cc", "sha256":"4134a827178ea2f95473e23ed50dfca6af2542cfe61d569bd6326ce614caf798"},
+    {"path":"resources/xapp_my_energy_optimized.c", "sha256":"93808912487432ead7d5abd9b475e29740eda4f5ac20e9f149bb2409e9ba03ad"},
+    {"path":"resources/Energy_saving_with_cell_utilization_scenario.cc", "sha256":"fcf1f38229f4794810c611074f228c7dbeb4d0fddecd5b0ba86f93c2f1d1a0e9"},
+    {"path":"resources/patch_kpm_clock.py", "sha256":"ca5af44085809731583a306e98f95b4b2da39f7760da41d9a55afcdc90dcb331"}
+  ],
+  "apt_sources": ["Ubuntu 22.04 archive and security sources from pinned base image", "ppa:ubuntu-toolchain-r/test"],
+  "reproducibility_limitations": ["APT and PPA are not snapshots; package versions and build output are not bit reproducible.", "Base platform digest obtained from preserved Docker Hub metadata; registry retrieval and build are not qualified by that snapshot.", "Build and runtime qualification remain required."]
+}

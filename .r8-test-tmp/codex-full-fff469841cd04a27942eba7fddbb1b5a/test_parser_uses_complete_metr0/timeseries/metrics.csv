@@ -1,0 +1,2 @@
+time_s,total_energy_j,total_power_w,delivered_bits,throughput_bps,packet_loss_pct,ee_bit_per_j,j_per_mbit,mean_prb_utilization_pct,p05_sinr_db,mean_sinr_db,mean_active_ues
+10,600,65,12000000,1200000,0.2,20000,50,23,11.5,14.0,4

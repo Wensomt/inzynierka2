@@ -1,0 +1,99 @@
+{
+  "schema_version": "1.0",
+  "id": "cb0ceb5f-0f06-4a15-8c11-1206dc93fa37",
+  "name": "invalid",
+  "configuration": {
+    "scenario": "optimized",
+    "parameters": {
+      "simTime": -1
+    },
+    "xapp": "none",
+    "xapp_environment": {}
+  },
+  "status": "FAILED",
+  "created_at": "2026-11-25T10:55:29.944536+00:00",
+  "started_at": null,
+  "ended_at": "2026-11-25T10:55:29.951595+00:00",
+  "runtime": {
+    "failure_kind": "validation",
+    "termination": {
+      "reason": "validation",
+      "partial": true
+    },
+    "provenance_manifest": {
+      "schema_version": 1,
+      "recorded_at": "2026-11-25T10:55:29.951623+00:00",
+      "image": {
+        "image_id": null,
+        "image_id_unknown_reason": "No session image observed",
+        "repo_digests": null,
+        "repo_digests_unknown_reason": "No session image observed"
+      },
+      "backend": {
+        "versions": null,
+        "unknown_reason": "Backend version strings not observed; see image and source identities"
+      },
+      "sources": {
+        "scenario": {
+          "sha256": null,
+          "unknown_reason": "Source not observed/used in this attempt"
+        },
+        "xapp": {
+          "sha256": null,
+          "unknown_reason": "Source not observed/used in this attempt"
+        },
+        "clock_patch": {
+          "sha256": null,
+          "unknown_reason": "Source not observed/used in this attempt"
+        }
+      },
+      "configuration": {
+        "sha256": "cfca19ad7e210e7fe7d6453ffe6723c542c6fb5442895becfe478902c41f14c1",
+        "encoding": "canonical JSON UTF-8, sorted keys, compact, ensure_ascii=false",
+        "backend_config_sha256": "80a46569da44cb008afd6a4245f5f0175cbb536cbe08e5a1ba89b9aa0e652efa"
+      },
+      "rng": {
+        "seed": null,
+        "run": null,
+        "stream_mapping": null,
+        "unknown_reasons": {
+          "seed": "RngSeed not explicitly configured",
+          "run": "RngRun not explicitly configured",
+          "stream_mapping": "Backend stream assignment not observed; independence not established"
+        }
+      },
+      "timestamps": {
+        "started_at": null,
+        "ended_at": "2026-11-25T10:55:29.951595+00:00",
+        "unknown_reasons": {
+          "started_at": "Attempt has not reached this lifecycle timestamp"
+        }
+      },
+      "termination": {
+        "reason": "validation",
+        "partial": true
+      },
+      "windows": {
+        "planned": {
+          "start_s": 0,
+          "end_s": -1,
+          "meaning": "configured simulation horizon, not a measured interval"
+        },
+        "actual": {
+          "start_s": null,
+          "end_s": null,
+          "duration_s": null
+        },
+        "actual_unknown_reason": "No complete measured window observed",
+        "measurement_consistent": null
+      },
+      "baseline_reuse": {
+        "reused": false,
+        "meaning": "New runner attempt, not a reused historical baseline"
+      }
+    }
+  },
+  "result": null,
+  "error": "Czas symulacji [s] musi być większe od zera; Liczba gNB ma niepoprawną wartość; Liczba UE ma niepoprawną wartość; RngRun ma niepoprawną wartość; Początek ruchu + czas opróżniania kolejek musi być mniejszy od simTime; Czas symulacji [s] musi być nie mniejszy niż 0.2 dla wybranego scenariusza",
+  "log_path": "C:\\Users\\Dawid\\Documents\\GitHub\\inzynierka2\\.r8-test-tmp\\codex-full-fff469841cd04a27942eba7fddbb1b5a\\test_validation_failure_persis0\\simulations\\cb0ceb5f-0f06-4a15-8c11-1206dc93fa37\\logs\\runner.log"
+}

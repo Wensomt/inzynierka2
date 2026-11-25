@@ -1,0 +1,2 @@
+[11:55:32] VALIDATION_FAILED: Brak Docker
+[11:55:32] RETRY_SKIPPED: preflight zakończył się przed utworzeniem sesji Docker.

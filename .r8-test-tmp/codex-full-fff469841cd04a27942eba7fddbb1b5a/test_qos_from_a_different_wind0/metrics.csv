@@ -1,0 +1,2 @@
+time_s,delay_ms,packet_loss_pct
+10,5,0.1

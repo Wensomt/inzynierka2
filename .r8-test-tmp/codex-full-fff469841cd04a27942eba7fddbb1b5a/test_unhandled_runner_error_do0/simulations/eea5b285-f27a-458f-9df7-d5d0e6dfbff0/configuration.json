@@ -1,0 +1,19 @@
+{
+  "scenario": "",
+  "parameters": {
+    "simTime": 5,
+    "RngRun": 1,
+    "CellLayout": 1,
+    "N_MmWaveEnbNodes": 3,
+    "N_Ues": 12,
+    "Bandwidth": 20000000,
+    "CenterFrequency": 3500000000,
+    "UdpPacketSizeBytes": 200,
+    "UdpIntervalUs": 2000,
+    "IntersideDistanceUEs": 250,
+    "IntersideDistanceCells": 200,
+    "indicationPeriodicity": 0.1
+  },
+  "xapp": "none",
+  "xapp_environment": {}
+}

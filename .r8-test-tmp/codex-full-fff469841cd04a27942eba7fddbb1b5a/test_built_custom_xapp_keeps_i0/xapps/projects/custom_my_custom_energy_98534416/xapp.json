@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "key": "custom_my_custom_energy_98534416",
+  "name": "My custom energy",
+  "description": "Kopia rzeczywistego xAppa My Energy/KPM z tego projektu.",
+  "source_path": "xapp_my_custom_energy_98534416.c",
+  "target": "xapp_my_custom_energy_98534416",
+  "parameters": {
+    "EE_DECISION_PERIOD_SEC": {
+      "default": 5
+    }
+  },
+  "created_at": "2026-11-25T10:55:32.395699+00:00",
+  "last_build": "2026-11-25T10:55:32.399438+00:00",
+  "last_build_status": "SUCCESS",
+  "last_build_log": "C:\\Users\\Dawid\\Documents\\GitHub\\inzynierka2\\.r8-test-tmp\\codex-full-fff469841cd04a27942eba7fddbb1b5a\\test_built_custom_xapp_keeps_i0\\build.log",
+  "image": "oran-energy-lab-xapp:custom"
+}

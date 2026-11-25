@@ -1,0 +1,25 @@
+{
+  "python": "3.13.16",
+  "product": "C:\\Users\\Dawid\\Documents\\GitHub\\inzynierka2",
+  "config_copy": "C:\\Users\\Dawid\\Documents\\GitHub\\inzynierka2\\.r8-test-tmp\\codex-gui-42f237dfe5e846928fab83a832cf85e7\\mvp-local-gui-eceq71hj\\config.json",
+  "isolated_orphan_recovery": true,
+  "simulation_started": false,
+  "title": "Symulator efektywno\u015bci energetycznej sieci O-RAN",
+  "visible": true,
+  "tk": "8.6.15",
+  "tabs": [
+    "Start",
+    "Symulacje",
+    "Na \u017cywo",
+    "Wyniki",
+    "Por\u00f3wnanie",
+    "My Energy",
+    "Scenariusze",
+    "xApps",
+    "Docker i logi",
+    "Ustawienia"
+  ],
+  "app_exit": 0,
+  "source_config_unchanged": true,
+  "errors": []
+}

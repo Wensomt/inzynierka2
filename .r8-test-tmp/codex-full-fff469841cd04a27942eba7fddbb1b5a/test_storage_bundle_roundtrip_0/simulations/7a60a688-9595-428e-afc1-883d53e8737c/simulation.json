@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0",
+  "id": "7a60a688-9595-428e-afc1-883d53e8737c",
+  "name": "roundtrip",
+  "configuration": {
+    "scenario": "optimized",
+    "parameters": {
+      "simTime": 12
+    },
+    "xapp": "none",
+    "xapp_environment": {}
+  },
+  "status": "COMPLETED",
+  "created_at": "2026-11-25T10:55:29.861373+00:00",
+  "started_at": null,
+  "ended_at": null,
+  "runtime": {},
+  "result": {
+    "metrics": {
+      "total_energy_j": 10
+    },
+    "quality": {},
+    "series": {},
+    "sources": {},
+    "warnings": [],
+    "metadata": {}
+  },
+  "error": null,
+  "log_path": "C:\\Users\\Dawid\\Documents\\GitHub\\inzynierka2\\.r8-test-tmp\\codex-full-fff469841cd04a27942eba7fddbb1b5a\\test_storage_bundle_roundtrip_0\\simulations\\7a60a688-9595-428e-afc1-883d53e8737c\\logs\\runner.log"
+}

@@ -1,0 +1,18 @@
+{
+  "metrics": {
+    "total_energy_j": 120.0,
+    "delivered_mbit": 5.0
+  },
+  "quality": {},
+  "series": {
+    "energy_j": [
+      {
+        "x": 1.0,
+        "y": 2.0
+      }
+    ]
+  },
+  "sources": {},
+  "warnings": [],
+  "metadata": {}
+}

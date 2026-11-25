@@ -1,0 +1,16 @@
+﻿sekcja,klucz,wartość,jednostka,źródło
+symulacja,id,7873216d-498d-4f71-ae26-71464d2268a2,,
+symulacja,nazwa,Baseline,,
+symulacja,stan,COMPLETED,,
+symulacja,utworzono,2026-11-25T10:55:32.005207+00:00,,
+symulacja,rozpoczęto,,,
+symulacja,zakończono,,,
+symulacja,scenariusz,optimized,,
+symulacja,xapp,none,,
+symulacja,eksperyment_wazny,tak,,runtime
+konfiguracja,simTime,30,,
+konfiguracja,N_Ues,4,,
+konfiguracja,N_MmWaveEnbNodes,2,,
+konfiguracja,RngRun,1,,
+symulacja,błąd,,,
+metryka,total_energy_j,12.0,J,

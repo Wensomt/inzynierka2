@@ -1,0 +1,3 @@
+time_s,total_energy_j,delivered_bits,throughput_bps
+1,100,9000000,9000000
+10,1000,10000000,111111

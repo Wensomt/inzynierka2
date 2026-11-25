@@ -1,0 +1,2 @@
+Time_s,DeliveredBits,TotalEnergy_J,IntervalPower_W,IntervalThroughput_bps,CumulativeEE_bit_per_J,PacketLoss_pct,MeanDelay_ms
+10,12000000,600,60,1200000,20000,0.25,14.5

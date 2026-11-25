@@ -1,0 +1,592 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="10" skipped="5" tests="386" time="34.720" timestamp="2026-11-25T11:54:58.091065+01:00" hostname="DESKTOP-LOUBFGG"><testcase classname="tests.test_async_compat" name="test_run_in_thread_passes_arguments_and_keywords" time="0.006" /><testcase classname="tests.test_async_compat" name="test_run_in_thread_uses_executor_when_native_helper_is_absent" time="0.003" /><testcase classname="tests.test_cleanup" name="test_cleanup_removes_only_containers_owned_by_the_current_session" time="0.000" /><testcase classname="tests.test_cleanup" name="test_cleanup_uses_force_remove_when_graceful_stop_fails" time="0.000" /><testcase classname="tests.test_cleanup" name="test_confirmed_cleanup_terminates_its_guardian" time="0.000" /><testcase classname="tests.test_cleanup" name="test_retry_cleanup_is_confined_to_one_session_and_confirms_empty_result" time="0.000" /><testcase classname="tests.test_cleanup" name="test_stop_terminates_guardian_even_when_container_cleanup_cannot_be_confirmed" time="0.001" /><testcase classname="tests.test_cleanup" name="test_process_is_alive_recognizes_current_process" time="0.001" /><testcase classname="tests.test_comparator" name="test_comparison_allows_different_configurations_and_shows_diff" time="0.001" /><testcase classname="tests.test_comparator" name="test_packet_loss_uses_percentage_points" time="0.001" /><testcase classname="tests.test_comparator" name="test_comparison_includes_available_quality_kpis" time="0.001" /><testcase classname="tests.test_comparator" name="test_two_source_hashes_without_manifest_do_not_certify_pair[0]" time="0.001" /><testcase classname="tests.test_comparator" name="test_two_source_hashes_without_manifest_do_not_certify_pair[1]" time="0.001" /><testcase classname="tests.test_comparator" name="test_two_source_hashes_without_manifest_do_not_certify_pair[both]" time="0.001" /><testcase classname="tests.test_comparator" name="test_incomplete_manifest_cannot_certify_pair[image]" time="0.001" /><testcase classname="tests.test_comparator" name="test_incomplete_manifest_cannot_certify_pair[backend]" time="0.001" /><testcase classname="tests.test_comparator" name="test_incomplete_manifest_cannot_certify_pair[configuration]" time="0.001" /><testcase classname="tests.test_comparator" name="test_incomplete_manifest_cannot_certify_pair[source]" time="0.001" /><testcase classname="tests.test_comparator" name="test_incomplete_manifest_cannot_certify_pair[clock]" time="0.001" /><testcase classname="tests.test_comparator" name="test_incomplete_manifest_cannot_certify_pair[timestamps]" time="0.001" /><testcase classname="tests.test_comparator" name="test_incomplete_manifest_cannot_certify_pair[termination]" time="0.001" /><testcase classname="tests.test_comparator" name="test_incomplete_manifest_cannot_certify_pair[termination_partial_missing]" time="0.001" /><testcase classname="tests.test_comparator" name="test_incomplete_manifest_cannot_certify_pair[window]" time="0.001" /><testcase classname="tests.test_comparator" name="test_incomplete_manifest_cannot_certify_pair[rng]" time="0.001" /><testcase classname="tests.test_comparator" name="test_incomplete_manifest_cannot_certify_pair[reuse]" time="0.001" /><testcase classname="tests.test_comparator" name="test_incomplete_manifest_cannot_certify_pair[image_mismatch]" time="0.001" /><testcase classname="tests.test_comparator" name="test_imported_counter_marker_does_not_override_impossible_counts[100-101]" time="0.001" /><testcase classname="tests.test_comparator" name="test_imported_counter_marker_does_not_override_impossible_counts[-1--1]" time="0.001" /><testcase classname="tests.test_comparator" name="test_imported_counter_marker_does_not_override_impossible_counts[100.5-100.5]" time="0.001" /><testcase classname="tests.test_comparator" name="test_imported_counter_marker_does_not_override_impossible_counts[inf-1]" time="0.001" /><testcase classname="tests.test_comparator" name="test_imported_counter_marker_does_not_override_impossible_counts[100-nan]" time="0.001" /><testcase classname="tests.test_comparator" name="test_nonhex_image_id_cannot_certify_pair" time="0.001" /><testcase classname="tests.test_comparator" name="test_contradictory_imported_packet_loss_cannot_certify_pair[counters0-10.0]" time="0.001" /><testcase classname="tests.test_comparator" name="test_contradictory_imported_packet_loss_cannot_certify_pair[counters1-0.0]" time="0.001" /><testcase classname="tests.test_comparator" name="test_contradictory_imported_packet_loss_cannot_certify_pair[counters2-0.0]" time="0.001" /><testcase classname="tests.test_comparator" name="test_consistent_or_absent_counters_are_not_contradictions[counters0-10.0]" time="0.001" /><testcase classname="tests.test_comparator" name="test_consistent_or_absent_counters_are_not_contradictions[counters1-10.0]" time="0.001" /><testcase classname="tests.test_comparator" name="test_consistent_or_absent_counters_are_not_contradictions[counters2-1.2]" time="0.001" /><testcase classname="tests.test_comparator" name="test_zero_rx_with_correct_loss_is_not_counter_contradiction" time="0.001" /><testcase classname="tests.test_comparator" name="test_valid_hex_image_without_repo_digest_can_certify_pair" time="0.001" /><testcase classname="tests.test_comparator" name="test_energy_saving_requires_qos_without_degradation" time="0.001" /><testcase classname="tests.test_comparator" name="test_edited_model_cannot_be_presented_as_isolated_xapp_improvement[scenario]" time="0.001" /><testcase classname="tests.test_comparator" name="test_edited_model_cannot_be_presented_as_isolated_xapp_improvement[clock]" time="0.001" /><testcase classname="tests.test_comparator" name="test_lower_delivered_data_is_not_automatically_an_energy_success" time="0.001" /><testcase classname="tests.test_comparator" name="test_explicit_qos_limit_can_allow_measured_baseline_degradation" time="0.001" /><testcase classname="tests.test_comparator" name="test_qos_limits_reject_invalid_values[limits0]" time="0.001" /><testcase classname="tests.test_comparator" name="test_qos_limits_reject_invalid_values[limits1]" time="0.001" /><testcase classname="tests.test_comparator" name="test_qos_limits_reject_invalid_values[limits2]" time="0.001" /><testcase classname="tests.test_comparator" name="test_qos_limits_reject_invalid_values[limits3]" time="0.001" /><testcase classname="tests.test_comparator" name="test_invalid_experiment_cannot_receive_a_positive_assessment[partial]" time="0.001" /><testcase classname="tests.test_comparator" name="test_invalid_experiment_cannot_receive_a_positive_assessment[crash]" time="0.001" /><testcase classname="tests.test_comparator" name="test_invalid_experiment_cannot_receive_a_positive_assessment[window]" time="0.001" /><testcase classname="tests.test_comparator" name="test_invalid_experiment_cannot_receive_a_positive_assessment[source]" time="0.001" /><testcase classname="tests.test_comparator" name="test_invalid_experiment_cannot_receive_a_positive_assessment[missing]" time="0.001" /><testcase classname="tests.test_comparator" name="test_invalid_experiment_cannot_receive_a_positive_assessment[config]" time="0.001" /><testcase classname="tests.test_comparator" name="test_invalid_experiment_cannot_receive_a_positive_assessment[metadata]" time="0.001" /><testcase classname="tests.test_comparison_widgets" name="test_comparison_populates_tables_and_keeps_selected_chart_after_resize" time="0.200" /><testcase classname="tests.test_comparison_widgets" name="test_dashboard_keeps_chart_units_and_undefined_final_metrics" time="0.089"><skipped type="pytest.skip" message="Brak ekranu Tk">C:\Users\Dawid\Documents\GitHub\inzynierka2\tests\test_comparison_widgets.py:45: Brak ekranu Tk</skipped></testcase><testcase classname="tests.test_comparison_widgets" name="test_kpm_does_not_fill_undefined_ip_energy_cost_with_pdcp_estimate" time="0.001" /><testcase classname="tests.test_config" name="test_restore_bundled_default_keeps_a_timestamped_backup" time="0.011" /><testcase classname="tests.test_config" name="test_restore_bundled_default_is_non_destructive_for_the_bundled_file" time="0.004" /><testcase classname="tests.test_csv_tail" name="test_reader_returns_header_and_complete_tail_of_large_file" time="0.011" /><testcase classname="tests.test_docker_monitor" name="test_container_snapshot_includes_only_actual_inspection_data" time="0.001" /><testcase classname="tests.test_experiment_reports" name="test_interrupted_experiment_retains_run_index" time="0.018"><failure message="FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\Dawid\\Documents\\GitHub\\inzynierka2\\.r8-test-tmp\\codex-full-fff469841cd04a27942eba7fddbb1b5a\\test_interrupted_experiment_re0\\data\\experiments\\backend-check\\20261125-115459\\simulations\\1d424bd7-a4eb-4b80-9d10-7184af93b080\\configuration.json.3c0m7142.tmp'">tmp_path = WindowsPath('C:/Users/Dawid/Documents/GitHub/inzynierka2/.r8-test-tmp/codex-full-fff469841cd04a27942eba7fddbb1b5a/test_interrupted_experiment_re0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000022EE73817B0&gt;
+
+    def test_interrupted_experiment_retains_run_index(tmp_path, monkeypatch):
+        shutil.copy2(check_simulator.BASE_DIR / "config.json", tmp_path / "config.json")
+        monkeypatch.setattr(check_simulator, "BASE_DIR", tmp_path)
+        monkeypatch.setattr(check_simulator, "source_path", lambda config, kind: check_simulator.RESOURCE_DIR / "resources" / FILES[kind])
+        monkeypatch.setattr(sys, "argv", ["check_simulator", "--xapps", "none", "optimized"])
+    
+        class InterruptedRunner:
+            def __init__(self, *args):
+                pass
+    
+            def run(self, simulation, progress):
+                if simulation.configuration.xapp == "optimized":
+                    raise RuntimeError("test interruption")
+                return simulation
+    
+        monkeypatch.setattr(check_simulator, "SimulationRunner", InterruptedRunner)
+        with pytest.raises(RuntimeError, match="test interruption"):
+&gt;           check_simulator.main()
+
+tests\test_experiment_reports.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+scripts\check_simulator.py:135: in main
+    storage.create(simulation)
+app\data\storage.py:90: in create
+    self.save(simulation)
+app\data\storage.py:98: in save
+    self._write_json(directory / "configuration.json", simulation.configuration.to_dict())
+app\data\storage.py:1105: in _write_json
+    handle, temporary_name = tempfile.mkstemp(
+..\..\..\AppData\Local\Programs\Python\Python313\Lib\tempfile.py:354: in mkstemp
+    return _mkstemp_inner(dir, prefix, suffix, flags, output_type)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+dir = 'C:\\Users\\Dawid\\Documents\\GitHub\\inzynierka2\\.r8-test-tmp\\codex-full-fff469841cd04a27942eba7fddbb1b5a\\test_int...d_experiment_re0\\data\\experiments\\backend-check\\20261125-115459\\simulations\\1d424bd7-a4eb-4b80-9d10-7184af93b080'
+pre = 'configuration.json.', suf = '.tmp', flags = 34050
+output_type = &lt;class 'str'&gt;
+
+    def _mkstemp_inner(dir, pre, suf, flags, output_type):
+        """Code common to mkstemp, TemporaryFile, and NamedTemporaryFile."""
+    
+        dir = _os.path.abspath(dir)
+        names = _get_candidate_names()
+        if output_type is bytes:
+            names = map(_os.fsencode, names)
+    
+        for seq in range(TMP_MAX):
+            name = next(names)
+            file = _os.path.join(dir, pre + name + suf)
+            _sys.audit("tempfile.mkstemp", file)
+            try:
+&gt;               fd = _os.open(file, flags, 0o600)
+E               FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\Dawid\\Documents\\GitHub\\inzynierka2\\.r8-test-tmp\\codex-full-fff469841cd04a27942eba7fddbb1b5a\\test_interrupted_experiment_re0\\data\\experiments\\backend-check\\20261125-115459\\simulations\\1d424bd7-a4eb-4b80-9d10-7184af93b080\\configuration.json.3c0m7142.tmp'
+
+..\..\..\AppData\Local\Programs\Python\Python313\Lib\tempfile.py:255: FileNotFoundError</failure></testcase><testcase classname="tests.test_experiment_reports" name="test_savings_require_complete_pair_with_same_model[same-COMPLETED-True]" time="0.006" /><testcase classname="tests.test_experiment_reports" name="test_savings_require_complete_pair_with_same_model[changed-COMPLETED-False]" time="0.005" /><testcase classname="tests.test_experiment_reports" name="test_savings_require_complete_pair_with_same_model[same-RUNNING-False]" time="0.005" /><testcase classname="tests.test_gui_helpers" name="test_log_filter_keeps_only_requested_level_and_search_text" time="0.000" /><testcase classname="tests.test_gui_helpers" name="test_docker_records_keeps_container_and_real_processes" time="0.000" /><testcase classname="tests.test_gui_helpers" name="test_dashboard_helpers_skip_missing_metric_and_bad_chart_points" time="0.000" /><testcase classname="tests.test_history_migration" name="test_new_parser_can_remove_an_invalid_number_and_keeps_a_backup" time="0.028" /><testcase classname="tests.test_history_migration" name="test_history_recovers_summary_even_without_a_previous_result" time="0.016" /><testcase classname="tests.test_kpm_live" name="test_kpm_collector_aggregates_only_reported_kpm_values" time="0.001" /><testcase classname="tests.test_kpm_live" name="test_kpm_collector_deduplicates_repeated_tails_and_waits_for_complete_row" time="0.001" /><testcase classname="tests.test_kpm_live" name="test_kpm_collector_uses_explicit_pdcp_bitrate_not_report_window_volume" time="0.001" /><testcase classname="tests.test_kpm_live" name="test_kpm_collector_uses_report_interval_volume_only_when_bitrate_is_absent" time="0.001" /><testcase classname="tests.test_kpm_live" name="test_kpm_collector_keeps_missing_or_unsupported_files_as_missing_data" time="0.000" /><testcase classname="tests.test_lab_discovery" name="test_discovery_reports_missing_docker_without_crashing" time="0.003" /><testcase classname="tests.test_lab_discovery" name="test_discovery_reads_the_explicit_session_container" time="0.003" /><testcase classname="tests.test_linux_local_image_sources" name="test_shipped_linux_image_build_stages_current_scenario_and_xapp" time="0.002" /><testcase classname="tests.test_linux_local_image_sources" name="test_linux_launcher_runs_the_gui_from_the_package_root" time="0.001" /><testcase classname="tests.test_live_dashboard" name="test_chart_bounds_expands_single_real_sample_without_creating_points" time="0.000" /><testcase classname="tests.test_live_dashboard" name="test_chart_bounds_accepts_only_valid_manual_viewport" time="0.000" /><testcase classname="tests.test_live_dashboard" name="test_series_points_keeps_only_reported_finite_samples" time="0.000" /><testcase classname="tests.test_live_dashboard" name="test_new_simulation_identifier_resets_the_merged_dashboard_state" time="0.000" /><testcase classname="tests.test_live_metrics" name="test_optimized_timeseries_parses_real_flow_monitor_loss_and_delay_columns" time="0.001" /><testcase classname="tests.test_live_metrics" name="test_live_snapshot_uses_real_cumulative_values_and_eta" time="0.001" /><testcase classname="tests.test_live_metrics" name="test_incremental_text_skips_stale_rows_and_waits_for_complete_tail" time="0.001" /><testcase classname="tests.test_live_metrics" name="test_metrics_csv_is_a_full_real_live_source_with_quality_kpis" time="0.001" /><testcase classname="tests.test_live_metrics" name="test_full_header_with_blank_core_values_is_not_a_complete_live_sample" time="0.001" /><testcase classname="tests.test_live_metrics" name="test_blank_value_does_not_reuse_an_older_metric_at_a_new_time" time="0.001" /><testcase classname="tests.test_live_metrics" name="test_header_changes_bad_rows_and_retention_are_handled" time="0.001" /><testcase classname="tests.test_live_metrics" name="test_eta_helper_refuses_an_unfounded_estimate" time="0.000" /><testcase classname="tests.test_live_metrics" name="test_energy_file_fallback_uses_only_observed_energy_and_power" time="0.001" /><testcase classname="tests.test_live_metrics" name="test_energy_file_fallback_does_not_publish_partial_cell_sum" time="0.001" /><testcase classname="tests.test_live_metrics" name="test_energy_file_fallback_waits_for_a_complete_last_row" time="0.001" /><testcase classname="tests.test_live_metrics" name="test_primary_timeseries_takes_precedence_over_energy_file_fallback" time="0.001" /><testcase classname="tests.test_live_topology" name="test_live_topology_uses_actual_positions_and_reported_associations" time="0.001" /><testcase classname="tests.test_live_topology" name="test_live_topology_keeps_latest_position_per_entity_and_reports_limit" time="0.001" /><testcase classname="tests.test_live_topology" name="test_live_topology_includes_reported_lte_anchor_and_bounded_ue_trail" time="0.001" /><testcase classname="tests.test_live_ui_data_flow" name="test_controller_prioritises_live_event_and_batches_burst_logs" time="0.015" /><testcase classname="tests.test_live_ui_data_flow" name="test_log_generation_accepts_restart_sequence_from_one_without_tk" time="0.000" /><testcase classname="tests.test_live_ui_data_flow" name="test_terminal_snapshot_uses_the_same_final_metrics_and_series" time="0.000" /><testcase classname="tests.test_live_ui_data_flow" name="test_saved_chart_window_uses_only_archived_result_series" time="0.000" /><testcase classname="tests.test_live_ui_data_flow" name="test_component_crash_event_immediately_marks_xapp_as_failed" time="0.000" /><testcase classname="tests.test_live_ui_data_flow" name="test_terminal_event_overrides_an_old_running_snapshot" time="0.000" /><testcase classname="tests.test_live_ui_data_flow" name="test_dashboard_event_payload_includes_current_queue_position" time="0.001" /><testcase classname="tests.test_live_ui_data_flow" name="test_completion_time_uses_only_backend_supplied_absolute_time" time="0.001" /><testcase classname="tests.test_live_ui_data_flow" name="test_completion_time_accepts_epoch_from_queue_payload" time="0.000" /><testcase classname="tests.test_live_ui_data_flow" name="test_completion_time_marks_budget_plan_until_real_estimate_exists" time="0.001" /><testcase classname="tests.test_live_ui_data_flow" name="test_idle_event_is_marked_as_a_queue_terminal_state" time="0.000" /><testcase classname="tests.test_live_ui_data_flow" name="test_terminal_queue_marker_is_not_added_to_a_failed_run" time="0.000" /><testcase classname="tests.test_my_energy_sources" name="test_local_edits_survive_template_update_and_have_backup" time="0.010" /><testcase classname="tests.test_my_energy_sources" name="test_unedited_copy_updates_but_experiment_snapshot_does_not" time="0.010" /><testcase classname="tests.test_my_energy_sources" name="test_kpm_clock_patch_is_idempotent_and_refuses_unknown_backend" time="0.001" /><testcase classname="tests.test_my_energy_sources" name="test_old_exe_configuration_gains_layout_without_losing_user_defaults" time="0.005" /><testcase classname="tests.test_my_energy_sources" name="test_editor_saves_both_sources_and_creates_equal_comparison_parameters" time="0.180" /><testcase classname="tests.test_optimized_scenario_live_output" name="test_live_timeseries_has_the_complete_declared_schema_and_durable_append" time="0.001" /><testcase classname="tests.test_optimized_scenario_live_output" name="test_live_timeseries_measures_udp_endpoints_without_byte_tags" time="0.001" /><testcase classname="tests.test_optimized_scenario_live_output" name="test_scenario_stops_traffic_before_measurement_end_and_preserves_counters" time="0.001" /><testcase classname="tests.test_optimized_scenario_live_output" name="test_energy_getter_is_not_called_twice_at_the_same_simulation_instant" time="0.001" /><testcase classname="tests.test_optimized_scenario_live_output" name="test_live_timeseries_is_sampled_during_run_and_once_at_exact_end_time" time="0.001" /><testcase classname="tests.test_optimized_scenario_live_output" name="test_topology_rows_are_scheduled_and_closed_for_live_reading" time="0.001" /><testcase classname="tests.test_optimized_scenario_live_output" name="test_live_output_does_not_switch_the_ric_to_offline_file_logging" time="0.001" /><testcase classname="tests.test_portable_installers" name="test_download_directory_belongs_to_product_root[O-RAN Lab]" time="0.599" /><testcase classname="tests.test_portable_installers" name="test_download_directory_belongs_to_product_root[Za\u017c\xf3\u0142\u0107 O'RAN]" time="0.608" /><testcase classname="tests.test_portable_installers" name="test_python_msi_targetdir_uses_native_windows_separators[C:\\Users\\Za\u017c\xf3\u0142\u0107 User]" time="0.597" /><testcase classname="tests.test_portable_installers" name="test_python_msi_targetdir_uses_native_windows_separators[D:/Profile/O RAN]" time="0.605" /><testcase classname="tests.test_portable_installers" name="test_python_installer_rejects_hash_mismatch_before_process" time="0.563" /><testcase classname="tests.test_portable_installers" name="test_python_candidate_obeys_313_contract[3.12.9-AMD64-64-False]" time="0.643" /><testcase classname="tests.test_portable_installers" name="test_python_candidate_obeys_313_contract[3.13.16-AMD64-64-True]" time="0.603" /><testcase classname="tests.test_portable_installers" name="test_python_candidate_obeys_313_contract[3.13.16-x86-32-False]" time="0.596" /><testcase classname="tests.test_portable_installers" name="test_python_candidate_obeys_313_contract[3.14.9-AMD64-64-False]" time="0.584" /><testcase classname="tests.test_portable_installers" name="test_host_preflight_rejects_out_of_target[48-19045-9-False]" time="0.578" /><testcase classname="tests.test_portable_installers" name="test_host_preflight_rejects_out_of_target[101-26200-9-False]" time="0.581" /><testcase classname="tests.test_portable_installers" name="test_host_preflight_rejects_out_of_target[48-22000-9-False]" time="0.573" /><testcase classname="tests.test_portable_installers" name="test_host_preflight_rejects_out_of_target[48-26200-12-False]" time="0.589" /><testcase classname="tests.test_portable_installers" name="test_host_preflight_rejects_out_of_target[48-26200-9-True]" time="0.589" /><testcase classname="tests.test_portable_installers" name="test_host_preflight_rejects_out_of_target[4-26100-9-True]" time="0.595" /><testcase classname="tests.test_portable_installers" name="test_host_preflight_rejects_out_of_target[4-22631-9-False]" time="0.579" /><testcase classname="tests.test_portable_installers" name="test_offline_download_preserves_final_destination[partial-not-published]" time="0.673" /><testcase classname="tests.test_portable_installers" name="test_offline_download_preserves_final_destination[existing-preserved]" time="0.649" /><testcase classname="tests.test_portable_installers" name="test_completed_download_is_verified_before_publish[False-Valid-False]" time="0.832"><failure message="AssertionError: __CONTROLLED_ENTERED__&#13;&#10;  Pobieram: https://invalid.example/probe&#10;  WARNING: Pobieranie nie powiodło się (próba 1/3). Ponawiam za 3 s: The term 'Get-FileHash' is not recognized as the &#13;&#10;  name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was &#13;&#10;  included, verify that the path is correct and try again.&#10;  WARNING: Pobieranie nie powiodło się (próba 2/3). Ponawiam za 6 s: The term 'Get-FileHash' is not recognized as the &#13;&#10;  name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was &#13;&#10;  included, verify that the path is correct and try again.&#10;  Nie udało się pobrać pliku po 3 próbach: https://invalid.example/probe. Sprawdź połączenie z Internetem i DNS, a potem &#13;&#10;  uruchom install_windows.bat ponownie. Szczegóły: The term 'Get-FileHash' is not recognized as the name of a cmdlet, fun&#13;&#10;  ction, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the pat&#13;&#10;  h is correct and try again.&#13;&#10;  At C:\Users\Dawid\Documents\GitHub\inzynierka2\.r8-test-tmp\codex-full-fff469841cd04a27942eba7fddbb1b5a\test_completed_&#13;&#10;  download_is_ver0\controlled-functions.ps1:80 char:9&#13;&#10;  +         throw &quot;Nie udało się pobrać pliku po 3 próbach: $Uri. Sprawdź ...&#13;&#10;  +         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~&#13;&#10;      + CategoryInfo          : OperationStopped: (Nie udało się p... and try again.:String) [], RuntimeException&#13;&#10;      + FullyQualifiedErrorId : Nie udało się pobrać pliku po 3 próbach: https://invalid.example/probe. Sprawdź połączen &#13;&#10;     ie z Internetem i DNS, a potem uruchom install_windows.bat ponownie. Szczegóły: The term 'Get-FileHash' is not rec  &#13;&#10;    ognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if   &#13;&#10;    a path was included, verify that the path is correct and try again.&#13;&#10;   &#13;&#10;  &#10;assert 1 == 0&#10; +  where 1 = CompletedProcess(args=['powershell.exe', '-NoProfile', '-NonInteractive', '-File', 'C:\\Users\\Dawid\\Documents\\GitHu... the spelling of the name, or if   \r\n  a path was included, verify that the path is correct and try again.\r\n \r\n').returncode">tmp_path = WindowsPath('C:/Users/Dawid/Documents/GitHub/inzynierka2/.r8-test-tmp/codex-full-fff469841cd04a27942eba7fddbb1b5a/test_completed_download_is_ver0')
+existing = False, good_hash = False, signature = 'Valid'
+
+    @pytest.mark.parametrize('existing', [False, True])
+    @pytest.mark.parametrize('good_hash,signature', [(False, 'Valid'), (True, 'NotSigned'), (True, 'Valid')])
+    def test_completed_download_is_verified_before_publish(tmp_path, existing, good_hash, signature):
+        dest = tmp_path / 'installer.exe'
+        old = b'prior verified artifact'
+        body = b'R' * (1024 * 1024)
+        if existing:
+            dest.write_bytes(old)
+        expected = hashlib.sha256(body).hexdigest() if good_hash else 'b' * 64
+        allowed = good_hash and signature == 'Valid'
+&gt;       check_ps(tmp_path, ['Assert-InstallerIntegrity', 'Save-InstallerDownload'], f'''
+    function Start-Sleep {{ }}
+    function Get-AuthenticodeSignature {{ param($LiteralPath)
+        if ($LiteralPath -notlike '*.partial.exe') {{ throw 'Signature did not check staging file' }}
+        [pscustomobject]@{{Status='{signature}'}}
+    }}
+    function Invoke-WebRequest {{ param($Uri,$OutFile,[switch]$UseBasicParsing,$MaximumRedirection)
+        [IO.File]::WriteAllText($OutFile,('R' * 1MB),[Text.Encoding]::ASCII)
+    }}
+    $rejected=$false
+    try {{ Save-InstallerDownload -Uri 'https://invalid.example/probe' -Destination {quote(dest)} -ExpectedSha256 '{expected}' }} catch {{
+        if ($_.Exception.Message -notmatch 'SHA-256|Authenticode') {{ throw }}
+        $rejected=$true
+    }}
+    if ($rejected -eq ${str(allowed).lower()}) {{ throw 'Unexpected verification result' }}
+    ''')
+
+tests\test_portable_installers.py:155: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+tmp_path = WindowsPath('C:/Users/Dawid/Documents/GitHub/inzynierka2/.r8-test-tmp/codex-full-fff469841cd04a27942eba7fddbb1b5a/test_completed_download_is_ver0')
+functions = ['Assert-InstallerIntegrity', 'Save-InstallerDownload']
+body = "\nfunction Start-Sleep { }\nfunction Get-AuthenticodeSignature { param($LiteralPath)\n    if ($LiteralPath -notlike '...thenticode') { throw }\n    $rejected=$true\n}\nif ($rejected -eq $false) { throw 'Unexpected verification result' }\n"
+
+    def check_ps(tmp_path, functions, body):
+        result = run_ps(tmp_path, functions, body)
+&gt;       assert result.returncode == 0, (result.stdout + result.stderr).decode('utf-8', errors='replace')
+E       AssertionError: __CONTROLLED_ENTERED__
+E         Pobieram: https://invalid.example/probe
+E         WARNING: Pobieranie nie powiodło się (próba 1/3). Ponawiam za 3 s: The term 'Get-FileHash' is not recognized as the 
+E         name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was 
+E         included, verify that the path is correct and try again.
+E         WARNING: Pobieranie nie powiodło się (próba 2/3). Ponawiam za 6 s: The term 'Get-FileHash' is not recognized as the 
+E         name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was 
+E         included, verify that the path is correct and try again.
+E         Nie udało się pobrać pliku po 3 próbach: https://invalid.example/probe. Sprawdź połączenie z Internetem i DNS, a potem 
+E         uruchom install_windows.bat ponownie. Szczegóły: The term 'Get-FileHash' is not recognized as the name of a cmdlet, fun
+E         ction, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the pat
+E         h is correct and try again.
+E         At C:\Users\Dawid\Documents\GitHub\inzynierka2\.r8-test-tmp\codex-full-fff469841cd04a27942eba7fddbb1b5a\test_completed_
+E         download_is_ver0\controlled-functions.ps1:80 char:9
+E         +         throw "Nie udało się pobrać pliku po 3 próbach: $Uri. Sprawdź ...
+E         +         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+E             + CategoryInfo          : OperationStopped: (Nie udało się p... and try again.:String) [], RuntimeException
+E             + FullyQualifiedErrorId : Nie udało się pobrać pliku po 3 próbach: https://invalid.example/probe. Sprawdź połączen 
+E            ie z Internetem i DNS, a potem uruchom install_windows.bat ponownie. Szczegóły: The term 'Get-FileHash' is not rec  
+E           ognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if   
+E           a path was included, verify that the path is correct and try again.
+E          
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['powershell.exe', '-NoProfile', '-NonInteractive', '-File', 'C:\\Users\\Dawid\\Documents\\GitHu... the spelling of the name, or if   \r\n  a path was included, verify that the path is correct and try again.\r\n \r\n').returncode
+
+tests\test_portable_installers.py:49: AssertionError</failure></testcase><testcase classname="tests.test_portable_installers" name="test_completed_download_is_verified_before_publish[False-Valid-True]" time="0.821"><failure message="AssertionError: __CONTROLLED_ENTERED__&#13;&#10;  Pobieram: https://invalid.example/probe&#10;  WARNING: Pobieranie nie powiodło się (próba 1/3). Ponawiam za 3 s: The term 'Get-FileHash' is not recognized as the &#13;&#10;  name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was &#13;&#10;  included, verify that the path is correct and try again.&#10;  WARNING: Pobieranie nie powiodło się (próba 2/3). Ponawiam za 6 s: The term 'Get-FileHash' is not recognized as the &#13;&#10;  name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was &#13;&#10;  included, verify that the path is correct and try again.&#10;  Nie udało się pobrać pliku po 3 próbach: https://invalid.example/probe. Sprawdź połączenie z Internetem i DNS, a potem &#13;&#10;  uruchom install_windows.bat ponownie. Szczegóły: The term 'Get-FileHash' is not recognized as the name of a cmdlet, fun&#13;&#10;  ction, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the pat&#13;&#10;  h is correct and try again.&#13;&#10;  At C:\Users\Dawid\Documents\GitHub\inzynierka2\.r8-test-tmp\codex-full-fff469841cd04a27942eba7fddbb1b5a\test_completed_&#13;&#10;  download_is_ver1\controlled-functions.ps1:80 char:9&#13;&#10;  +         throw &quot;Nie udało się pobrać pliku po 3 próbach: $Uri. Sprawdź ...&#13;&#10;  +         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~&#13;&#10;      + CategoryInfo          : OperationStopped: (Nie udało się p... and try again.:String) [], RuntimeException&#13;&#10;      + FullyQualifiedErrorId : Nie udało się pobrać pliku po 3 próbach: https://invalid.example/probe. Sprawdź połączen &#13;&#10;     ie z Internetem i DNS, a potem uruchom install_windows.bat ponownie. Szczegóły: The term 'Get-FileHash' is not rec  &#13;&#10;    ognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if   &#13;&#10;    a path was included, verify that the path is correct and try again.&#13;&#10;   &#13;&#10;  &#10;assert 1 == 0&#10; +  where 1 = CompletedProcess(args=['powershell.exe', '-NoProfile', '-NonInteractive', '-File', 'C:\\Users\\Dawid\\Documents\\GitHu... the spelling of the name, or if   \r\n  a path was included, verify that the path is correct and try again.\r\n \r\n').returncode">tmp_path = WindowsPath('C:/Users/Dawid/Documents/GitHub/inzynierka2/.r8-test-tmp/codex-full-fff469841cd04a27942eba7fddbb1b5a/test_completed_download_is_ver1')
+existing = True, good_hash = False, signature = 'Valid'
+
+    @pytest.mark.parametrize('existing', [False, True])
+    @pytest.mark.parametrize('good_hash,signature', [(False, 'Valid'), (True, 'NotSigned'), (True, 'Valid')])
+    def test_completed_download_is_verified_before_publish(tmp_path, existing, good_hash, signature):
+        dest = tmp_path / 'installer.exe'
+        old = b'prior verified artifact'
+        body = b'R' * (1024 * 1024)
+        if existing:
+            dest.write_bytes(old)
+        expected = hashlib.sha256(body).hexdigest() if good_hash else 'b' * 64
+        allowed = good_hash and signature == 'Valid'
+&gt;       check_ps(tmp_path, ['Assert-InstallerIntegrity', 'Save-InstallerDownload'], f'''
+    function Start-Sleep {{ }}
+    function Get-AuthenticodeSignature {{ param($LiteralPath)
+        if ($LiteralPath -notlike '*.partial.exe') {{ throw 'Signature did not check staging file' }}
+        [pscustomobject]@{{Status='{signature}'}}
+    }}
+    function Invoke-WebRequest {{ param($Uri,$OutFile,[switch]$UseBasicParsing,$MaximumRedirection)
+        [IO.File]::WriteAllText($OutFile,('R' * 1MB),[Text.Encoding]::ASCII)
+    }}
+    $rejected=$false
+    try {{ Save-InstallerDownload -Uri 'https://invalid.example/probe' -Destination {quote(dest)} -ExpectedSha256 '{expected}' }} catch {{
+        if ($_.Exception.Message -notmatch 'SHA-256|Authenticode') {{ throw }}
+        $rejected=$true
+    }}
+    if ($rejected -eq ${str(allowed).lower()}) {{ throw 'Unexpected verification result' }}
+    ''')
+
+tests\test_portable_installers.py:155: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+tmp_path = WindowsPath('C:/Users/Dawid/Documents/GitHub/inzynierka2/.r8-test-tmp/codex-full-fff469841cd04a27942eba7fddbb1b5a/test_completed_download_is_ver1')
+functions = ['Assert-InstallerIntegrity', 'Save-InstallerDownload']
+body = "\nfunction Start-Sleep { }\nfunction Get-AuthenticodeSignature { param($LiteralPath)\n    if ($LiteralPath -notlike '...thenticode') { throw }\n    $rejected=$true\n}\nif ($rejected -eq $false) { throw 'Unexpected verification result' }\n"
+
+    def check_ps(tmp_path, functions, body):
+        result = run_ps(tmp_path, functions, body)
+&gt;       assert result.returncode == 0, (result.stdout + result.stderr).decode('utf-8', errors='replace')
+E       AssertionError: __CONTROLLED_ENTERED__
+E         Pobieram: https://invalid.example/probe
+E         WARNING: Pobieranie nie powiodło się (próba 1/3). Ponawiam za 3 s: The term 'Get-FileHash' is not recognized as the 
+E         name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was 
+E         included, verify that the path is correct and try again.
+E         WARNING: Pobieranie nie powiodło się (próba 2/3). Ponawiam za 6 s: The term 'Get-FileHash' is not recognized as the 
+E         name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was 
+E         included, verify that the path is correct and try again.
+E         Nie udało się pobrać pliku po 3 próbach: https://invalid.example/probe. Sprawdź połączenie z Internetem i DNS, a potem 
+E         uruchom install_windows.bat ponownie. Szczegóły: The term 'Get-FileHash' is not recognized as the name of a cmdlet, fun
+E         ction, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the pat
+E         h is correct and try again.
+E         At C:\Users\Dawid\Documents\GitHub\inzynierka2\.r8-test-tmp\codex-full-fff469841cd04a27942eba7fddbb1b5a\test_completed_
+E         download_is_ver1\controlled-functions.ps1:80 char:9
+E         +         throw "Nie udało się pobrać pliku po 3 próbach: $Uri. Sprawdź ...
+E         +         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+E             + CategoryInfo          : OperationStopped: (Nie udało się p... and try again.:String) [], RuntimeException
+E             + FullyQualifiedErrorId : Nie udało się pobrać pliku po 3 próbach: https://invalid.example/probe. Sprawdź połączen 
+E            ie z Internetem i DNS, a potem uruchom install_windows.bat ponownie. Szczegóły: The term 'Get-FileHash' is not rec  
+E           ognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if   
+E           a path was included, verify that the path is correct and try again.
+E          
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['powershell.exe', '-NoProfile', '-NonInteractive', '-File', 'C:\\Users\\Dawid\\Documents\\GitHu... the spelling of the name, or if   \r\n  a path was included, verify that the path is correct and try again.\r\n \r\n').returncode
+
+tests\test_portable_installers.py:49: AssertionError</failure></testcase><testcase classname="tests.test_portable_installers" name="test_completed_download_is_verified_before_publish[True-NotSigned-False]" time="0.809"><failure message="AssertionError: __CONTROLLED_ENTERED__&#13;&#10;  Pobieram: https://invalid.example/probe&#10;  WARNING: Pobieranie nie powiodło się (próba 1/3). Ponawiam za 3 s: The term 'Get-FileHash' is not recognized as the &#13;&#10;  name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was &#13;&#10;  included, verify that the path is correct and try again.&#10;  WARNING: Pobieranie nie powiodło się (próba 2/3). Ponawiam za 6 s: The term 'Get-FileHash' is not recognized as the &#13;&#10;  name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was &#13;&#10;  included, verify that the path is correct and try again.&#10;  Nie udało się pobrać pliku po 3 próbach: https://invalid.example/probe. Sprawdź połączenie z Internetem i DNS, a potem &#13;&#10;  uruchom install_windows.bat ponownie. Szczegóły: The term 'Get-FileHash' is not recognized as the name of a cmdlet, fun&#13;&#10;  ction, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the pat&#13;&#10;  h is correct and try again.&#13;&#10;  At C:\Users\Dawid\Documents\GitHub\inzynierka2\.r8-test-tmp\codex-full-fff469841cd04a27942eba7fddbb1b5a\test_completed_&#13;&#10;  download_is_ver2\controlled-functions.ps1:80 char:9&#13;&#10;  +         throw &quot;Nie udało się pobrać pliku po 3 próbach: $Uri. Sprawdź ...&#13;&#10;  +         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~&#13;&#10;      + CategoryInfo          : OperationStopped: (Nie udało się p... and try again.:String) [], RuntimeException&#13;&#10;      + FullyQualifiedErrorId : Nie udało się pobrać pliku po 3 próbach: https://invalid.example/probe. Sprawdź połączen &#13;&#10;     ie z Internetem i DNS, a potem uruchom install_windows.bat ponownie. Szczegóły: The term 'Get-FileHash' is not rec  &#13;&#10;    ognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if   &#13;&#10;    a path was included, verify that the path is correct and try again.&#13;&#10;   &#13;&#10;  &#10;assert 1 == 0&#10; +  where 1 = CompletedProcess(args=['powershell.exe', '-NoProfile', '-NonInteractive', '-File', 'C:\\Users\\Dawid\\Documents\\GitHu... the spelling of the name, or if   \r\n  a path was included, verify that the path is correct and try again.\r\n \r\n').returncode">tmp_path = WindowsPath('C:/Users/Dawid/Documents/GitHub/inzynierka2/.r8-test-tmp/codex-full-fff469841cd04a27942eba7fddbb1b5a/test_completed_download_is_ver2')
+existing = False, good_hash = True, signature = 'NotSigned'
+
+    @pytest.mark.parametrize('existing', [False, True])
+    @pytest.mark.parametrize('good_hash,signature', [(False, 'Valid'), (True, 'NotSigned'), (True, 'Valid')])
+    def test_completed_download_is_verified_before_publish(tmp_path, existing, good_hash, signature):
+        dest = tmp_path / 'installer.exe'
+        old = b'prior verified artifact'
+        body = b'R' * (1024 * 1024)
+        if existing:
+            dest.write_bytes(old)
+        expected = hashlib.sha256(body).hexdigest() if good_hash else 'b' * 64
+        allowed = good_hash and signature == 'Valid'
+&gt;       check_ps(tmp_path, ['Assert-InstallerIntegrity', 'Save-InstallerDownload'], f'''
+    function Start-Sleep {{ }}
+    function Get-AuthenticodeSignature {{ param($LiteralPath)
+        if ($LiteralPath -notlike '*.partial.exe') {{ throw 'Signature did not check staging file' }}
+        [pscustomobject]@{{Status='{signature}'}}
+    }}
+    function Invoke-WebRequest {{ param($Uri,$OutFile,[switch]$UseBasicParsing,$MaximumRedirection)
+        [IO.File]::WriteAllText($OutFile,('R' * 1MB),[Text.Encoding]::ASCII)
+    }}
+    $rejected=$false
+    try {{ Save-InstallerDownload -Uri 'https://invalid.example/probe' -Destination {quote(dest)} -ExpectedSha256 '{expected}' }} catch {{
+        if ($_.Exception.Message -notmatch 'SHA-256|Authenticode') {{ throw }}
+        $rejected=$true
+    }}
+    if ($rejected -eq ${str(allowed).lower()}) {{ throw 'Unexpected verification result' }}
+    ''')
+
+tests\test_portable_installers.py:155: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+tmp_path = WindowsPath('C:/Users/Dawid/Documents/GitHub/inzynierka2/.r8-test-tmp/codex-full-fff469841cd04a27942eba7fddbb1b5a/test_completed_download_is_ver2')
+functions = ['Assert-InstallerIntegrity', 'Save-InstallerDownload']
+body = "\nfunction Start-Sleep { }\nfunction Get-AuthenticodeSignature { param($LiteralPath)\n    if ($LiteralPath -notlike '...thenticode') { throw }\n    $rejected=$true\n}\nif ($rejected -eq $false) { throw 'Unexpected verification result' }\n"
+
+    def check_ps(tmp_path, functions, body):
+        result = run_ps(tmp_path, functions, body)
+&gt;       assert result.returncode == 0, (result.stdout + result.stderr).decode('utf-8', errors='replace')
+E       AssertionError: __CONTROLLED_ENTERED__
+E         Pobieram: https://invalid.example/probe
+E         WARNING: Pobieranie nie powiodło się (próba 1/3). Ponawiam za 3 s: The term 'Get-FileHash' is not recognized as the 
+E         name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was 
+E         included, verify that the path is correct and try again.
+E         WARNING: Pobieranie nie powiodło się (próba 2/3). Ponawiam za 6 s: The term 'Get-FileHash' is not recognized as the 
+E         name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was 
+E         included, verify that the path is correct and try again.
+E         Nie udało się pobrać pliku po 3 próbach: https://invalid.example/probe. Sprawdź połączenie z Internetem i DNS, a potem 
+E         uruchom install_windows.bat ponownie. Szczegóły: The term 'Get-FileHash' is not recognized as the name of a cmdlet, fun
+E         ction, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the pat
+E         h is correct and try again.
+E         At C:\Users\Dawid\Documents\GitHub\inzynierka2\.r8-test-tmp\codex-full-fff469841cd04a27942eba7fddbb1b5a\test_completed_
+E         download_is_ver2\controlled-functions.ps1:80 char:9
+E         +         throw "Nie udało się pobrać pliku po 3 próbach: $Uri. Sprawdź ...
+E         +         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+E             + CategoryInfo          : OperationStopped: (Nie udało się p... and try again.:String) [], RuntimeException
+E             + FullyQualifiedErrorId : Nie udało się pobrać pliku po 3 próbach: https://invalid.example/probe. Sprawdź połączen 
+E            ie z Internetem i DNS, a potem uruchom install_windows.bat ponownie. Szczegóły: The term 'Get-FileHash' is not rec  
+E           ognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if   
+E           a path was included, verify that the path is correct and try again.
+E          
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['powershell.exe', '-NoProfile', '-NonInteractive', '-File', 'C:\\Users\\Dawid\\Documents\\GitHu... the spelling of the name, or if   \r\n  a path was included, verify that the path is correct and try again.\r\n \r\n').returncode
+
+tests\test_portable_installers.py:49: AssertionError</failure></testcase><testcase classname="tests.test_portable_installers" name="test_completed_download_is_verified_before_publish[True-NotSigned-True]" time="0.825"><failure message="AssertionError: __CONTROLLED_ENTERED__&#13;&#10;  Pobieram: https://invalid.example/probe&#10;  WARNING: Pobieranie nie powiodło się (próba 1/3). Ponawiam za 3 s: The term 'Get-FileHash' is not recognized as the &#13;&#10;  name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was &#13;&#10;  included, verify that the path is correct and try again.&#10;  WARNING: Pobieranie nie powiodło się (próba 2/3). Ponawiam za 6 s: The term 'Get-FileHash' is not recognized as the &#13;&#10;  name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was &#13;&#10;  included, verify that the path is correct and try again.&#10;  Nie udało się pobrać pliku po 3 próbach: https://invalid.example/probe. Sprawdź połączenie z Internetem i DNS, a potem &#13;&#10;  uruchom install_windows.bat ponownie. Szczegóły: The term 'Get-FileHash' is not recognized as the name of a cmdlet, fun&#13;&#10;  ction, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the pat&#13;&#10;  h is correct and try again.&#13;&#10;  At C:\Users\Dawid\Documents\GitHub\inzynierka2\.r8-test-tmp\codex-full-fff469841cd04a27942eba7fddbb1b5a\test_completed_&#13;&#10;  download_is_ver3\controlled-functions.ps1:80 char:9&#13;&#10;  +         throw &quot;Nie udało się pobrać pliku po 3 próbach: $Uri. Sprawdź ...&#13;&#10;  +         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~&#13;&#10;      + CategoryInfo          : OperationStopped: (Nie udało się p... and try again.:String) [], RuntimeException&#13;&#10;      + FullyQualifiedErrorId : Nie udało się pobrać pliku po 3 próbach: https://invalid.example/probe. Sprawdź połączen &#13;&#10;     ie z Internetem i DNS, a potem uruchom install_windows.bat ponownie. Szczegóły: The term 'Get-FileHash' is not rec  &#13;&#10;    ognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if   &#13;&#10;    a path was included, verify that the path is correct and try again.&#13;&#10;   &#13;&#10;  &#10;assert 1 == 0&#10; +  where 1 = CompletedProcess(args=['powershell.exe', '-NoProfile', '-NonInteractive', '-File', 'C:\\Users\\Dawid\\Documents\\GitHu... the spelling of the name, or if   \r\n  a path was included, verify that the path is correct and try again.\r\n \r\n').returncode">tmp_path = WindowsPath('C:/Users/Dawid/Documents/GitHub/inzynierka2/.r8-test-tmp/codex-full-fff469841cd04a27942eba7fddbb1b5a/test_completed_download_is_ver3')
+existing = True, good_hash = True, signature = 'NotSigned'
+
+    @pytest.mark.parametrize('existing', [False, True])
+    @pytest.mark.parametrize('good_hash,signature', [(False, 'Valid'), (True, 'NotSigned'), (True, 'Valid')])
+    def test_completed_download_is_verified_before_publish(tmp_path, existing, good_hash, signature):
+        dest = tmp_path / 'installer.exe'
+        old = b'prior verified artifact'
+        body = b'R' * (1024 * 1024)
+        if existing:
+            dest.write_bytes(old)
+        expected = hashlib.sha256(body).hexdigest() if good_hash else 'b' * 64
+        allowed = good_hash and signature == 'Valid'
+&gt;       check_ps(tmp_path, ['Assert-InstallerIntegrity', 'Save-InstallerDownload'], f'''
+    function Start-Sleep {{ }}
+    function Get-AuthenticodeSignature {{ param($LiteralPath)
+        if ($LiteralPath -notlike '*.partial.exe') {{ throw 'Signature did not check staging file' }}
+        [pscustomobject]@{{Status='{signature}'}}
+    }}
+    function Invoke-WebRequest {{ param($Uri,$OutFile,[switch]$UseBasicParsing,$MaximumRedirection)
+        [IO.File]::WriteAllText($OutFile,('R' * 1MB),[Text.Encoding]::ASCII)
+    }}
+    $rejected=$false
+    try {{ Save-InstallerDownload -Uri 'https://invalid.example/probe' -Destination {quote(dest)} -ExpectedSha256 '{expected}' }} catch {{
+        if ($_.Exception.Message -notmatch 'SHA-256|Authenticode') {{ throw }}
+        $rejected=$true
+    }}
+    if ($rejected -eq ${str(allowed).lower()}) {{ throw 'Unexpected verification result' }}
+    ''')
+
+tests\test_portable_installers.py:155: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+tmp_path = WindowsPath('C:/Users/Dawid/Documents/GitHub/inzynierka2/.r8-test-tmp/codex-full-fff469841cd04a27942eba7fddbb1b5a/test_completed_download_is_ver3')
+functions = ['Assert-InstallerIntegrity', 'Save-InstallerDownload']
+body = "\nfunction Start-Sleep { }\nfunction Get-AuthenticodeSignature { param($LiteralPath)\n    if ($LiteralPath -notlike '...thenticode') { throw }\n    $rejected=$true\n}\nif ($rejected -eq $false) { throw 'Unexpected verification result' }\n"
+
+    def check_ps(tmp_path, functions, body):
+        result = run_ps(tmp_path, functions, body)
+&gt;       assert result.returncode == 0, (result.stdout + result.stderr).decode('utf-8', errors='replace')
+E       AssertionError: __CONTROLLED_ENTERED__
+E         Pobieram: https://invalid.example/probe
+E         WARNING: Pobieranie nie powiodło się (próba 1/3). Ponawiam za 3 s: The term 'Get-FileHash' is not recognized as the 
+E         name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was 
+E         included, verify that the path is correct and try again.
+E         WARNING: Pobieranie nie powiodło się (próba 2/3). Ponawiam za 6 s: The term 'Get-FileHash' is not recognized as the 
+E         name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was 
+E         included, verify that the path is correct and try again.
+E         Nie udało się pobrać pliku po 3 próbach: https://invalid.example/probe. Sprawdź połączenie z Internetem i DNS, a potem 
+E         uruchom install_windows.bat ponownie. Szczegóły: The term 'Get-FileHash' is not recognized as the name of a cmdlet, fun
+E         ction, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the pat
+E         h is correct and try again.
+E         At C:\Users\Dawid\Documents\GitHub\inzynierka2\.r8-test-tmp\codex-full-fff469841cd04a27942eba7fddbb1b5a\test_completed_
+E         download_is_ver3\controlled-functions.ps1:80 char:9
+E         +         throw "Nie udało się pobrać pliku po 3 próbach: $Uri. Sprawdź ...
+E         +         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+E             + CategoryInfo          : OperationStopped: (Nie udało się p... and try again.:String) [], RuntimeException
+E             + FullyQualifiedErrorId : Nie udało się pobrać pliku po 3 próbach: https://invalid.example/probe. Sprawdź połączen 
+E            ie z Internetem i DNS, a potem uruchom install_windows.bat ponownie. Szczegóły: The term 'Get-FileHash' is not rec  
+E           ognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if   
+E           a path was included, verify that the path is correct and try again.
+E          
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['powershell.exe', '-NoProfile', '-NonInteractive', '-File', 'C:\\Users\\Dawid\\Documents\\GitHu... the spelling of the name, or if   \r\n  a path was included, verify that the path is correct and try again.\r\n \r\n').returncode
+
+tests\test_portable_installers.py:49: AssertionError</failure></testcase><testcase classname="tests.test_portable_installers" name="test_completed_download_is_verified_before_publish[True-Valid-False]" time="0.824"><failure message="AssertionError: __CONTROLLED_ENTERED__&#13;&#10;  Pobieram: https://invalid.example/probe&#10;  WARNING: Pobieranie nie powiodło się (próba 1/3). Ponawiam za 3 s: The term 'Get-FileHash' is not recognized as the &#13;&#10;  name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was &#13;&#10;  included, verify that the path is correct and try again.&#10;  WARNING: Pobieranie nie powiodło się (próba 2/3). Ponawiam za 6 s: The term 'Get-FileHash' is not recognized as the &#13;&#10;  name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was &#13;&#10;  included, verify that the path is correct and try again.&#10;  Nie udało się pobrać pliku po 3 próbach: https://invalid.example/probe. Sprawdź połączenie z Internetem i DNS, a potem &#13;&#10;  uruchom install_windows.bat ponownie. Szczegóły: The term 'Get-FileHash' is not recognized as the name of a cmdlet, fun&#13;&#10;  ction, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the pat&#13;&#10;  h is correct and try again.&#13;&#10;  At C:\Users\Dawid\Documents\GitHub\inzynierka2\.r8-test-tmp\codex-full-fff469841cd04a27942eba7fddbb1b5a\test_completed_&#13;&#10;  download_is_ver4\controlled-functions.ps1:80 char:9&#13;&#10;  +         throw &quot;Nie udało się pobrać pliku po 3 próbach: $Uri. Sprawdź ...&#13;&#10;  +         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~&#13;&#10;      + CategoryInfo          : OperationStopped: (Nie udało się p... and try again.:String) [], RuntimeException&#13;&#10;      + FullyQualifiedErrorId : Nie udało się pobrać pliku po 3 próbach: https://invalid.example/probe. Sprawdź połączen &#13;&#10;     ie z Internetem i DNS, a potem uruchom install_windows.bat ponownie. Szczegóły: The term 'Get-FileHash' is not rec  &#13;&#10;    ognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if   &#13;&#10;    a path was included, verify that the path is correct and try again.&#13;&#10;   &#13;&#10;  &#10;assert 1 == 0&#10; +  where 1 = CompletedProcess(args=['powershell.exe', '-NoProfile', '-NonInteractive', '-File', 'C:\\Users\\Dawid\\Documents\\GitHu... the spelling of the name, or if   \r\n  a path was included, verify that the path is correct and try again.\r\n \r\n').returncode">tmp_path = WindowsPath('C:/Users/Dawid/Documents/GitHub/inzynierka2/.r8-test-tmp/codex-full-fff469841cd04a27942eba7fddbb1b5a/test_completed_download_is_ver4')
+existing = False, good_hash = True, signature = 'Valid'
+
+    @pytest.mark.parametrize('existing', [False, True])
+    @pytest.mark.parametrize('good_hash,signature', [(False, 'Valid'), (True, 'NotSigned'), (True, 'Valid')])
+    def test_completed_download_is_verified_before_publish(tmp_path, existing, good_hash, signature):
+        dest = tmp_path / 'installer.exe'
+        old = b'prior verified artifact'
+        body = b'R' * (1024 * 1024)
+        if existing:
+            dest.write_bytes(old)
+        expected = hashlib.sha256(body).hexdigest() if good_hash else 'b' * 64
+        allowed = good_hash and signature == 'Valid'
+&gt;       check_ps(tmp_path, ['Assert-InstallerIntegrity', 'Save-InstallerDownload'], f'''
+    function Start-Sleep {{ }}
+    function Get-AuthenticodeSignature {{ param($LiteralPath)
+        if ($LiteralPath -notlike '*.partial.exe') {{ throw 'Signature did not check staging file' }}
+        [pscustomobject]@{{Status='{signature}'}}
+    }}
+    function Invoke-WebRequest {{ param($Uri,$OutFile,[switch]$UseBasicParsing,$MaximumRedirection)
+        [IO.File]::WriteAllText($OutFile,('R' * 1MB),[Text.Encoding]::ASCII)
+    }}
+    $rejected=$false
+    try {{ Save-InstallerDownload -Uri 'https://invalid.example/probe' -Destination {quote(dest)} -ExpectedSha256 '{expected}' }} catch {{
+        if ($_.Exception.Message -notmatch 'SHA-256|Authenticode') {{ throw }}
+        $rejected=$true
+    }}
+    if ($rejected -eq ${str(allowed).lower()}) {{ throw 'Unexpected verification result' }}
+    ''')
+
+tests\test_portable_installers.py:155: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+tmp_path = WindowsPath('C:/Users/Dawid/Documents/GitHub/inzynierka2/.r8-test-tmp/codex-full-fff469841cd04a27942eba7fddbb1b5a/test_completed_download_is_ver4')
+functions = ['Assert-InstallerIntegrity', 'Save-InstallerDownload']
+body = "\nfunction Start-Sleep { }\nfunction Get-AuthenticodeSignature { param($LiteralPath)\n    if ($LiteralPath -notlike '...uthenticode') { throw }\n    $rejected=$true\n}\nif ($rejected -eq $true) { throw 'Unexpected verification result' }\n"
+
+    def check_ps(tmp_path, functions, body):
+        result = run_ps(tmp_path, functions, body)
+&gt;       assert result.returncode == 0, (result.stdout + result.stderr).decode('utf-8', errors='replace')
+E       AssertionError: __CONTROLLED_ENTERED__
+E         Pobieram: https://invalid.example/probe
+E         WARNING: Pobieranie nie powiodło się (próba 1/3). Ponawiam za 3 s: The term 'Get-FileHash' is not recognized as the 
+E         name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was 
+E         included, verify that the path is correct and try again.
+E         WARNING: Pobieranie nie powiodło się (próba 2/3). Ponawiam za 6 s: The term 'Get-FileHash' is not recognized as the 
+E         name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was 
+E         included, verify that the path is correct and try again.
+E         Nie udało się pobrać pliku po 3 próbach: https://invalid.example/probe. Sprawdź połączenie z Internetem i DNS, a potem 
+E         uruchom install_windows.bat ponownie. Szczegóły: The term 'Get-FileHash' is not recognized as the name of a cmdlet, fun
+E         ction, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the pat
+E         h is correct and try again.
+E         At C:\Users\Dawid\Documents\GitHub\inzynierka2\.r8-test-tmp\codex-full-fff469841cd04a27942eba7fddbb1b5a\test_completed_
+E         download_is_ver4\controlled-functions.ps1:80 char:9
+E         +         throw "Nie udało się pobrać pliku po 3 próbach: $Uri. Sprawdź ...
+E         +         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+E             + CategoryInfo          : OperationStopped: (Nie udało się p... and try again.:String) [], RuntimeException
+E             + FullyQualifiedErrorId : Nie udało się pobrać pliku po 3 próbach: https://invalid.example/probe. Sprawdź połączen 
+E            ie z Internetem i DNS, a potem uruchom install_windows.bat ponownie. Szczegóły: The term 'Get-FileHash' is not rec  
+E           ognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if   
+E           a path was included, verify that the path is correct and try again.
+E          
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['powershell.exe', '-NoProfile', '-NonInteractive', '-File', 'C:\\Users\\Dawid\\Documents\\GitHu... the spelling of the name, or if   \r\n  a path was included, verify that the path is correct and try again.\r\n \r\n').returncode
+
+tests\test_portable_installers.py:49: AssertionError</failure></testcase><testcase classname="tests.test_portable_installers" name="test_completed_download_is_verified_before_publish[True-Valid-True]" time="0.809"><failure message="AssertionError: __CONTROLLED_ENTERED__&#13;&#10;  Pobieram: https://invalid.example/probe&#10;  WARNING: Pobieranie nie powiodło się (próba 1/3). Ponawiam za 3 s: The term 'Get-FileHash' is not recognized as the &#13;&#10;  name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was &#13;&#10;  included, verify that the path is correct and try again.&#10;  WARNING: Pobieranie nie powiodło się (próba 2/3). Ponawiam za 6 s: The term 'Get-FileHash' is not recognized as the &#13;&#10;  name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was &#13;&#10;  included, verify that the path is correct and try again.&#10;  Nie udało się pobrać pliku po 3 próbach: https://invalid.example/probe. Sprawdź połączenie z Internetem i DNS, a potem &#13;&#10;  uruchom install_windows.bat ponownie. Szczegóły: The term 'Get-FileHash' is not recognized as the name of a cmdlet, fun&#13;&#10;  ction, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the pat&#13;&#10;  h is correct and try again.&#13;&#10;  At C:\Users\Dawid\Documents\GitHub\inzynierka2\.r8-test-tmp\codex-full-fff469841cd04a27942eba7fddbb1b5a\test_completed_&#13;&#10;  download_is_ver5\controlled-functions.ps1:80 char:9&#13;&#10;  +         throw &quot;Nie udało się pobrać pliku po 3 próbach: $Uri. Sprawdź ...&#13;&#10;  +         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~&#13;&#10;      + CategoryInfo          : OperationStopped: (Nie udało się p... and try again.:String) [], RuntimeException&#13;&#10;      + FullyQualifiedErrorId : Nie udało się pobrać pliku po 3 próbach: https://invalid.example/probe. Sprawdź połączen &#13;&#10;     ie z Internetem i DNS, a potem uruchom install_windows.bat ponownie. Szczegóły: The term 'Get-FileHash' is not rec  &#13;&#10;    ognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if   &#13;&#10;    a path was included, verify that the path is correct and try again.&#13;&#10;   &#13;&#10;  &#10;assert 1 == 0&#10; +  where 1 = CompletedProcess(args=['powershell.exe', '-NoProfile', '-NonInteractive', '-File', 'C:\\Users\\Dawid\\Documents\\GitHu... the spelling of the name, or if   \r\n  a path was included, verify that the path is correct and try again.\r\n \r\n').returncode">tmp_path = WindowsPath('C:/Users/Dawid/Documents/GitHub/inzynierka2/.r8-test-tmp/codex-full-fff469841cd04a27942eba7fddbb1b5a/test_completed_download_is_ver5')
+existing = True, good_hash = True, signature = 'Valid'
+
+    @pytest.mark.parametrize('existing', [False, True])
+    @pytest.mark.parametrize('good_hash,signature', [(False, 'Valid'), (True, 'NotSigned'), (True, 'Valid')])
+    def test_completed_download_is_verified_before_publish(tmp_path, existing, good_hash, signature):
+        dest = tmp_path / 'installer.exe'
+        old = b'prior verified artifact'
+        body = b'R' * (1024 * 1024)
+        if existing:
+            dest.write_bytes(old)
+        expected = hashlib.sha256(body).hexdigest() if good_hash else 'b' * 64
+        allowed = good_hash and signature == 'Valid'
+&gt;       check_ps(tmp_path, ['Assert-InstallerIntegrity', 'Save-InstallerDownload'], f'''
+    function Start-Sleep {{ }}
+    function Get-AuthenticodeSignature {{ param($LiteralPath)
+        if ($LiteralPath -notlike '*.partial.exe') {{ throw 'Signature did not check staging file' }}
+        [pscustomobject]@{{Status='{signature}'}}
+    }}
+    function Invoke-WebRequest {{ param($Uri,$OutFile,[switch]$UseBasicParsing,$MaximumRedirection)
+        [IO.File]::WriteAllText($OutFile,('R' * 1MB),[Text.Encoding]::ASCII)
+    }}
+    $rejected=$false
+    try {{ Save-InstallerDownload -Uri 'https://invalid.example/probe' -Destination {quote(dest)} -ExpectedSha256 '{expected}' }} catch {{
+        if ($_.Exception.Message -notmatch 'SHA-256|Authenticode') {{ throw }}
+        $rejected=$true
+    }}
+    if ($rejected -eq ${str(allowed).lower()}) {{ throw 'Unexpected verification result' }}
+    ''')
+
+tests\test_portable_installers.py:155: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+tmp_path = WindowsPath('C:/Users/Dawid/Documents/GitHub/inzynierka2/.r8-test-tmp/codex-full-fff469841cd04a27942eba7fddbb1b5a/test_completed_download_is_ver5')
+functions = ['Assert-InstallerIntegrity', 'Save-InstallerDownload']
+body = "\nfunction Start-Sleep { }\nfunction Get-AuthenticodeSignature { param($LiteralPath)\n    if ($LiteralPath -notlike '...uthenticode') { throw }\n    $rejected=$true\n}\nif ($rejected -eq $true) { throw 'Unexpected verification result' }\n"
+
+    def check_ps(tmp_path, functions, body):
+        result = run_ps(tmp_path, functions, body)
+&gt;       assert result.returncode == 0, (result.stdout + result.stderr).decode('utf-8', errors='replace')
+E       AssertionError: __CONTROLLED_ENTERED__
+E         Pobieram: https://invalid.example/probe
+E         WARNING: Pobieranie nie powiodło się (próba 1/3). Ponawiam za 3 s: The term 'Get-FileHash' is not recognized as the 
+E         name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was 
+E         included, verify that the path is correct and try again.
+E         WARNING: Pobieranie nie powiodło się (próba 2/3). Ponawiam za 6 s: The term 'Get-FileHash' is not recognized as the 
+E         name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was 
+E         included, verify that the path is correct and try again.
+E         Nie udało się pobrać pliku po 3 próbach: https://invalid.example/probe. Sprawdź połączenie z Internetem i DNS, a potem 
+E         uruchom install_windows.bat ponownie. Szczegóły: The term 'Get-FileHash' is not recognized as the name of a cmdlet, fun
+E         ction, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the pat
+E         h is correct and try again.
+E         At C:\Users\Dawid\Documents\GitHub\inzynierka2\.r8-test-tmp\codex-full-fff469841cd04a27942eba7fddbb1b5a\test_completed_
+E         download_is_ver5\controlled-functions.ps1:80 char:9
+E         +         throw "Nie udało się pobrać pliku po 3 próbach: $Uri. Sprawdź ...
+E         +         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+E             + CategoryInfo          : OperationStopped: (Nie udało się p... and try again.:String) [], RuntimeException
+E             + FullyQualifiedErrorId : Nie udało się pobrać pliku po 3 próbach: https://invalid.example/probe. Sprawdź połączen 
+E            ie z Internetem i DNS, a potem uruchom install_windows.bat ponownie. Szczegóły: The term 'Get-FileHash' is not rec  
+E           ognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if   
+E           a path was included, verify that the path is correct and try again.
+E          
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['powershell.exe', '-NoProfile', '-NonInteractive', '-File', 'C:\\Users\\Dawid\\Documents\\GitHu... the spelling of the name, or if   \r\n  a path was included, verify that the path is correct and try again.\r\n \r\n').returncode
+
+tests\test_portable_installers.py:49: AssertionError</failure></testcase><testcase classname="tests.test_portable_installers" name="test_lingering_archive_does_not_override_explicit_local_image" time="0.602" /><testcase classname="tests.test_portable_installers" name="test_source_mode_rejects_any_existing_tag_before_mutation[amd64]" time="0.583" /><testcase classname="tests.test_portable_installers" name="test_source_mode_rejects_any_existing_tag_before_mutation[arm64]" time="0.580" /><testcase classname="tests.test_portable_installers" name="test_skiplaunch_does_not_start_gui" time="0.595" /><testcase classname="tests.test_portable_installers" name="test_restart_stops_before_later_stages" time="0.579" /><testcase classname="tests.test_portable_installers" name="test_restart_persists_resume_receipt" time="0.769" /><testcase classname="tests.test_portable_installers" name="test_missing_docker_does_not_attempt_uncontrolled_installer" time="0.550" /><testcase classname="tests.test_portable_installers" name="test_resume_before_reboot_does_not_enter_wsl_or_other_stages" time="0.609" /><testcase classname="tests.test_portable_installers" name="test_root_lock_excludes_a_second_writer_and_recovers_after_release" time="0.704" /><testcase classname="tests.test_portable_installers" name="test_override_docker_host_refused_before_cli" time="0.564" /><testcase classname="tests.test_portable_installers" name="test_explicit_local_image_identity_rejects_mismatches[arm64-1]" time="0.547" /><testcase classname="tests.test_portable_installers" name="test_explicit_local_image_identity_rejects_mismatches[amd64-2]" time="0.549" /><testcase classname="tests.test_portable_installers" name="test_source_contract_uses_only_shipped_resources[False]" time="0.803"><failure message="AssertionError: __CONTROLLED_ENTERED__&#13;&#10;  Get-FileHash : The term 'Get-FileHash' is not recognized as the name of a cmdlet, function, script file, or operable pr&#13;&#10;  ogram. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.&#13;&#10;  At C:\Users\Dawid\Documents\GitHub\inzynierka2\.r8-test-tmp\codex-full-fff469841cd04a27942eba7fddbb1b5a\test_source_con&#13;&#10;  tract_uses_only0\controlled-functions.ps1:33 char:10&#13;&#10;  +         (Get-FileHash -LiteralPath $dockerfile -Algorithm SHA256).Has ...&#13;&#10;  +          ~~~~~~~~~~~~&#13;&#10;      + CategoryInfo          : ObjectNotFound: (Get-FileHash:String) [], ParentContainsErrorRecordException&#13;&#10;      + FullyQualifiedErrorId : CommandNotFoundException&#13;&#10;   &#13;&#10;  &#10;assert 1 == 0&#10; +  where 1 = CompletedProcess(args=['powershell.exe', '-NoProfile', '-NonInteractive', '-File', 'C:\\Users\\Dawid\\Documents\\GitHu...ash:String) [], ParentContainsErrorRecordException\r\n    + FullyQualifiedErrorId : CommandNotFoundException\r\n \r\n&quot;).returncode">tmp_path = WindowsPath('C:/Users/Dawid/Documents/GitHub/inzynierka2/.r8-test-tmp/codex-full-fff469841cd04a27942eba7fddbb1b5a/test_source_contract_uses_only0')
+modified = False
+
+    @pytest.mark.parametrize('modified', [False, True])
+    def test_source_contract_uses_only_shipped_resources(tmp_path, modified):
+        manifest_path = 'resources/simulator/sources.json'
+        dockerfile_path = 'resources/simulator/Dockerfile'
+        manifest = json.loads((ROOT / manifest_path).read_bytes())
+        for name in [manifest_path, dockerfile_path, *(entry['path'] for entry in manifest['patches'])]:
+            target = tmp_path / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            body = (ROOT / name).read_bytes()
+            target.write_bytes(body + b'\n# unexpected\n' if modified and name == dockerfile_path else body)
+&gt;       check_ps(tmp_path, ['Assert-LocalPath', 'Get-SourceContract'], f'''
+    $script:ProjectRoot={quote(tmp_path)}
+    $rejected=$false
+    try {{ $contract=Get-SourceContract }} catch {{
+        if ($_.Exception.Message -notlike '*Dockerfile*') {{ throw }}
+        $rejected=$true
+    }}
+    if ($rejected -ne ${str(modified).lower()}) {{ throw 'Wrong source integrity result' }}
+    ''')
+
+tests\test_portable_installers.py:340: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+tmp_path = WindowsPath('C:/Users/Dawid/Documents/GitHub/inzynierka2/.r8-test-tmp/codex-full-fff469841cd04a27942eba7fddbb1b5a/test_source_contract_uses_only0')
+functions = ['Assert-LocalPath', 'Get-SourceContract']
+body = "\n$script:ProjectRoot='C:\\Users\\Dawid\\Documents\\GitHub\\inzynierka2\\.r8-test-tmp\\codex-full-fff469841cd04a27942...Dockerfile*') { throw }\n    $rejected=$true\n}\nif ($rejected -ne $false) { throw 'Wrong source integrity result' }\n"
+
+    def check_ps(tmp_path, functions, body):
+        result = run_ps(tmp_path, functions, body)
+&gt;       assert result.returncode == 0, (result.stdout + result.stderr).decode('utf-8', errors='replace')
+E       AssertionError: __CONTROLLED_ENTERED__
+E         Get-FileHash : The term 'Get-FileHash' is not recognized as the name of a cmdlet, function, script file, or operable pr
+E         ogram. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+E         At C:\Users\Dawid\Documents\GitHub\inzynierka2\.r8-test-tmp\codex-full-fff469841cd04a27942eba7fddbb1b5a\test_source_con
+E         tract_uses_only0\controlled-functions.ps1:33 char:10
+E         +         (Get-FileHash -LiteralPath $dockerfile -Algorithm SHA256).Has ...
+E         +          ~~~~~~~~~~~~
+E             + CategoryInfo          : ObjectNotFound: (Get-FileHash:String) [], ParentContainsErrorRecordException
+E             + FullyQualifiedErrorId : CommandNotFoundException
+E          
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['powershell.exe', '-NoProfile', '-NonInteractive', '-File', 'C:\\Users\\Dawid\\Documents\\GitHu...ash:String) [], ParentContainsErrorRecordException\r\n    + FullyQualifiedErrorId : CommandNotFoundException\r\n \r\n").returncode
+
+tests\test_portable_installers.py:49: AssertionError</failure></testcase><testcase classname="tests.test_portable_installers" name="test_source_contract_uses_only_shipped_resources[True]" time="0.777"><failure message="AssertionError: __CONTROLLED_ENTERED__&#13;&#10;  Get-FileHash : The term 'Get-FileHash' is not recognized as the name of a cmdlet, function, script file, or operable pr&#13;&#10;  ogram. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.&#13;&#10;  At C:\Users\Dawid\Documents\GitHub\inzynierka2\.r8-test-tmp\codex-full-fff469841cd04a27942eba7fddbb1b5a\test_source_con&#13;&#10;  tract_uses_only1\controlled-functions.ps1:33 char:10&#13;&#10;  +         (Get-FileHash -LiteralPath $dockerfile -Algorithm SHA256).Has ...&#13;&#10;  +          ~~~~~~~~~~~~&#13;&#10;      + CategoryInfo          : ObjectNotFound: (Get-FileHash:String) [], ParentContainsErrorRecordException&#13;&#10;      + FullyQualifiedErrorId : CommandNotFoundException&#13;&#10;   &#13;&#10;  &#10;assert 1 == 0&#10; +  where 1 = CompletedProcess(args=['powershell.exe', '-NoProfile', '-NonInteractive', '-File', 'C:\\Users\\Dawid\\Documents\\GitHu...ash:String) [], ParentContainsErrorRecordException\r\n    + FullyQualifiedErrorId : CommandNotFoundException\r\n \r\n&quot;).returncode">tmp_path = WindowsPath('C:/Users/Dawid/Documents/GitHub/inzynierka2/.r8-test-tmp/codex-full-fff469841cd04a27942eba7fddbb1b5a/test_source_contract_uses_only1')
+modified = True
+
+    @pytest.mark.parametrize('modified', [False, True])
+    def test_source_contract_uses_only_shipped_resources(tmp_path, modified):
+        manifest_path = 'resources/simulator/sources.json'
+        dockerfile_path = 'resources/simulator/Dockerfile'
+        manifest = json.loads((ROOT / manifest_path).read_bytes())
+        for name in [manifest_path, dockerfile_path, *(entry['path'] for entry in manifest['patches'])]:
+            target = tmp_path / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            body = (ROOT / name).read_bytes()
+            target.write_bytes(body + b'\n# unexpected\n' if modified and name == dockerfile_path else body)
+&gt;       check_ps(tmp_path, ['Assert-LocalPath', 'Get-SourceContract'], f'''
+    $script:ProjectRoot={quote(tmp_path)}
+    $rejected=$false
+    try {{ $contract=Get-SourceContract }} catch {{
+        if ($_.Exception.Message -notlike '*Dockerfile*') {{ throw }}
+        $rejected=$true
+    }}
+    if ($rejected -ne ${str(modified).lower()}) {{ throw 'Wrong source integrity result' }}
+    ''')
+
+tests\test_portable_installers.py:340: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+tmp_path = WindowsPath('C:/Users/Dawid/Documents/GitHub/inzynierka2/.r8-test-tmp/codex-full-fff469841cd04a27942eba7fddbb1b5a/test_source_contract_uses_only1')
+functions = ['Assert-LocalPath', 'Get-SourceContract']
+body = "\n$script:ProjectRoot='C:\\Users\\Dawid\\Documents\\GitHub\\inzynierka2\\.r8-test-tmp\\codex-full-fff469841cd04a27942...*Dockerfile*') { throw }\n    $rejected=$true\n}\nif ($rejected -ne $true) { throw 'Wrong source integrity result' }\n"
+
+    def check_ps(tmp_path, functions, body):
+        result = run_ps(tmp_path, functions, body)
+&gt;       assert result.returncode == 0, (result.stdout + result.stderr).decode('utf-8', errors='replace')
+E       AssertionError: __CONTROLLED_ENTERED__
+E         Get-FileHash : The term 'Get-FileHash' is not recognized as the name of a cmdlet, function, script file, or operable pr
+E         ogram. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+E         At C:\Users\Dawid\Documents\GitHub\inzynierka2\.r8-test-tmp\codex-full-fff469841cd04a27942eba7fddbb1b5a\test_source_con
+E         tract_uses_only1\controlled-functions.ps1:33 char:10
+E         +         (Get-FileHash -LiteralPath $dockerfile -Algorithm SHA256).Has ...
+E         +          ~~~~~~~~~~~~
+E             + CategoryInfo          : ObjectNotFound: (Get-FileHash:String) [], ParentContainsErrorRecordException
+E             + FullyQualifiedErrorId : CommandNotFoundException
+E          
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['powershell.exe', '-NoProfile', '-NonInteractive', '-File', 'C:\\Users\\Dawid\\Documents\\GitHu...ash:String) [], ParentContainsErrorRecordException\r\n    + FullyQualifiedErrorId : CommandNotFoundException\r\n \r\n").returncode
+
+tests\test_portable_installers.py:49: AssertionError</failure></testcase><testcase classname="tests.test_portable_installers" name="test_foreign_venv_is_not_executed_or_cleared" time="0.638" /><testcase classname="tests.test_portable_installers" name="test_changed_root_receipt_does_not_validate" time="0.756"><failure message="AssertionError: __CONTROLLED_ENTERED__&#13;&#10;  Get-FileHash : The term 'Get-FileHash' is not recognized as the name of a cmdlet, function, script file, or operable pr&#13;&#10;  ogram. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.&#13;&#10;  At C:\Users\Dawid\Documents\GitHub\inzynierka2\.r8-test-tmp\codex-full-fff469841cd04a27942eba7fddbb1b5a\test_changed_ro&#13;&#10;  ot_receipt_does0\controlled-functions.ps1:36 char:35&#13;&#10;  +         dependency_lock_sha256 = (Get-FileHash -LiteralPath $lock -Al ...&#13;&#10;  +                                   ~~~~~~~~~~~~&#13;&#10;      + CategoryInfo          : ObjectNotFound: (Get-FileHash:String) [], ParentContainsErrorRecordException&#13;&#10;      + FullyQualifiedErrorId : CommandNotFoundException&#13;&#10;   &#13;&#10;  &#10;assert 1 == 0&#10; +  where 1 = CompletedProcess(args=['powershell.exe', '-NoProfile', '-NonInteractive', '-File', 'C:\\Users\\Dawid\\Documents\\GitHu...ash:String) [], ParentContainsErrorRecordException\r\n    + FullyQualifiedErrorId : CommandNotFoundException\r\n \r\n&quot;).returncode">tmp_path = WindowsPath('C:/Users/Dawid/Documents/GitHub/inzynierka2/.r8-test-tmp/codex-full-fff469841cd04a27942eba7fddbb1b5a/test_changed_root_receipt_does0')
+
+    def test_changed_root_receipt_does_not_validate(tmp_path):
+        (tmp_path / 'requirements-windows.lock').write_bytes(b'fixture')
+&gt;       check_ps(tmp_path, ['Assert-LocalPath', 'New-RuntimeState', 'Save-RuntimeState', 'Read-RuntimeState'], f'''
+    $script:ProjectRoot={quote(tmp_path)}
+    $script:ReceiptPath=Join-Path $script:ProjectRoot 'runtime.json'
+    function Get-ConfiguredImageName {{ 'controlled:latest' }}
+    $contract=@{{Hash='fixture';Manifest=@{{release_id='fixture'}}}}
+    $expected=New-RuntimeState $contract
+    $state=New-RuntimeState $contract
+    $state.stage='wsl'; $state.needs_restart=$true; $state.restart_boot='fixture'
+    Save-RuntimeState $state
+    if ((Read-RuntimeState $expected).stage -ne 'wsl') {{ throw 'Valid fixture receipt could not be read' }}
+    $state.root=Join-Path $script:ProjectRoot 'foreign'
+    Save-RuntimeState $state
+    $rejected=$false
+    try {{ $null=Read-RuntimeState $expected }} catch {{ $rejected=$_.Exception.Message -like '*runtime.json: root*' }}
+    if (-not $rejected) {{ throw 'Foreign runtime root accepted' }}
+    ''')
+
+tests\test_portable_installers.py:370: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+tmp_path = WindowsPath('C:/Users/Dawid/Documents/GitHub/inzynierka2/.r8-test-tmp/codex-full-fff469841cd04a27942eba7fddbb1b5a/test_changed_root_receipt_does0')
+functions = ['Assert-LocalPath', 'New-RuntimeState', 'Save-RuntimeState', 'Read-RuntimeState']
+body = "\n$script:ProjectRoot='C:\\Users\\Dawid\\Documents\\GitHub\\inzynierka2\\.r8-test-tmp\\codex-full-fff469841cd04a27942...d=$_.Exception.Message -like '*runtime.json: root*' }\nif (-not $rejected) { throw 'Foreign runtime root accepted' }\n"
+
+    def check_ps(tmp_path, functions, body):
+        result = run_ps(tmp_path, functions, body)
+&gt;       assert result.returncode == 0, (result.stdout + result.stderr).decode('utf-8', errors='replace')
+E       AssertionError: __CONTROLLED_ENTERED__
+E         Get-FileHash : The term 'Get-FileHash' is not recognized as the name of a cmdlet, function, script file, or operable pr
+E         ogram. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+E         At C:\Users\Dawid\Documents\GitHub\inzynierka2\.r8-test-tmp\codex-full-fff469841cd04a27942eba7fddbb1b5a\test_changed_ro
+E         ot_receipt_does0\controlled-functions.ps1:36 char:35
+E         +         dependency_lock_sha256 = (Get-FileHash -LiteralPath $lock -Al ...
+E         +                                   ~~~~~~~~~~~~
+E             + CategoryInfo          : ObjectNotFound: (Get-FileHash:String) [], ParentContainsErrorRecordException
+E             + FullyQualifiedErrorId : CommandNotFoundException
+E          
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['powershell.exe', '-NoProfile', '-NonInteractive', '-File', 'C:\\Users\\Dawid\\Documents\\GitHu...ash:String) [], ParentContainsErrorRecordException\r\n    + FullyQualifiedErrorId : CommandNotFoundException\r\n \r\n").returncode
+
+tests\test_portable_installers.py:49: AssertionError</failure></testcase><testcase classname="tests.test_portable_installers" name="test_root_preflight_does_not_create_state_after_path_error[reparse]" time="0.615" /><testcase classname="tests.test_portable_installers" name="test_root_preflight_does_not_create_state_after_path_error[access-denied]" time="0.592" /><testcase classname="tests.test_portable_installers" name="test_disk_without_headroom_is_rejected" time="0.544" /><testcase classname="tests.test_portable_installers" name="test_venv_identity_matches_selected_python[3.12.9-base-False]" time="0.562" /><testcase classname="tests.test_portable_installers" name="test_venv_identity_matches_selected_python[3.14.1-base-False]" time="0.561" /><testcase classname="tests.test_portable_installers" name="test_venv_identity_matches_selected_python[3.13.16-foreign-False]" time="0.595" /><testcase classname="tests.test_portable_installers" name="test_venv_identity_matches_selected_python[3.13.16-base-True]" time="0.577" /><testcase classname="tests.test_post_audit_provenance" name="test_storage_bundle_roundtrip_preserves_manifest_and_legacy[False]" time="0.039" /><testcase classname="tests.test_post_audit_provenance" name="test_storage_bundle_roundtrip_preserves_manifest_and_legacy[True]" time="0.042" /><testcase classname="tests.test_post_audit_provenance" name="test_validation_failure_persists_unknown_environment_manifest" time="0.020" /><testcase classname="tests.test_post_audit_provenance" name="test_local_image_without_repo_digest_is_identified_not_error" time="0.001" /><testcase classname="tests.test_post_audit_provenance" name="test_unobserved_image_never_uses_container_id" time="0.001" /><testcase classname="tests.test_post_audit_provenance" name="test_experiment_manifest_marks_reuse_without_upgrading_legacy" time="0.003" /><testcase classname="tests.test_post_audit_provenance" name="test_snapshot_hash_identifies_copied_bytes" time="0.004" /><testcase classname="tests.test_post_audit_provenance" name="test_failed_session_keeps_actual_image_identity" time="0.028" /><testcase classname="tests.test_post_audit_provenance" name="test_stopped_runner_persists_attempt_manifest_without_invented_environment" time="0.023" /><testcase classname="tests.test_post_audit_provenance" name="test_manifest_records_observed_inputs_and_separates_actual_window" time="0.001" /><testcase classname="tests.test_post_audit_provenance" name="test_image_identity_is_not_container_id_or_mutable_tag" time="0.000" /><testcase classname="tests.test_post_audit_validity" name="test_invalid_packet_counters_cannot_certify_measurement[100-101]" time="0.005" /><testcase classname="tests.test_post_audit_validity" name="test_invalid_packet_counters_cannot_certify_measurement[-1--1]" time="0.004" /><testcase classname="tests.test_post_audit_validity" name="test_invalid_packet_counters_cannot_certify_measurement[100.5-100.5]" time="0.004" /><testcase classname="tests.test_post_audit_validity" name="test_invalid_packet_counters_cannot_certify_measurement[inf-1]" time="0.004" /><testcase classname="tests.test_post_audit_validity" name="test_invalid_packet_counters_cannot_certify_measurement[100-nan]" time="0.005" /><testcase classname="tests.test_post_audit_validity" name="test_counter_contradictions_block_qualification[overrides0]" time="0.005" /><testcase classname="tests.test_post_audit_validity" name="test_counter_contradictions_block_qualification[overrides1]" time="0.004" /><testcase classname="tests.test_post_audit_validity" name="test_counter_contradictions_block_qualification[overrides2]" time="0.004" /><testcase classname="tests.test_post_audit_validity" name="test_counter_contradictions_block_qualification[overrides3]" time="0.004" /><testcase classname="tests.test_post_audit_validity" name="test_zero_delivery_or_zero_energy_remains_readable[100-0-0-0]" time="0.005" /><testcase classname="tests.test_post_audit_validity" name="test_zero_delivery_or_zero_energy_remains_readable[0-100-10000000.0-None]" time="0.004" /><testcase classname="tests.test_post_audit_validity" name="test_scenario_csv_explicit_end_cannot_contradict_simtime" time="0.004" /><testcase classname="tests.test_post_audit_validity" name="test_literal_scenario_csv_normalizes_simtime_as_end" time="0.005" /><testcase classname="tests.test_post_audit_validity" name="test_no_provenance_cannot_certify_pair" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_declared_window_must_be_possible" time="0.005" /><testcase classname="tests.test_post_audit_validity" name="test_consistency_requires_positive_evidence[0-None]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_consistency_requires_positive_evidence[0-False]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_consistency_requires_positive_evidence[1-None]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_consistency_requires_positive_evidence[1-False]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_consistency_requires_positive_evidence[both-None]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_consistency_requires_positive_evidence[both-False]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_complete_pair_preserves_material_verdict[80-improved]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_complete_pair_preserves_material_verdict[100-no_improvement]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_complete_pair_preserves_material_verdict[120-no_improvement]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_missing_shared_definition_is_unknown[simulator_source]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_missing_shared_definition_is_unknown[data_layer]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_missing_shared_definition_is_unknown[packet_loss_definition]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_missing_shared_definition_is_unknown[qos_source]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_missing_shared_definition_is_unknown[accounting_source]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_missing_shared_definition_is_unknown[measurement_start_s]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_missing_shared_definition_is_unknown[measurement_end_s]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_missing_shared_definition_is_unknown[energy_scope]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_comparison_does_not_trust_invalid_window_marker[nan-measurement_start_s]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_comparison_does_not_trust_invalid_window_marker[nan-measurement_end_s]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_comparison_does_not_trust_invalid_window_marker[nan-measurement_duration_s]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_comparison_does_not_trust_invalid_window_marker[inf-measurement_start_s]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_comparison_does_not_trust_invalid_window_marker[inf-measurement_end_s]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_comparison_does_not_trust_invalid_window_marker[inf-measurement_duration_s]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_comparison_does_not_trust_invalid_window_marker[-inf-measurement_start_s]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_comparison_does_not_trust_invalid_window_marker[-inf-measurement_end_s]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_comparison_does_not_trust_invalid_window_marker[-inf-measurement_duration_s]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_qos_other_source_requires_possible_window" time="0.005" /><testcase classname="tests.test_post_audit_validity" name="test_parser_rejects_unknown_or_nonfinite_window[None-measurement_start_s]" time="0.004" /><testcase classname="tests.test_post_audit_validity" name="test_parser_rejects_unknown_or_nonfinite_window[None-measurement_end_s]" time="0.005" /><testcase classname="tests.test_post_audit_validity" name="test_parser_rejects_unknown_or_nonfinite_window[None-measurement_duration_s]" time="0.005" /><testcase classname="tests.test_post_audit_validity" name="test_parser_rejects_unknown_or_nonfinite_window[nan-measurement_start_s]" time="0.004" /><testcase classname="tests.test_post_audit_validity" name="test_parser_rejects_unknown_or_nonfinite_window[nan-measurement_end_s]" time="0.005" /><testcase classname="tests.test_post_audit_validity" name="test_parser_rejects_unknown_or_nonfinite_window[nan-measurement_duration_s]" time="0.004" /><testcase classname="tests.test_post_audit_validity" name="test_parser_rejects_unknown_or_nonfinite_window[inf-measurement_start_s]" time="0.005" /><testcase classname="tests.test_post_audit_validity" name="test_parser_rejects_unknown_or_nonfinite_window[inf-measurement_end_s]" time="0.004" /><testcase classname="tests.test_post_audit_validity" name="test_parser_rejects_unknown_or_nonfinite_window[inf-measurement_duration_s]" time="0.005" /><testcase classname="tests.test_post_audit_validity" name="test_parser_rejects_unknown_or_nonfinite_window[-inf-measurement_start_s]" time="0.005" /><testcase classname="tests.test_post_audit_validity" name="test_parser_rejects_unknown_or_nonfinite_window[-inf-measurement_end_s]" time="0.004" /><testcase classname="tests.test_post_audit_validity" name="test_parser_rejects_unknown_or_nonfinite_window[-inf-measurement_duration_s]" time="0.005" /><testcase classname="tests.test_post_audit_validity" name="test_parser_rejects_contradictory_window[20-10-10]" time="0.005" /><testcase classname="tests.test_post_audit_validity" name="test_parser_rejects_contradictory_window[0-10-8]" time="0.005" /><testcase classname="tests.test_post_audit_validity" name="test_parser_rejects_contradictory_window[0-0-0]" time="0.004" /><testcase classname="tests.test_post_audit_validity" name="test_rates_use_actual_measurement_length_not_simtime[0-12]" time="0.005" /><testcase classname="tests.test_post_audit_validity" name="test_rates_use_actual_measurement_length_not_simtime[2-10]" time="0.005" /><testcase classname="tests.test_post_audit_validity" name="test_missing_provenance_component_is_unknown[0-runtime]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_missing_provenance_component_is_unknown[0-scenario_source]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_missing_provenance_component_is_unknown[0-clock]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_missing_provenance_component_is_unknown[1-runtime]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_missing_provenance_component_is_unknown[1-scenario_source]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_missing_provenance_component_is_unknown[1-clock]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_missing_provenance_component_is_unknown[both-runtime]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_missing_provenance_component_is_unknown[both-scenario_source]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_missing_provenance_component_is_unknown[both-clock]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_different_measurement_definitions_do_not_certify_pair[accounting_source-other.csv]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_different_measurement_definitions_do_not_certify_pair[measurement_start_s-2]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_different_measurement_definitions_do_not_certify_pair[measurement_end_s-12]" time="0.001" /><testcase classname="tests.test_post_audit_validity" name="test_different_measurement_definitions_do_not_certify_pair[measurement_duration_s-8]" time="0.001" /><testcase classname="tests.test_queue_timing" name="test_total_budget_gives_every_run_the_same_real_limit_without_copying_sim_time" time="0.054" /><testcase classname="tests.test_queue_timing" name="test_total_budget_starts_next_run_without_any_ns3_time_observation" time="0.060" /><testcase classname="tests.test_queue_timing" name="test_total_budget_records_metrics_csv_as_observation_only" time="0.054" /><testcase classname="tests.test_queue_timing" name="test_total_budget_runs_remaining_items_when_first_run_fails" time="0.055" /><testcase classname="tests.test_queue_timing" name="test_queue_attempts_next_run_when_previous_cleanup_cannot_be_confirmed" time="0.054" /><testcase classname="tests.test_queue_timing" name="test_queue_time_budget_config_is_opt_in" time="0.000" /><testcase classname="tests.test_queue_timing" name="test_setting_budget_immediately_exposes_per_run_plan_and_finish_date" time="0.017" /><testcase classname="tests.test_queue_timing" name="test_queue_finish_estimate_adds_only_observed_real_setup_overhead" time="0.023" /><testcase classname="tests.test_queue_timing" name="test_runner_real_time_cutoff_is_not_reported_as_user_stop[-15]" time="0.021" /><testcase classname="tests.test_queue_timing" name="test_runner_real_time_cutoff_is_not_reported_as_user_stop[143]" time="0.015" /><testcase classname="tests.test_queue_timing" name="test_runner_real_time_cutoff_is_not_reported_as_user_stop[15]" time="0.015" /><testcase classname="tests.test_queue_timing" name="test_runner_real_time_cutoff_is_not_reported_as_user_stop[-9]" time="0.015" /><testcase classname="tests.test_queue_timing" name="test_runner_real_time_cutoff_is_not_reported_as_user_stop[137]" time="0.016" /><testcase classname="tests.test_queue_timing" name="test_runner_real_time_cutoff_is_not_reported_as_user_stop[9]" time="0.030" /><testcase classname="tests.test_queue_timing" name="test_runner_hard_stops_every_budgeted_run_when_no_live_measurement_is_available" time="0.357" /><testcase classname="tests.test_release_dependencies" name="test_requirements_entry_enforces_hashed_windows_lock[requirements.txt-requirements-windows.lock]" time="0.001" /><testcase classname="tests.test_release_dependencies" name="test_requirements_entry_enforces_hashed_windows_lock[requirements-dev.txt-requirements-dev-windows.lock]" time="0.001" /><testcase classname="tests.test_release_dependencies" name="test_launcher_does_not_select_shared_appdata_environment" time="0.001" /><testcase classname="tests.test_result_bundle" name="test_full_result_bundle_round_trip_keeps_actual_artifacts_and_avoids_id_collision" time="0.059" /><testcase classname="tests.test_result_bundle" name="test_delete_moves_run_to_restore_bin_and_restore_preserves_results" time="0.042" /><testcase classname="tests.test_result_bundle" name="test_trash_fallback_identifier_with_uuid_is_still_confined_to_the_trash_root" time="0.017" /><testcase classname="tests.test_result_bundle" name="test_artifact_preview_is_bounded_and_cannot_escape_run_directory" time="0.022" /><testcase classname="tests.test_result_bundle" name="test_import_refuses_path_traversal_before_writing_files" time="0.019" /><testcase classname="tests.test_results_parser" name="test_parser_reads_saved_metrics_and_keeps_missing_delay_as_na" time="0.006" /><testcase classname="tests.test_results_parser" name="test_parser_prefers_summary_definition_when_available" time="0.006" /><testcase classname="tests.test_results_parser" name="test_parser_prefers_scenario_summary_over_raw_timeseries" time="0.006" /><testcase classname="tests.test_results_parser" name="test_parser_reads_quality_metrics_only_when_saved" time="0.005" /><testcase classname="tests.test_results_parser" name="test_parser_reads_real_flowmonitor_quality_from_full_ee_timeseries" time="0.006" /><testcase classname="tests.test_results_parser" name="test_parser_uses_complete_metrics_csv_when_ee_timeseries_is_missing" time="0.006" /><testcase classname="tests.test_results_parser" name="test_parser_uses_metrics_csv_only_for_missing_ee_series" time="0.006" /><testcase classname="tests.test_results_parser" name="test_parser_derives_average_throughput_from_summary_not_last_interval" time="0.006" /><testcase classname="tests.test_results_parser" name="test_parser_reads_legacy_summary_and_analysis_files" time="0.006" /><testcase classname="tests.test_results_parser" name="test_final_ns3_summary_restores_all_kpis_and_packet_weighted_delay" time="0.006" /><testcase classname="tests.test_results_parser" name="test_average_throughput_uses_cumulative_delivery_not_last_interval" time="0.005" /><testcase classname="tests.test_results_parser" name="test_explicit_measurement_window_prevents_mixing_warmup_and_active_time" time="0.006" /><testcase classname="tests.test_results_parser" name="test_zero_delivered_data_does_not_claim_zero_cost_or_delay[0-None]" time="0.006" /><testcase classname="tests.test_results_parser" name="test_zero_delivered_data_does_not_claim_zero_cost_or_delay[100-100.0]" time="0.006" /><testcase classname="tests.test_results_parser" name="test_bom_and_truncated_last_csv_record_do_not_erase_valid_measurement" time="0.005" /><testcase classname="tests.test_results_parser" name="test_energy_copies_are_not_double_counted_and_cell_times_must_match" time="0.010" /><testcase classname="tests.test_results_parser" name="test_historical_flowmonitor_zero_rx_does_not_claim_total_loss_when_udp_received" time="0.005" /><testcase classname="tests.test_results_parser" name="test_invalid_metrics_and_inconsistent_efficiency_are_not_presented_as_valid" time="0.005" /><testcase classname="tests.test_results_parser" name="test_historical_simplified_simulator_is_labeled" time="0.005" /><testcase classname="tests.test_results_parser" name="test_accounting_metadata_follows_the_selected_complete_source" time="0.006" /><testcase classname="tests.test_results_parser" name="test_qos_from_a_different_window_cannot_certify_energy_improvement" time="0.006" /><testcase classname="tests.test_runner_artifacts" name="test_runner_collects_summary_and_quality_artifacts" time="0.000" /><testcase classname="tests.test_runner_artifacts" name="test_archive_places_summary_files_where_parser_reads_them" time="0.009" /><testcase classname="tests.test_runner_lifecycle" name="test_runner_does_not_clear_stop_requested_before_single_run" time="0.002" /><testcase classname="tests.test_runner_lifecycle" name="test_runner_retries_one_failed_run_after_confirmed_session_cleanup" time="0.006" /><testcase classname="tests.test_runner_lifecycle" name="test_run_launches_ns3_with_user_environment_without_docker_user_override" time="0.006" /><testcase classname="tests.test_runner_lifecycle" name="test_xapp_exhaustion_does_not_stop_ns3" time="0.035" /><testcase classname="tests.test_runner_lifecycle" name="test_ns3_exit_during_xapp_restart_keeps_its_actual_exit_code[0]" time="0.061" /><testcase classname="tests.test_runner_lifecycle" name="test_ns3_exit_during_xapp_restart_keeps_its_actual_exit_code[134]" time="0.047" /><testcase classname="tests.test_runner_lifecycle" name="test_failed_docker_start_preserves_cleanup_identity_and_discards_previous_live_state" time="0.025" /><testcase classname="tests.test_runner_lifecycle" name="test_zero_delivery_is_a_valid_measured_outcome" time="0.005" /><testcase classname="tests.test_runner_lifecycle" name="test_xapp_restart_uses_a_new_decision_log_file" time="0.045" /><testcase classname="tests.test_runner_lifecycle" name="test_readiness_wait_publishes_live_data_before_e2_is_ready" time="0.015" /><testcase classname="tests.test_runner_lifecycle" name="test_normal_ns3_exit_publishes_a_final_live_snapshot" time="0.030" /><testcase classname="tests.test_runner_lifecycle" name="test_live_snapshot_uses_actual_timeseries_and_structured_event" time="0.003" /><testcase classname="tests.test_runner_lifecycle" name="test_live_snapshot_prefers_full_metrics_csv_over_direct_ee_series" time="0.003" /><testcase classname="tests.test_runner_lifecycle" name="test_live_snapshot_falls_back_when_metrics_csv_has_blank_core_values" time="0.002" /><testcase classname="tests.test_runner_lifecycle" name="test_live_snapshot_adds_only_reported_kpm_quality_data" time="0.003" /><testcase classname="tests.test_runner_lifecycle" name="test_live_snapshot_includes_only_real_xapp_decision_csv_records" time="0.003" /><testcase classname="tests.test_runner_lifecycle" name="test_live_snapshot_marks_a_required_primary_series_while_waiting" time="0.002" /><testcase classname="tests.test_runner_lifecycle" name="test_required_live_artifact_is_verified_before_completed_status" time="0.005" /><testcase classname="tests.test_runner_lifecycle" name="test_required_live_artifact_accepts_complete_metrics_csv" time="0.005" /><testcase classname="tests.test_runner_lifecycle" name="test_required_live_artifact_cannot_be_silently_replaced_by_energy_only" time="0.005" /><testcase classname="tests.test_runner_lifecycle" name="test_live_snapshot_keeps_polling_timeseries_after_choosing_it" time="0.003" /><testcase classname="tests.test_runner_lifecycle" name="test_live_snapshot_uses_real_energy_file_fallback_without_inventing_traffic" time="0.003" /><testcase classname="tests.test_runner_lifecycle" name="test_live_snapshot_includes_only_real_reported_topology" time="0.003" /><testcase classname="tests.test_runner_recovery" name="test_packaged_xapp_is_rebuilt_before_a_binary_is_selected[0]" time="0.007" /><testcase classname="tests.test_runner_recovery" name="test_packaged_xapp_is_rebuilt_before_a_binary_is_selected[2]" time="0.006" /><testcase classname="tests.test_runner_recovery" name="test_managed_process_launches_in_a_separate_process_group" time="0.007" /><testcase classname="tests.test_runner_recovery" name="test_closed_log_stream_keeps_process_alive_until_docker_confirms_exit" time="0.258" /><testcase classname="tests.test_runner_recovery" name="test_incomplete_exec_inspection_is_a_monitoring_error[inspection0]" time="0.004" /><testcase classname="tests.test_runner_recovery" name="test_incomplete_exec_inspection_is_a_monitoring_error[inspection1]" time="0.004" /><testcase classname="tests.test_runner_recovery" name="test_group_leader_forwards_the_child_exit_code[0]" time="0.000"><skipped type="pytest.skip" message="Real POSIX process groups require Linux/setsid">C:\Users\Dawid\Documents\GitHub\inzynierka2\tests\test_runner_recovery.py:143: Real POSIX process groups require Linux/setsid</skipped></testcase><testcase classname="tests.test_runner_recovery" name="test_group_leader_forwards_the_child_exit_code[23]" time="0.000"><skipped type="pytest.skip" message="Real POSIX process groups require Linux/setsid">C:\Users\Dawid\Documents\GitHub\inzynierka2\tests\test_runner_recovery.py:143: Real POSIX process groups require Linux/setsid</skipped></testcase><testcase classname="tests.test_runner_recovery" name="test_two_runs_stop_the_wrapper_and_its_child_and_release_streams[False]" time="0.000"><skipped type="pytest.skip" message="Real POSIX process groups require Linux/setsid">C:\Users\Dawid\Documents\GitHub\inzynierka2\tests\test_runner_recovery.py:187: Real POSIX process groups require Linux/setsid</skipped></testcase><testcase classname="tests.test_runner_recovery" name="test_two_runs_stop_the_wrapper_and_its_child_and_release_streams[True]" time="0.000"><skipped type="pytest.skip" message="Real POSIX process groups require Linux/setsid">C:\Users\Dawid\Documents\GitHub\inzynierka2\tests\test_runner_recovery.py:187: Real POSIX process groups require Linux/setsid</skipped></testcase><testcase classname="tests.test_scenario_service" name="test_service_saves_only_backend_supported_configuration" time="0.006" /><testcase classname="tests.test_scenario_service" name="test_service_duplicate_update_export_import_and_delete" time="0.014" /><testcase classname="tests.test_scenario_service" name="test_import_rejects_bad_json" time="0.004" /><testcase classname="tests.test_scenario_sync" name="test_sync_skips_identical_source" time="0.005" /><testcase classname="tests.test_scenario_sync" name="test_sync_copies_changed_source_and_verifies_digest" time="0.005" /><testcase classname="tests.test_scenario_sync" name="test_source_declaration_detects_the_real_live_timeseries_markers" time="0.005" /><testcase classname="tests.test_scenario_sync" name="test_fresh_image_can_receive_packaged_scenario_before_discovery_lists_it" time="0.001" /><testcase classname="tests.test_scenario_sync" name="test_runner_forces_the_synced_scratch_target_to_build_before_running" time="0.000" /><testcase classname="tests.test_scenario_sync" name="test_runner_rejects_a_failed_or_outside_synced_scenario_build" time="0.000" /><testcase classname="tests.test_storage_and_session" name="test_storage_saves_configuration_and_result" time="0.021" /><testcase classname="tests.test_storage_and_session" name="test_retry_preparation_preserves_failed_artifacts_and_clears_active_run" time="0.031" /><testcase classname="tests.test_storage_and_session" name="test_suggested_configuration_name_does_not_require_typed_name" time="0.001" /><testcase classname="tests.test_storage_and_session" name="test_configuration_import_export_library_keeps_names_and_avoids_overwrite" time="0.024" /><testcase classname="tests.test_storage_and_session" name="test_queue_continues_after_a_failed_simulation" time="0.038" /><testcase classname="tests.test_storage_and_session" name="test_three_simulations_are_run_in_tab_order" time="0.045" /><testcase classname="tests.test_storage_and_session" name="test_failed_preflight_still_returns_queue_to_idle" time="0.023" /><testcase classname="tests.test_storage_and_session" name="test_unhandled_runner_error_does_not_abandon_the_second_run" time="0.083" /><testcase classname="tests.test_storage_and_session" name="test_raising_preflight_returns_queue_to_idle" time="0.017" /><testcase classname="tests.test_storage_and_session" name="test_rerun_creates_new_identifier_without_replacing_previous_result" time="0.036" /><testcase classname="tests.test_storage_and_session" name="test_validation_rejects_fractional_ns3_integer_parameters" time="0.001" /><testcase classname="tests.test_storage_and_session" name="test_validation_uses_scenario_minimum_simulation_time" time="0.000" /><testcase classname="tests.test_storage_and_session" name="test_validation_rejects_non_finite_numbers" time="0.000" /><testcase classname="tests.test_storage_and_session" name="test_validation_rejects_xapp_environment_not_declared_by_selected_xapp" time="0.000" /><testcase classname="tests.test_topology_view" name="test_parse_topology_artifacts_uses_latest_real_positions_and_serving_cell" time="0.005" /><testcase classname="tests.test_topology_view" name="test_planned_topology_only_draws_known_gnb_geometry_without_fake_ues" time="0.000" /><testcase classname="tests.test_topology_view" name="test_payload_keeps_missing_serving_cell_missing_instead_of_selecting_nearest" time="0.000" /><testcase classname="tests.test_topology_view" name="test_payload_keeps_only_reported_bounded_ue_trail" time="0.001" /><testcase classname="tests.test_topology_view" name="test_zoom_viewport_keeps_point_under_cursor_and_enforces_smallest_span" time="0.000" /><testcase classname="tests.test_topology_view" name="test_pan_viewport_preserves_scale_and_normalize_handles_point_bounds" time="0.000" /><testcase classname="tests.test_validation_backend" name="test_rejects_values_the_backend_cannot_handle[UdpPacketSizeBytes-11]" time="0.001" /><testcase classname="tests.test_validation_backend" name="test_rejects_values_the_backend_cannot_handle[UdpPacketSizeBytes-65508]" time="0.001" /><testcase classname="tests.test_validation_backend" name="test_rejects_values_the_backend_cannot_handle[numberOfRaPreambles-3]" time="0.001" /><testcase classname="tests.test_validation_backend" name="test_rejects_values_the_backend_cannot_handle[numberOfRaPreambles-65]" time="0.001" /><testcase classname="tests.test_validation_backend" name="test_rejects_values_the_backend_cannot_handle[numberOfRaPreambles-4.5]" time="0.001" /><testcase classname="tests.test_validation_backend" name="test_rejects_values_the_backend_cannot_handle[bufferSize-4096]" time="0.001" /><testcase classname="tests.test_validation_backend" name="test_rejects_values_the_backend_cannot_handle[N_Ues-513]" time="0.001" /><testcase classname="tests.test_validation_backend" name="test_rejects_values_the_backend_cannot_handle[indicationPeriodicity-0]" time="0.001" /><testcase classname="tests.test_validation_backend" name="test_rejects_values_the_backend_cannot_handle[DrainTime_s--1]" time="0.001" /><testcase classname="tests.test_validation_backend" name="test_rejects_values_the_backend_cannot_handle[TrafficStart_s-inf]" time="0.001" /><testcase classname="tests.test_validation_backend" name="test_drain_and_traffic_start_must_leave_positive_generation_time" time="0.000" /><testcase classname="tests.test_validation_backend" name="test_backend_minimum_simulation_time_is_inclusive" time="0.000" /><testcase classname="tests.test_validation_backend" name="test_xapp_requires_live_e2_and_addressable_cell_ids" time="0.000" /><testcase classname="tests.test_validation_backend" name="test_age_zero_is_not_a_valid_freshness_policy" time="0.000" /><testcase classname="tests.test_xapp_decisions" name="test_energy_xapp_decision_history_is_real_bounded_and_deduplicated" time="0.001" /><testcase classname="tests.test_xapp_decisions" name="test_ml_xapp_time_in_microseconds_is_converted_without_inventing_fields" time="0.001" /><testcase classname="tests.test_xapp_service" name="test_custom_xapp_is_copied_from_actual_my_energy_source" time="0.011" /><testcase classname="tests.test_xapp_service" name="test_two_custom_xapps_with_same_name_have_different_cmake_targets" time="0.014" /><testcase classname="tests.test_xapp_service" name="test_orange_is_not_marked_buildable_without_a_local_source" time="0.006" /><testcase classname="tests.test_xapp_service" name="test_cmake_script_uses_the_existing_flexric_target_shape" time="0.005" /><testcase classname="tests.test_xapp_service" name="test_built_custom_xapp_keeps_its_source_and_build_status" time="0.015" /><testcase classname="tests.test_xapp_service" name="test_existing_target_directory_is_preferred_over_the_fallback" time="0.005" /><testcase classname="tests.test_xapp_service" name="test_duplicate_existing_target_is_rejected_before_build" time="0.005" /><testcase classname="tests.test_xapp_service" name="test_generated_cmake_patch_adds_real_newlines_and_is_idempotent" time="0.396" /></testsuite></testsuites>

@@ -1,0 +1,8 @@
+{
+  "scenario": "optimized",
+  "parameters": {
+    "simTime": 12
+  },
+  "xapp": "none",
+  "xapp_environment": {}
+}

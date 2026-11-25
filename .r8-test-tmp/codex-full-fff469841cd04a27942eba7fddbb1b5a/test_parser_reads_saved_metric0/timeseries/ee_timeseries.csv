@@ -1,0 +1,2 @@
+Time_s,DeliveredBits,TotalEnergy_J,IntervalPower_W,IntervalThroughput_bps
+10,12000000,600,60,1200000

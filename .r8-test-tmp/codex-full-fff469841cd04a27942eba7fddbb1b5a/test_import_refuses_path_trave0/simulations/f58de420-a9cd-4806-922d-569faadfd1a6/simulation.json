@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0",
+  "id": "f58de420-a9cd-4806-922d-569faadfd1a6",
+  "name": "Run do eksportu",
+  "configuration": {
+    "scenario": "optimized",
+    "parameters": {
+      "simTime": 60,
+      "N_Ues": 4
+    },
+    "xapp": "none",
+    "xapp_environment": {}
+  },
+  "status": "COMPLETED",
+  "created_at": "2026-11-25T10:55:31.177173+00:00",
+  "started_at": null,
+  "ended_at": null,
+  "runtime": {},
+  "result": {
+    "metrics": {
+      "total_energy_j": 120.0,
+      "delivered_mbit": 5.0
+    },
+    "quality": {},
+    "series": {
+      "energy_j": [
+        {
+          "x": 1.0,
+          "y": 2.0
+        }
+      ]
+    },
+    "sources": {},
+    "warnings": [],
+    "metadata": {}
+  },
+  "error": null,
+  "log_path": "C:\\Users\\Dawid\\Documents\\GitHub\\inzynierka2\\.r8-test-tmp\\codex-full-fff469841cd04a27942eba7fddbb1b5a\\test_import_refuses_path_trave0\\simulations\\f58de420-a9cd-4806-922d-569faadfd1a6\\logs\\runner.log"
+}

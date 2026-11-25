@@ -1,0 +1,9 @@
+{
+  "lab": {"simulator_image": "wcnc_tap"},
+  "readiness": {"ric_port": 36421},
+  "xapps": {
+    "none": {"label": "Wyłączony"},
+    "optimized": {"label": "My Energy", "executable": "./xapp_my_energy_optimized", "parameters": {"EE_DECISION_PERIOD_SEC": {"default": 5}}},
+    "orange": {"label": "Orange", "executable": "./xapp_es_with_cell_util"}
+  }
+}

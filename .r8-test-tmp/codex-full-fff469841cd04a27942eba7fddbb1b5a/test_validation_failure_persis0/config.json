@@ -1,0 +1,216 @@
+{
+  "lab": {
+    "simulator_image": "wcnc_tap"
+  },
+  "queue_timing": {
+    "enabled": false,
+    "total_real_time_s": null
+  },
+  "scenarios": {
+    "optimized": {
+      "label": "My Energy",
+      "path": "scratch/my_energy_scenario_optimized.cc",
+      "requires_live_timeseries": true,
+      "minimum_sim_time_s": 0.2,
+      "allowed_params": [
+        "simTime",
+        "TrafficStart_s",
+        "DrainTime_s",
+        "RngRun",
+        "N_MmWaveEnbNodes",
+        "N_Ues",
+        "Bandwidth",
+        "CenterFrequency",
+        "indicationPeriodicity",
+        "UdpPacketSizeBytes",
+        "UdpIntervalUs",
+        "IntersideDistanceUEs",
+        "IntersideDistanceCells",
+        "e2TermIp",
+        "KPM_E2functionID",
+        "RC_E2functionID",
+        "e2nrEnabled",
+        "e2lteEnabled",
+        "enableE2FileLogging",
+        "bufferSize",
+        "enableTraces",
+        "outageThreshold",
+        "numberOfRaPreambles",
+        "e2du",
+        "e2cuUp",
+        "e2cuCp",
+        "reducedPmValues",
+        "controlFileName",
+        "CellLayout"
+      ]
+    },
+    "orange_cell_util": {
+      "label": "Orange — wykorzystanie komórki",
+      "path": "scratch/Energy_saving_with_cell_utilization_scenario.cc",
+      "allowed_params": [
+        "simTime",
+        "RngRun",
+        "e2TermIp",
+        "KPM_E2functionID",
+        "RC_E2functionID",
+        "e2nrEnabled",
+        "e2lteEnabled",
+        "enableE2FileLogging",
+        "indicationPeriodicity"
+      ]
+    },
+    "orange_load_balancing": {
+      "label": "Orange — równoważenie obciążenia",
+      "path": "scratch/Energy_Saving_with_load_balancing_scenario.cc",
+      "allowed_params": [
+        "simTime",
+        "RngRun",
+        "e2TermIp",
+        "KPM_E2functionID",
+        "RC_E2functionID",
+        "e2nrEnabled",
+        "e2lteEnabled",
+        "enableE2FileLogging",
+        "indicationPeriodicity"
+      ]
+    }
+  },
+  "xapps": {
+    "none": {
+      "label": "Wyłączony"
+    },
+    "optimized": {
+      "label": "My Energy",
+      "executable": "./xapp_my_energy_optimized",
+      "parameters": {
+        "EE_MIN_TARGET_SINR_DB": {
+          "label": "Minimalny SINR celu",
+          "description": "Minimalny SINR komórki docelowej używany przez politykę xAppa.",
+          "type": "float",
+          "unit": "dB",
+          "default": 0.0
+        },
+        "EE_MIN_HANDOVER_GAIN_DB": {
+          "label": "Minimalny zysk handover",
+          "description": "Minimalna różnica SINR używana przy ocenie handover.",
+          "type": "float",
+          "unit": "dB",
+          "default": -3.0
+        },
+        "EE_MAX_UES_FOR_SHUTDOWN": {
+          "label": "Maks. UE dla wyłączenia",
+          "description": "Maksymalna liczba UE, przy której komórka może zostać wyłączona.",
+          "type": "integer",
+          "default": 1
+        },
+        "EE_MAX_UES_ON_TARGET": {
+          "label": "Maks. UE w komórce docelowej",
+          "description": "Górny limit UE w komórce docelowej decyzji.",
+          "type": "integer",
+          "default": 64
+        },
+        "EE_STABLE_REPORTS": {
+          "label": "Stabilne raporty low-load",
+          "description": "Liczba kolejnych raportów wymaganych przez politykę.",
+          "type": "integer",
+          "default": 3
+        },
+        "EE_REQUIRED_NEIGHBOR_SAMPLES": {
+          "label": "Próbki sąsiadów",
+          "description": "Liczba wymaganych próbek sąsiednich komórek.",
+          "type": "integer",
+          "default": 3
+        },
+        "EE_SHUTDOWN_CONFIRMATION_SEC": {
+          "label": "Potwierdzenie wyłączenia",
+          "description": "Czas potwierdzania wyłączenia komórki.",
+          "type": "integer",
+          "unit": "s ns-3",
+          "default": 5
+        },
+        "EE_SHUTDOWN_TIMEOUT_SEC": {
+          "label": "Timeout wyłączenia",
+          "description": "Maksymalny czas oczekiwania na wyłączenie komórki.",
+          "type": "integer",
+          "unit": "s ns-3",
+          "default": 30
+        },
+        "EE_CELL_SWITCH_COOLDOWN_SEC": {
+          "label": "Cooldown przełączenia",
+          "description": "Czas przerwy przed kolejnym przełączeniem stanu komórki.",
+          "type": "integer",
+          "unit": "s ns-3",
+          "default": 60
+        },
+        "EE_PROTECTED_CELL_ID": {
+          "label": "Chroniona komórka",
+          "description": "Identyfikator komórki, której polityka nie wyłącza.",
+          "type": "integer",
+          "default": 0
+        },
+        "EE_DECISION_PERIOD_SEC": {
+          "label": "Okres decyzji",
+          "description": "Odstęp między kolejnymi ocenami polityki xAppa.",
+          "type": "integer",
+          "unit": "s ns-3",
+          "default": 1
+        },
+        "EE_WAIT_FOR_E2_SEC": {
+          "label": "Oczekiwanie na E2",
+          "description": "Maksymalny czas oczekiwania xAppa na węzeł E2.",
+          "type": "integer",
+          "unit": "s",
+          "default": 30
+        },
+        "EE_KPM_MAX_AGE_SEC": {
+          "label": "Maksymalny wiek raportu KPM",
+          "description": "Odrzuca nieaktualne raporty serving i sąsiadów przed decyzją o handover lub wyłączeniu.",
+          "type": "integer",
+          "unit": "s ns-3",
+          "minimum": 1,
+          "default": 5
+        },
+        "EE_DRY_RUN": {
+          "label": "Tryb dry-run",
+          "description": "Zapisuje decyzje bez wysyłania polecenia wyłączenia.",
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "orange": {
+      "label": "Orange Energy Saving",
+      "executable": "./xapp_es_with_cell_util"
+    }
+  },
+  "readiness": {
+    "ric_port": 36421,
+    "ric_timeout_s": 30,
+    "ric_log_required": false,
+    "ric_log_grace_s": 2,
+    "ric_log_patterns": [
+      "nearRT-RIC",
+      "listening",
+      "server.*started"
+    ],
+    "e2_timeout_s": 180,
+    "e2_setup_patterns": [
+      "E2[- ]SETUP[- ]REQUEST",
+      "Sent E2-SETUP-REQUEST"
+    ],
+    "e2_node_patterns": [
+      "SETUP[- ]RESPONSE[- ]SUCCESS",
+      "Received SETUP-RESPONSE-SUCCESS",
+      "registered.*node",
+      "E2 node.*registered"
+    ]
+  },
+  "runtime": {
+    "stop_timeout_s": 5,
+    "wall_clock_timeout_s": 1800,
+    "xapp_max_restarts": 3,
+    "xapp_restart_delay_s": 2,
+    "live_poll_interval_s": 1,
+    "container_poll_interval_s": 2
+  }
+}
